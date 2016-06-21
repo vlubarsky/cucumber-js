@@ -1,18 +1,18 @@
-var Command = require('commander').Command;
-var path = require('path');
+import {Command} from 'commander'
+import path from 'path'
 
-class ArgvParser {
+export default class ArgvParser {
   constructor (argv) {
-    this.argv = argv;
+    this.argv = argv
   }
 
   parse () {
     function collect(val, memo) {
-      memo.push(val);
-      return memo;
+      memo.push(val)
+      return memo
     }
 
-    const program = new Command(path.basename(this.argv[1]));
+    const program = new Command(path.basename(this.argv[1]))
 
     program
       .usage('[options] [<DIR|FILE[:LINE]>...]')
@@ -28,19 +28,17 @@ class ArgvParser {
       .option('-r, --require <FILE|DIR>', 'require files before executing features (repeatable)', collect, [])
       .option('--snippet-syntax <FILE>', 'specify a custom snippet syntax')
       .option('-S, --strict', 'fail if there are any undefined or pending steps')
-      .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression (repeatable)', collect, []);
+      .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression (repeatable)', collect, [])
 
     program.on('--help', function(){
-      console.log('  For more details please visit https://github.com/cucumber/cucumber-js#cli\n');
-    });
+      console.log('  For more details please visit https://github.com/cucumber/cucumber-js#cli\n')
+    })
 
-    program.parse(this.argv);
+    program.parse(this.argv)
 
     return {
       options: program.opts(),
       args: program.args
-    };
+    }
   }
 }
-
-module.exports = ArgvParser;
