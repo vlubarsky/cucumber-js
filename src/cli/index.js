@@ -18,7 +18,7 @@ export default class Cli {
       const fullArgv = _.concat this.argv.slice(0, 2), profileArgv, this.argv.slice(2)
       let {args, options} = new ArgvParser(fullArgv).parse()
     }
-    return new Configuration({args, options})
+    return new Configuration({args, cwd: this.cwd, options})
   }
 
   run() {

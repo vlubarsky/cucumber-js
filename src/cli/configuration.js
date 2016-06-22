@@ -7,7 +7,7 @@ import SupportCodeLoader from './support_code_loader'
 
 
 export default class Configuration {
-  constructor ({args, options}) {
+  constructor ({args, cwd, options}) {
     this.args = args
     this.options = options
   }
@@ -32,7 +32,8 @@ export default class Configuration {
         promises = this.args.map(async function (arg) {
           var filename = path.basename(arg)
           if (filename[0] === '@') {
-            var content = await fs.readFile(arg, 'utf8')
+            const filePath = path.join(cwd, arg)
+            const content = await fs.readFile(filePath, 'utf8')
             this.unexpandedFeaturePaths = this.unexpandedFeaturePaths.concat(content.split('\n'))
           } else {
             this.unexpandedFeaturePaths.push(arg)
