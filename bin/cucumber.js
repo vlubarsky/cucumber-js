@@ -1,7 +1,12 @@
 #!/usr/bin/env node
-var Cucumber = require('../lib/cucumber');
-var cli = Cucumber.Cli(process.argv);
-cli.run(function (succeeded) {
+
+var Cli = require('../lib/cucumber/cli');
+var cli = new Cli({
+  argv: process.argv,
+  cwd: process.cwd()
+});
+
+cli.run().then(function(success) {
   var code = succeeded ? 0 : 1;
 
   function exitNow() {
@@ -14,4 +19,8 @@ cli.run(function (succeeded) {
     // write() returned false, kernel buffer is not empty yet...
     process.stdout.on('drain', exitNow);
   }
+}).catch(function(err) {
+  process.nextTick(function(){
+    throw err;
+  });
 });

@@ -73,14 +73,12 @@ export default class Configuration {
   }
 
   getScenarioFilter() {
-    const tagGroups = new TagGroupParser(options.tags).parse()
-    const tagRules = tagGroups.map(function (tags) {
-      return new AnyOfTagsRule(tags)
+    const featurePaths = await this.getFeaturePaths()
+    return new ScenarioFilter({
+      featurePaths,
+      names: option.name,
+      tags: options.tags
     })
-    const lineRule = new ScenarioAtLineRule(unexpandedFeaturePaths)
-    const nameRule = new AnyOfNamesRule(options.name)
-    const rules = tagRules.concat([lineRule, nameRule])
-    return new ScenarioFilter(rules)
   }
 
   getSnippetBuilder () {

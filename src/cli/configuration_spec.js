@@ -32,4 +32,8 @@ describe('configuration', function() {
       })
     })
   })
+
+  describe('getFeaturePaths', function() {
+    describe('')
+  })
 })
