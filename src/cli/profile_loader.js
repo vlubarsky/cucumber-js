@@ -5,11 +5,11 @@ import path from 'path'
 
 export default class ProfileLoader {
   constructor(dir) {
-    this.identifiers = identifiers
+    this.dir = dir
   }
 
   async getDefinitions() {
-    const definitionsFilePath = path.join(dir, 'cucumber.js')
+    const definitionsFilePath = path.join(this.dir, 'cucumber.js')
     try
       await fs.accessSync definitionsFilePath
     catch

@@ -20,8 +20,8 @@ export default class Configuration {
     return this.options.compiler.map((compiler) => compiler.split(':')[1])
   }
 
-  getFeatureDirectoryPaths() {
-    const featurePaths = this.getFeaturePaths()
+  async getFeatureDirectoryPaths() {
+    const featurePaths = await this.getFeaturePaths()
     return featurePaths.map((featurePath) => path.dirname(featurePath))
   }
 
@@ -47,29 +47,23 @@ export default class Configuration {
     return this.unexpandedFeaturePaths
   }
 
+  // Returns mapping of file path => file content
   async getFeatureSourceMapping() {
     const featurePaths = await this.getFeaturePaths()
     const featureSourceLoader = new FeatureSourceLoader(featurePaths)
     return await featureSourceLoader.load()
   }
 
-  async getFormats () {
-    const outputMapping = {}
+  // Returns mapping of file path ('' for none) => formatter type
+  getFormatMapping () {
+    const mapping = {}
     this.options.format.forEach(function (format) {
       var parts = format.split(':')
       var type = parts[0]
       var outputTo = parts.slice(1).join(':')
-      outputMapping[outputTo] = type
+      mapping[outputTo] = type
     })
-    const promises = _.map(outputMapping, async function (type, outputTo) {
-      var stream = process.stdout
-      if (outputTo) {
-        var fd = await fs.open(outputTo, 'w')
-        stream = fs.createWriteStream(null, {fd: fd})
-      }
-      return {stream: stream, type: type}
-    })
-    return await Promise.all(promises)
+    return mapping
   }
 
   getScenarioFilter() {
@@ -92,9 +86,14 @@ export default class Configuration {
   }
 
   async getSupportCode() {
-    const compilerModules = this.getCompilerModules()
-    const extensions = ['js'].concat(this.getCompilerExtensions())
-    const supportCodePaths = this.options.require.length > 0 ? this.options.require : this.getFeatureDirectoryPaths()
+    const extensions = ['js']
+    const compilerModules = []
+    this.options.compiler.forEach((compiler) => {
+      const parts = compiler.split(':')
+      extensions.push(parts[0])
+      compilerModules.push(parts[1])
+    })
+    const supportCodePaths = this.options.require.length > 0 ? this.options.require : await this.getFeatureDirectoryPaths()
     const supportCodeLoader = new SupportCodeLoader({compilerModules, extensions, supportCodePaths})
     return supportCodeLoader.load()
   }
