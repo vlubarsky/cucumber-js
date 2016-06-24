@@ -1,7 +1,6 @@
 /* jshint -W106 */
 function JsonFormatter(options) {
   var Cucumber = require('../../cucumber');
-  var base64 = require('base-64');
 
   var self = Cucumber.Listener.Formatter(options);
 
@@ -16,8 +15,7 @@ function JsonFormatter(options) {
     };
   };
 
-  self.handleBeforeFeatureEvent = function handleBeforeFeatureEvent(event, callback) {
-    var feature = event.getPayloadItem('feature');
+  self.handleBeforeFeatureEvent = function handleBeforeFeatureEvent(feature) {
     currentFeature = {
       description: feature.getDescription(),
       elements: [],
@@ -29,11 +27,9 @@ function JsonFormatter(options) {
       uri: feature.getUri()
     };
     features.push(currentFeature);
-    callback();
   };
 
-  self.handleBeforeScenarioEvent = function handleBeforeScenarioEvent(event, callback) {
-    var scenario = event.getPayloadItem('scenario');
+  self.handleBeforeScenarioEvent = function handleBeforeScenarioEvent(scenario) {
     currentScenario = {
       description: scenario.getDescription(),
       id: currentFeature.id + ';' + scenario.getName().replace(/ /g, '-').toLowerCase(),
@@ -45,11 +41,9 @@ function JsonFormatter(options) {
       type: 'scenario'
     };
     currentFeature.elements.push(currentScenario);
-    callback();
   };
 
-  self.handleStepResultEvent = function handleStepResultEvent(event, callback) {
-    var stepResult = event.getPayloadItem('stepResult');
+  self.handleStepResultEvent = function handleStepResultEvent(stepResult) {
     var step = stepResult.getStep();
     var status = stepResult.getStatus();
 
@@ -91,8 +85,12 @@ function JsonFormatter(options) {
 
     if (stepResult.hasAttachments()) {
       currentStep.embeddings = stepResult.getAttachments().map(function (attachment) {
+        var data = attachment.getData();
+        if (!(data instanceof Buffer)) {
+          data = new Buffer(data);
+        }
         return {
-          data: base64.encode(attachment.getData()),
+          data: data.toString('base64'),
           mime_type: attachment.getMimeType(),
         };
       });
@@ -112,7 +110,6 @@ function JsonFormatter(options) {
     }
 
     currentScenario.steps.push(currentStep);
-    callback();
   };
 
   self.handleAfterFeaturesEvent = function handleAfterFeaturesEvent(event, callback) {
