@@ -8,7 +8,7 @@ mochaOptions:
   reporter: dot
 
 # Path patten used for finding tests (see https://github.com/isaacs/minimatch)
-testFilePattern: 'lib/**/*_spec.js'
+testFilePattern: 'src/**/*_spec.js'
 
 # Files to include before all tests
 testHelpers:

@@ -1,4 +1,8 @@
 import Configuration from './configuration'
+import fs from 'mz/fs'
+import tmp from 'tmp'
+import path from 'path'
+import {promisify} from 'bluebird'
 
 describe('configuration', function() {
   describe('getCompilerExtensions / getCompilerModules', function() {
@@ -34,6 +38,49 @@ describe('configuration', function() {
   })
 
   describe('getFeaturePaths', function() {
-    describe('')
+    describe('no arguments', function() {
+      beforeEach(function() {
+        this.configuration = new Configuration({
+          args: []
+        })
+      })
+
+      it('returns ["features"]', async function() {
+        const featurePaths = await this.configuration.getFeaturePaths()
+        expect(featurePaths).to.eql(['features'])
+      })
+    })
+
+    describe('single argument', function() {
+      describe('starting with a @', function() {
+        beforeEach(async function() {
+          const tmpDir = await promisify(tmp.dir)({unsafeCleanup: true})
+          const fileContent = "features/a.feature\nfeatures/b.feature"
+          await fs.writeFile(path.join(tmpDir, '@rerun.txt'), fileContent)
+          this.configuration = new Configuration({
+            args: ['@rerun.txt'],
+            cwd: tmpDir
+          })
+        })
+
+        it('returns ["features"]', async function() {
+          const featurePaths = await this.configuration.getFeaturePaths()
+          expect(featurePaths).to.eql(['features/a.feature', 'features/b.feature'])
+        })
+      })
+
+      describe('not starting with a @', function() {
+        beforeEach(function() {
+          this.configuration = new Configuration({
+            args: ['features/a.feature'],
+          })
+        })
+
+        it('returns ["features"]', async function() {
+          const featurePaths = await this.configuration.getFeaturePaths()
+          expect(featurePaths).to.eql(['features/a.feature'])
+        })
+      })
+    })
   })
 })

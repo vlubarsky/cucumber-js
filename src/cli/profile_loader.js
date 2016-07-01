@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import fs from 'mx/fs'
+import fs from 'mz/fs'
 import path from 'path'
 
 
@@ -10,11 +10,12 @@ export default class ProfileLoader {
 
   async getDefinitions() {
     const definitionsFilePath = path.join(this.dir, 'cucumber.js')
-    try
-      await fs.accessSync definitionsFilePath
-    catch
+    try {
+      await fs.access(definitionsFilePath)
+    } catch (error) {
       return {}
-    import definitions from definitionsFilePath
+    }
+    const definitions = require(definitionsFilePath)
     if (typeof definitions !== 'object') {
       throw new Error(definitionsFilePath + ' does not export an object')
     }
