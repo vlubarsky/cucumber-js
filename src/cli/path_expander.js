@@ -1,16 +1,18 @@
 import fs from 'mz/fs'
 import glob from 'glob'
+import path from 'path'
 import _ from 'lodash'
+import Promise from 'bluebird'
 
-export default class FilePathExpander {
+export default class PathExpander {
   constructor(dir) {
     this.dir = dir
   }
 
-  async expandPathWithExtensions(paths, extensions) {
+  async expandPathsWithExtensions(paths, extensions) {
     const expandedPaths = await Promise.map(paths, async (p) => {
-      return await PathExpander.expandPathWithExtensions(p, extensions)
-    }))
+      return await this.expandPathWithExtensions(p, extensions)
+    })
     return _.uniq(_.flatten(expandedPaths))
   }
 
@@ -31,6 +33,6 @@ export default class FilePathExpander {
     } else {
       pattern += extensions[0]
     }
-    return await glob(pattern)
+    return await Promise.promisify(glob)(pattern)
   }
 }

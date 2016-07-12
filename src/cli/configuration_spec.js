@@ -4,7 +4,7 @@ import tmp from 'tmp'
 import path from 'path'
 import {promisify} from 'bluebird'
 
-describe('configuration', function() {
+describe('Configuration', function() {
   describe('getCompilerExtensions / getCompilerModules', function() {
     describe('no compilers', function() {
       beforeEach(function() {
