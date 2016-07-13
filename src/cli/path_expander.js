@@ -5,8 +5,8 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default class PathExpander {
-  constructor(dir) {
-    this.dir = dir
+  constructor(directory) {
+    this.directory = directory
   }
 
   async expandPathsWithExtensions(paths, extensions) {
@@ -17,7 +17,7 @@ export default class PathExpander {
   }
 
   async expandPathWithExtensions(p, extensions) {
-    const realPath = fs.realpathSync(path.join(this.dir, p))
+    const realPath = fs.realpathSync(path.join(this.directory, p))
     const stats = fs.statSync(realPath)
     if (stats.isDirectory()) {
       return this.expandDirectoryWithExtensions(realPath, extensions);
