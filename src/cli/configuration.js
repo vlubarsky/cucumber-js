@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import FeatureSourceLoader from './feature_source_loader'
 import fs from 'mz/fs'
-import JavascriptSnippetBuilder from './javascript_snippet_builder'
+import JavaScriptSnippetBuilder from './javascript_snippet_builder'
+import ScenarioFilter from '../scenario_filter'
 import path from 'path'
 import Promise from 'bluebird'
 import SupportCodeLoader from './support_code_loader'
@@ -59,9 +60,9 @@ export default class Configuration {
   getFormatMapping () {
     const mapping = {}
     this.options.format.forEach(function (format) {
-      var parts = format.split(':')
-      var type = parts[0]
-      var outputTo = parts.slice(1).join(':')
+      const parts = format.split(':')
+      const type = parts[0]
+      const outputTo = parts.slice(1).join(':')
       mapping[outputTo] = type
     })
     return mapping
@@ -71,16 +72,16 @@ export default class Configuration {
     const featurePaths = await this.getFeaturePaths()
     return new ScenarioFilter({
       featurePaths,
-      names: option.name,
-      tags: options.tags
+      names: this.options.name,
+      tags: this.options.tags
     })
   }
 
   getSnippetBuilder () {
     if (this.options.snippetSyntax) {
-      const snippetBuilderPath = path.resolve(cwd, options.snippetSyntax)
-      const snippetBuilder = require(snippetBuilderPath)
-      return new snippetBuilder()
+      const snippetBuilderPath = path.resolve(this.cwd, this.options.snippetSyntax)
+      const SnippetBuilder = require(snippetBuilderPath)
+      return new SnippetBuilder()
     } else {
       return new JavaScriptSnippetBuilder()
     }
@@ -105,18 +106,18 @@ export default class Configuration {
   }
 
   isDryRun() {
-    return options.dryRun
+    return this.options.dryRun
   }
 
   isFailFast() {
-    return options.failFast
+    return this.options.failFast
   }
 
   isStrict() {
-    return options.strict
+    return this.options.strict
   }
 
   shouldFilterStackTraces() {
-    return !options.backtrace
+    return !this.options.backtrace
   }
 }

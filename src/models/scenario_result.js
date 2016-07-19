@@ -19,28 +19,28 @@ export default class ScenarioResult {
   }
 
   getScenario() {
-    return scenario
-  }
-
-  getStepCounts() {
-    return _.clone(this.stepCounts)
+    return this.scenario
   }
 
   getStatus() {
     return this.status
   }
 
+  getStepCounts() {
+    return _.clone(this.stepCounts)
+  }
+
   shouldUpdateStatus(stepStatus) {
     switch (stepStatus) {
-      case Cucumber.Status.FAILED:
-        return true;
-      case Cucumber.Status.AMBIGUOUS:
-      case Cucumber.Status.PENDING:
-      case Cucumber.Status.SKIPPED:
-      case Cucumber.Status.UNDEFINED:
-        return this.status === Cucumber.Status.PASSED;
+      case Status.FAILED:
+        return true
+      case Status.AMBIGUOUS:
+      case Status.PENDING:
+      case Status.SKIPPED:
+      case Status.UNDEFINED:
+        return this.status === Status.PASSED
       default:
-        return false;
+        return false
     }
   }
 
@@ -50,10 +50,10 @@ export default class ScenarioResult {
       this.duration += stepDuration
     }
     var stepStatus = stepResult.getStatus()
-    if (shouldUpdateStatus(stepStatus)) {
+    if (this.shouldUpdateStatus(stepStatus)) {
       this.status = stepStatus
     }
-    if (stepStatus === Cucumber.Status.FAILED) {
+    if (stepStatus === Status.FAILED) {
       this.failureException = stepResult.getFailureException()
     }
     var step = stepResult.getStep()

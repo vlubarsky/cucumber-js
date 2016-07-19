@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Cli = require('../lib/cucumber/cli');
+var Cli = require('../lib/cli');
 var cli = new Cli({
   argv: process.argv,
   cwd: process.cwd()

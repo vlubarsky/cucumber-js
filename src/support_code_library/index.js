@@ -1,7 +1,7 @@
-import _ from 'lodash'
 import StackTrace from 'stacktrace-js'
-import Hook from './hook_definition'
-import StepDefinition from './step_definition'
+import HookDefinition from '../models/hook_definition'
+import StepDefinition from '../models/step_definition'
+import Listener from '../listener'
 
 export default class SupportCodeLibrary {
   constructor() {
@@ -10,20 +10,20 @@ export default class SupportCodeLibrary {
     this.afterHooks = []
     this.defaultTimeout = 5000
     this.userCodeContext = {
-      Before: this.defineHook(Hook, beforeHooks),
-      After: this.defineHook(Hook, afterHooks),
-      Given: this.defineStep,
-      When: this.defineStep,
-      Then: this.defineStep,
+      After: this.defineHook(this.afterHooks),
+      Before: this.defineHook(this.beforeHooks),
       defineStep: this.defineStep,
-      registerListener: this.registerListener,
+      Given: this.defineStep,
       registerHandler: this.registerHandler,
+      registerListener: this.registerListener,
       setDefaultTimeout: this.setDefaultTimeout,
-      World: function() {}
-    };
+      Then: this.defineStep,
+      When: this.defineStep,
+      World() {}
+    }
   }
 
-  defineHook(hookConstructor, hookCollection) {
+  defineHook(hookCollection) {
     return (options, code) => {
       if (typeof(options) === 'function') {
         code = options
@@ -32,7 +32,7 @@ export default class SupportCodeLibrary {
       const stackframes = StackTrace.getSync()
       const line = stackframes[1].getLineNumber()
       const uri = stackframes[1].getFileName() || 'unknown'
-      const hook = new hookConstructor(code, options, uri, line)
+      const hook = new HookDefinition(code, options, uri, line)
       hookCollection.push(hook)
     }
   }
@@ -50,27 +50,27 @@ export default class SupportCodeLibrary {
   }
 
   execute(code) {
-    code.call(userCodeContext)
+    code.call(this.userCodeContext)
   }
 
   getDefaultTimeout() {
-    return this.defaultTimeout;
+    return this.defaultTimeout
   }
 
   getListeners() {
-    return this.listeners;
+    return this.listeners
   }
 
   instantiateNewWorld() {
-    return new this.worldConstructor();
+    return new this.userCodeContext.World()
   }
 
-  lookupBeforeHooksByScenario () {
-    return this.lookupHooksByScenario(this.beforeHooks, scenario)
+  lookupAfterHooksByScenario (scenario) {
+    return this.lookupHooksByScenario(this.afterHooks, scenario)
   }
 
   lookupBeforeHooksByScenario(scenario) {
-    return this.lookupHooksByScenario(this.afterHooks, scenario)
+    return this.lookupHooksByScenario(this.beforeHooks, scenario)
   }
 
   lookupHooksByScenario(hooks, scenario) {
@@ -80,7 +80,7 @@ export default class SupportCodeLibrary {
   }
 
   lookupStepDefinitionsByName(name) {
-    return stepDefinitions.filter(function (stepDefinition) {
+    return this.stepDefinitions.filter(function (stepDefinition) {
       return stepDefinition.matchesStepName(name)
     })
   }
@@ -103,6 +103,6 @@ export default class SupportCodeLibrary {
   }
 
   setDefaultTimeout(milliseconds) {
-    this.defaultTimeout = milliseconds;
+    this.defaultTimeout = milliseconds
   }
 }

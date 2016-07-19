@@ -20,14 +20,14 @@ export default class PathExpander {
     const realPath = fs.realpathSync(path.join(this.directory, p))
     const stats = fs.statSync(realPath)
     if (stats.isDirectory()) {
-      return this.expandDirectoryWithExtensions(realPath, extensions);
+      return this.expandDirectoryWithExtensions(realPath, extensions)
     } else {
-      return [realPath];
+      return [realPath]
     }
   }
 
   async expandDirectoryWithExtensions (realPath, extensions) {
-    var pattern = realPath + '/**/*.'
+    let pattern = realPath + '/**/*.'
     if (extensions.length > 1) {
       pattern += '{' + extensions.join(',') + '}'
     } else {

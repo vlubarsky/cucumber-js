@@ -1,5 +1,6 @@
 import {Command} from 'commander'
 import path from 'path'
+import {version} from '../../package.json'
 
 export default class ArgvParser {
   constructor (argv) {
@@ -16,7 +17,7 @@ export default class ArgvParser {
 
     program
       .usage('[options] [<DIR|FILE[:LINE]>...]')
-      .version(Cucumber.VERSION, '-v, --version')
+      .version(version, '-v, --version')
       .option('-b, --backtrace', 'show full backtrace for errors')
       .option('--compiler <EXTENSION:MODULE>', 'require files with the given EXTENSION after requiring MODULE (repeatable)', collect, [])
       .option('-d, --dry-run', 'invoke formatters without executing steps')
@@ -30,8 +31,10 @@ export default class ArgvParser {
       .option('-S, --strict', 'fail if there are any undefined or pending steps')
       .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression (repeatable)', collect, [])
 
-    program.on('--help', function(){
+    program.on('--help', () => {
+      /* eslint-disable no-console */
       console.log('  For more details please visit https://github.com/cucumber/cucumber-js#cli\n')
+      /* eslint-enable no-console */
     })
 
     program.parse(this.argv)

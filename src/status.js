@@ -1,11 +1,11 @@
-var Status = {};
+var Status = {}
 
-Status.AMBIGUOUS = 'ambiguous';
-Status.FAILED = 'failed';
-Status.PENDING = 'pending';
-Status.PASSED = 'passed';
-Status.SKIPPED = 'skipped';
-Status.UNDEFINED = 'undefined';
+Status.AMBIGUOUS = 'ambiguous'
+Status.FAILED = 'failed'
+Status.PENDING = 'pending'
+Status.PASSED = 'passed'
+Status.SKIPPED = 'skipped'
+Status.UNDEFINED = 'undefined'
 
 Status.getMapping = function getMapping(initialValue) {
   var statuses = [

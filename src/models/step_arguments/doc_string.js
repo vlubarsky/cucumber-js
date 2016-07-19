@@ -14,8 +14,4 @@ export default class DocString {
   getLine() {
     return this.data.location.line
   }
-
-  getType() {
-    return 'DocString'
-  }
 }

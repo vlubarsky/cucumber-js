@@ -55,7 +55,7 @@ describe('Configuration', function() {
       describe('starting with a @', function() {
         beforeEach(async function() {
           const tmpDir = await promisify(tmp.dir)({unsafeCleanup: true})
-          const fileContent = "features/a.feature\nfeatures/b.feature"
+          const fileContent = 'features/a.feature\nfeatures/b.feature'
           await fs.writeFile(path.join(tmpDir, '@rerun.txt'), fileContent)
           this.configuration = new Configuration({
             args: ['@rerun.txt'],

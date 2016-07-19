@@ -28,7 +28,7 @@ describe('ProfileLoader', function() {
 
           it('returns the argv for the default profile', async function() {
             const result = await this.profileLoader.getArgv([])
-            expect(result).to.eql(["--opt1", "--opt2"])
+            expect(result).to.eql(['--opt1', '--opt2'])
           })
         })
 
@@ -82,7 +82,7 @@ describe('ProfileLoader', function() {
         describe('profile is defined', function() {
           it('returns the argv for the given profile', async function() {
             const result = await this.profileLoader.getArgv(['profile1'])
-            expect(result).to.eql(["--opt1", "--opt2"])
+            expect(result).to.eql(['--opt1', '--opt2'])
           })
         })
       })

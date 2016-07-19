@@ -22,18 +22,18 @@ export default class FeaturesResult {
   }
 
   isSuccessful() {
-    if (this.scenarioCounts[Status.FAILED] > 0 || scenarioCounts[Status.AMBIGUOUS] > 0) {
+    if (this.scenarioCounts[Status.FAILED] > 0 || this.scenarioCounts[Status.AMBIGUOUS] > 0) {
       return false
     }
-    if (strict && (scenarioCounts[Status.PENDING] > 0 || scenarioCounts[Status.UNDEFINED] > 0)) {
+    if (this.strict && (this.scenarioCounts[Status.PENDING] > 0 || this.scenarioCounts[Status.UNDEFINED] > 0)) {
       return false
     }
     return true
   }
 
   witnessScenarioResult(scenarioResult) {
-    this.duration += scenarioResult.getDuration();
-    this.scenarioCounts[scenarioResult.getStatus()] += 1;
-    _.mergeWith(this.stepCounts, scenarioResult.getStepCounts(), function(a, b) { return a + b; });
+    this.duration += scenarioResult.getDuration()
+    this.scenarioCounts[scenarioResult.getStatus()] += 1
+    _.mergeWith(this.stepCounts, scenarioResult.getStepCounts(), function(a, b) { return a + b })
   }
 }

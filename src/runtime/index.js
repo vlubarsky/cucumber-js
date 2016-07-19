@@ -1,3 +1,6 @@
+import StackTraceFilter from './stack_trace_filter'
+import Parser from './parser'
+
 export default class Runtime {
   constructor(configuration) {
     this.configuration = configuration
@@ -15,36 +18,36 @@ export default class Runtime {
 
     const featuresRunner = new Runtime.FeaturesRunner({
       features,
-      listeners,
+      listeners: this.listeners,
       options,
       supportCodeLibrary
     })
 
-    if (configuration.shouldFilterStackTraces()) {
-      Runtime.StackTraceFilter.filter()
+    if (this.configuration.shouldFilterStackTraces()) {
+      StackTraceFilter.filter()
     }
 
-    result = await featuresRunner.run()
+    const result = await featuresRunner.run()
 
-    if (configuration.shouldFilterStackTraces()) {
-      Runtime.StackTraceFilter.unfilter()
+    if (this.configuration.shouldFilterStackTraces()) {
+      StackTraceFilter.unfilter()
     }
 
     return result
   }
 
   attachListener(listener) {
-    listeners.push(listener)
+    this.listeners.push(listener)
   }
 
   getFeatures() {
-    const featuresSourceMapping = this.configuration.getFeatureSourceMapping();
-    const scenarioFilter = this.configuration.getScenarioFilter();
-    const parser = new Parser({featuresSourceMapping, scenarioFilter});
-    return parser.parse();
+    const featuresSourceMapping = this.configuration.getFeatureSourceMapping()
+    const scenarioFilter = this.configuration.getScenarioFilter()
+    const parser = new Parser({featuresSourceMapping, scenarioFilter})
+    return parser.parse()
   }
 
   getSupportCodeLibrary() {
-    return configuration.getSupportCodeLibrary()
+    return this.configuration.getSupportCodeLibrary()
   }
 }

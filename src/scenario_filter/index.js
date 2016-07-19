@@ -1,15 +1,15 @@
-const _ = require('lodash');
+const _ = require('lodash')
 const FEATURE_LINENUM_REGEXP = /^(.*?)((?::[\d]+)+)?$/
 
 export default class ScenarioFilter {
   constructor({featurePaths, names, tagExpressions}) {
     this.featureUriToLinesMapping = this.getFeatureUriToLinesMapping(featurePaths)
-    this.names = names
-    this.tagExpressions = tagExpressions
+    this.names = names || []
+    this.tagExpressions = tagExpressions || []
   }
 
   getFeatureUriToLinesMapping(featurePaths) {
-    const mapping = {};
+    const mapping = {}
     featurePaths.forEach(function(featurePath) {
       var match = FEATURE_LINENUM_REGEXP.exec(featurePath)
       if (match) {
@@ -20,7 +20,7 @@ export default class ScenarioFilter {
             mapping[uri] = []
           }
           linesExpression.slice(1).split(':').forEach(function (line) {
-            mapping[uri].push(parseInt(line));
+            mapping[uri].push(parseInt(line))
           })
         }
       }
@@ -59,9 +59,9 @@ export default class ScenarioFilter {
       const tags = tagExpression.split(',').map((s) => s.trim())
       return _.some(tags, function(tag) {
         if (tag[0] === '~') {
-          return !_.includes(scenarioTags, tag.slice(1));
+          return !_.includes(scenarioTags, tag.slice(1))
         } else {
-          return _.includes(scenarioTags, tag);
+          return _.includes(scenarioTags, tag)
         }
       })
     })

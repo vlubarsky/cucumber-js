@@ -5,12 +5,12 @@ import Tag from './tag'
 export default class Scenario {
   constructor(data) {
     this.data = data
-    initializeSteps()
-    initializeTags()
+    this.initializeSteps()
+    this.initializeTags()
   }
 
   getDescription() {
-    return this.data.description;
+    return this.data.description
   }
 
   getFeature() {
@@ -18,19 +18,19 @@ export default class Scenario {
   }
 
   getKeyword() {
-    return this.feature.getScenarioKeyword();
+    return this.feature.getScenarioKeyword()
   }
 
   getLine() {
-    return _.first(this.getLines());
+    return _.first(this.getLines())
   }
 
   getLines() {
-    return _.map(this.data.locations, 'line');
+    return _.map(this.data.locations, 'line')
   }
 
   getName() {
-    return this.data.name;
+    return this.data.name
   }
 
   getSteps() {
@@ -46,18 +46,18 @@ export default class Scenario {
   }
 
   getUris() {
-    return _.map(this.data.locations, 'path');
+    return _.map(this.data.locations, 'path')
   }
 
   initializeSteps() {
-    let previousStep;
+    let previousStep
     this.steps = this.data.steps.map((stepData) => {
-      var step = new Step(stepData);
-      step.setScenario(self);
-      step.setPreviousStep(previousStep);
-      previousStep = step;
-      return step;
-    });
+      var step = new Step(stepData)
+      step.setScenario(self)
+      step.setPreviousStep(previousStep)
+      previousStep = step
+      return step
+    })
   }
 
   initializeTags() {

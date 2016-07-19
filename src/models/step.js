@@ -1,15 +1,17 @@
 import _ from 'lodash'
+import DocString from './step_arguments/doc_string'
+import DataTable from './step_arguments/data_table'
 
-EVENT_STEP_KEYWORD = 'When '
-OUTCOME_STEP_KEYWORD = 'Then '
-AND_STEP_KEYWORD = 'And '
-BUT_STEP_KEYWORD = 'But '
-STAR_STEP_KEYWORD = '* '
+const EVENT_STEP_KEYWORD = 'When '
+const OUTCOME_STEP_KEYWORD = 'Then '
+const AND_STEP_KEYWORD = 'And '
+const BUT_STEP_KEYWORD = 'But '
+const STAR_STEP_KEYWORD = '* '
 
 export default class Step {
   constructor(data) {
     this.data = data
-    initializeStepArguments()
+    this.initializeStepArguments()
   }
 
   getArguments() {
@@ -17,7 +19,7 @@ export default class Step {
   }
 
   getKeyword() {
-    return this.getScenario().getFeature().getStepKeywordByLines(this.getLines());
+    return this.getScenario().getFeature().getStepKeywordByLines(this.getLines())
   }
 
   getLine() {
@@ -37,7 +39,7 @@ export default class Step {
   }
 
   getScenario() {
-    return scenario
+    return this.scenario
   }
 
   getUri() {
@@ -69,12 +71,12 @@ export default class Step {
   }
 
   initializeStepArguments() {
-    if (data.arguments) {
-      this.stepArguments = data.arguments.map(function (arg) {
+    if (this.data.arguments) {
+      this.stepArguments = this.data.arguments.map(function (arg) {
         if (arg.hasOwnProperty('content')) {
-          return Cucumber.Ast.DocString(arg)
+          return new DocString(arg)
         } else if (arg.hasOwnProperty('rows')) {
-          return Cucumber.Ast.DataTable(arg)
+          return new DataTable(arg)
         } else {
           throw new Error('Unknown step argument type: ' + JSON.stringify(arg))
         }
@@ -105,7 +107,7 @@ export default class Step {
     }
   }
 
-  isPrecededByOutcomeStep: function isPrecededByOutcomeStep() {
+  isPrecededByOutcomeStep() {
     if (this.hasPreviousStep()) {
       var previousStep = this.getPreviousStep()
       return previousStep.isOutcomeStep()
@@ -123,7 +125,7 @@ export default class Step {
   }
 
   setPreviousStep(previousStep) {
-    this.previousStep = previousStep;
+    this.previousStep = previousStep
   }
 
   setScenario(scenario) {

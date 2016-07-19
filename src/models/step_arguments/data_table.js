@@ -1,21 +1,19 @@
+import _ from 'lodash'
+
 export default class DataTable {
   constructor(data) {
     this.rawTable = data.rows.map((row) => row.cells.map((cell) => cell.value))
   }
 
-  getType() {
-    return 'DataTable'
-  }
-
   hashes() {
     const copy = this.raw()
     const keys = copy[0]
-    const valuesArray = copy.slice(0)
+    const valuesArray = copy.slice(1)
     return valuesArray.map((values) => _.zipObject(keys, values))
   }
 
   raw () {
-    return rawTable.slice(0)
+    return this.rawTable.slice(0)
   }
 
   rows() {
@@ -25,8 +23,8 @@ export default class DataTable {
   }
 
   rowsHash() {
-    const rows = self.raw()
-    const everyRowHasTwoColumns = _.all(rows, (row) => row.length === 2)
+    const rows = this.raw()
+    const everyRowHasTwoColumns = _.every(rows, (row) => row.length === 2)
     if (!everyRowHasTwoColumns) {
       throw new Error('rowsHash can only be called on a data table where all rows have exactly two columns')
     }

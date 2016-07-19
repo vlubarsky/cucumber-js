@@ -15,8 +15,10 @@ export default class Cli {
     let {args, options} = new ArgvParser(this.argv).parse()
     const profileArgv = new ProfileLoader(this.cwd).getArgv(options.profile)
     if (profileArgv.length > 0) {
-      const fullArgv = _.concat this.argv.slice(0, 2), profileArgv, this.argv.slice(2)
-      let {args, options} = new ArgvParser(fullArgv).parse()
+      const fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
+      const result = new ArgvParser(fullArgv).parse()
+      args = result.args
+      options = result.options
     }
     return new Configuration({args, cwd: this.cwd, options})
   }

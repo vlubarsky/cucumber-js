@@ -1,3 +1,8 @@
+import PathExpander from './path_expander'
+import path from 'path'
+import SupportCodeLibrary from '../support_code_library'
+import _ from 'lodash'
+
 export default class SupportCodeLoader {
   constructor ({compilerModules, directory, extensions, supportCodePaths}) {
     this.compilerModules = compilerModules
@@ -14,9 +19,8 @@ export default class SupportCodeLoader {
       return codePath.match(path.normalize('/support/'))
     }))
     const supportCodeLibrary = new SupportCodeLibrary()
-    initializeCodePaths(paths, supportCodeLibrary)
     sortedCodePaths.forEach(function (codePath) {
-      const codeExport = require(codePath);
+      const codeExport = require(codePath)
       if (typeof(codeExport) === 'function') {
         supportCodeLibrary.execute(codeExport)
       }

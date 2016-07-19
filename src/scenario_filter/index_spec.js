@@ -1,4 +1,4 @@
-import ScenarioFilter from './scenario_filter'
+import ScenarioFilter from './'
 
 describe('ScenarioFilter', function() {
   describe('matches', function() {
@@ -156,7 +156,7 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag A', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagA'}}
+              {getName() { return '@tagA'}}
             ])
           })
 
@@ -184,7 +184,7 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag A', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagA'}}
+              {getName() { return '@tagA'}}
             ])
           })
 
@@ -212,8 +212,8 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag A and B', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagA'}},
-              {getName: function() { return '@tagB'}}
+              {getName() { return '@tagA'}},
+              {getName() { return '@tagB'}}
             ])
           })
 
@@ -225,7 +225,7 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag A, but not B', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagA'}}
+              {getName() { return '@tagA'}}
             ])
           })
 
@@ -237,7 +237,7 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag B, but not A', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagB'}}
+              {getName() { return '@tagB'}}
             ])
           })
 
@@ -265,8 +265,8 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag A and B', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagA'}},
-              {getName: function() { return '@tagB'}}
+              {getName() { return '@tagA'}},
+              {getName() { return '@tagB'}}
             ])
           })
 
@@ -278,7 +278,7 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag A, but not B', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagA'}}
+              {getName() { return '@tagA'}}
             ])
           })
 
@@ -290,7 +290,7 @@ describe('ScenarioFilter', function() {
         describe('scenario has tag B, but not A', function() {
           beforeEach(function() {
             this.scenario.getTags.returns([
-              {getName: function() { return '@tagB'}}
+              {getName() { return '@tagB'}}
             ])
           })
 
@@ -318,7 +318,7 @@ describe('ScenarioFilter', function() {
           this.scenario.getLines.returns([1])
           this.scenario.getName.returns('nameA descriptionA')
           this.scenario.getTags.returns([
-            {getName: function() {return '@tagA'}}
+            {getName() {return '@tagA'}}
           ])
           this.scenario.getUri.returns('b.feature')
         })
