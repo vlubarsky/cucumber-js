@@ -1,19 +1,19 @@
 import co from 'co'
 import util from 'util'
 import isGenerator from 'is-generator'
-import Time from './time'
+import Time from '../time'
 import Promise from 'bluebird'
-import UncaughtExceptionManager from './uncaught_exception_manager'
+import UncaughtExceptionManager from '../uncaught_exception_manager'
 
 export default class UserCodeRunner {
   static async run ({argsArray, thisArg, fn, timeoutInMilliseconds}) {
     const deferred = Promise.defer()
 
-    argsArray.push(function(err) {
-      if (err) {
-        deferred.reject(err)
+    argsArray.push(function(error, result) {
+      if (error) {
+        deferred.reject(error)
       } else {
-        deferred.resolve()
+        deferred.resolve(result)
       }
     })
 
@@ -21,7 +21,11 @@ export default class UserCodeRunner {
       deferred.reject('function timed out after ' + timeoutInMilliseconds + ' milliseconds')
     }, timeoutInMilliseconds)
 
-    UncaughtExceptionManager.registerHandler(deferred.reject)
+    const exceptionHandler = function(err) {
+      deferred.reject(err)
+    }
+
+    UncaughtExceptionManager.registerHandler(exceptionHandler)
 
     let fnReturn
     try {
@@ -39,14 +43,19 @@ export default class UserCodeRunner {
     if (callbackInterface && promiseInterface) {
       deferred.reject('function accepts a callback and returns a promise')
     } else if (promiseInterface) {
-      deferred.resolve(await fnReturn)
+      let result
+      try {
+        deferred.resolve(await fnReturn)
+      } catch (error) {
+        deferred.reject(error || 'Promise rejected without an error')
+      }
     } else if (!callbackInterface) {
       deferred.resolve(fnReturn)
     }
 
     let error, result
     try {
-      result = await deferred
+      result = await deferred.promise
     } catch (e) {
       if ((e instanceof Error)) {
         error = e
@@ -55,7 +64,7 @@ export default class UserCodeRunner {
       }
     }
 
-    UncaughtExceptionManager.unregisterHandler(deferred.reject)
+    UncaughtExceptionManager.unregisterHandler(exceptionHandler)
 
     if (timeoutId) {
       Time.clearTimeout(timeoutId)

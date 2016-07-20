@@ -29,23 +29,19 @@ export default class SupportCodeLibrary {
         code = options
         options = {}
       }
-      const stackframes = StackTrace.getSync()
-      const line = stackframes[1].getLineNumber()
-      const uri = stackframes[1].getFileName() || 'unknown'
+      const {line, uri} = this.getDefinitionLineAndUri()
       const hook = new HookDefinition(code, options, uri, line)
       hookCollection.push(hook)
     }
   }
 
-  defineStep(name, options, code) {
+  defineStep(pattern, options, code) {
     if (typeof(options) === 'function') {
       code = options
       options = {}
     }
-    const stackframes = StackTrace.getSync()
-    const line = stackframes[1].getLineNumber()
-    const uri = stackframes[1].getFileName() || 'unknown'
-    const stepDefinition = new StepDefinition(name, options, code, uri, line)
+    const {line, uri} = this.getDefinitionLineAndUri()
+    const stepDefinition = new StepDefinition({code, line, pattern, options, uri})
     this.stepDefinitions.push(stepDefinition)
   }
 
@@ -59,6 +55,13 @@ export default class SupportCodeLibrary {
 
   getListeners() {
     return this.listeners
+  }
+
+  getDefinitionLineAndUri() {
+    const stackframes = StackTrace.getSync()
+    const line = stackframes[2].getLineNumber()
+    const uri = stackframes[2].getFileName() || 'unknown'
+    return {line, uri}
   }
 
   instantiateNewWorld() {
@@ -90,9 +93,7 @@ export default class SupportCodeLibrary {
       handler = options
       options = {}
     }
-    const stackframes = StackTrace.getSync()
-    options.line = stackframes[1].getLineNumber()
-    options.uri = stackframes[1].getFileName() || 'unknown'
+    _.assign(options, this.getDefinitionLineAndUri())
     const listener = new Listener(options)
     listener.setHandlerForEvent(eventName, handler)
     this.registerListener(listener)

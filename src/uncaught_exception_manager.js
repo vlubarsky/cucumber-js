@@ -1,5 +1,5 @@
 export default class UncaughtExceptionManager {
-  registerHandler(handler) {
+  static registerHandler(handler) {
     if (process.on) {
       process.on('uncaughtException', handler)
     } else if (typeof(window) !== 'undefined') {
@@ -7,7 +7,7 @@ export default class UncaughtExceptionManager {
     }
   }
 
-  unregisterHandler(handler) {
+  static unregisterHandler(handler) {
     if (process.removeListener) {
       process.removeListener('uncaughtException', handler)
     } else if (typeof(window) !== 'undefined') {
