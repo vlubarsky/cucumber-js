@@ -18,27 +18,27 @@ export default class UserCodeRunner {
 
     let fnReturn
     try {
-      if (isGenerator.fn(fn)) {
-        fnReturn = co.wrap(fn).apply(thisArg, argsArray)
-      } else {
-        fnReturn = fn.apply(thisArg, argsArray)
-      }
+      fnReturn = fn.apply(thisArg, argsArray)
     } catch (error) {
       return {error}
     }
 
     const callbackInterface = fn.length === argsArray.length
+    const generatorInterface = isGenerator(fnReturn)
     const promiseInterface = fnReturn && typeof fnReturn.then === 'function'
+    const interfacesUsed = _.filter([callbackInterface, generatorInterface, promiseInterface]).length
 
-    if (callbackInterface && promiseInterface) {
-      return {error: 'function accepts a callback and returns a promise'}
-    } else if (!callbackInterface && !promiseInterface) {
+    if (interfacesUsed.length > 1) {
+      return {error: 'function uses multiple interfaces (callback, generator, promise)'}
+    } else if (interfacesUsed.length === 0) {
       return {result: fnReturn}
     }
 
     const racingPromises = []
     if (callbackInterface) {
       racingPromises.push(callbackDeferred.promise)
+    } else if (generatorInterface) {
+      racingPromises.push(co(fnReturn))
     } else if (promiseInterface) {
       racingPromises.push(fnReturn)
     }
