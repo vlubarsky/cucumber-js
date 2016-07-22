@@ -7,25 +7,14 @@ import UncaughtExceptionManager from '../uncaught_exception_manager'
 
 export default class UserCodeRunner {
   static async run ({argsArray, thisArg, fn, timeoutInMilliseconds}) {
-    const deferred = Promise.defer()
-
+    const callbackDeferred = Promise.defer()
     argsArray.push(function(error, result) {
       if (error) {
-        deferred.reject(error)
+        callbackDeferred.reject(error)
       } else {
-        deferred.resolve(result)
+        callbackDeferred.resolve(result)
       }
     })
-
-    const timeoutId = Time.setTimeout(function(){
-      deferred.reject('function timed out after ' + timeoutInMilliseconds + ' milliseconds')
-    }, timeoutInMilliseconds)
-
-    const exceptionHandler = function(err) {
-      deferred.reject(err)
-    }
-
-    UncaughtExceptionManager.registerHandler(exceptionHandler)
 
     let fnReturn
     try {
@@ -35,45 +24,48 @@ export default class UserCodeRunner {
         fnReturn = fn.apply(thisArg, argsArray)
       }
     } catch (error) {
-      deferred.reject(error)
+      return {error}
     }
 
-    var callbackInterface = fn.length === argsArray.length
-    var promiseInterface = fnReturn && typeof fnReturn.then === 'function'
+    const callbackInterface = fn.length === argsArray.length
+    const promiseInterface = fnReturn && typeof fnReturn.then === 'function'
+
     if (callbackInterface && promiseInterface) {
-      deferred.reject('function accepts a callback and returns a promise')
-    } else if (promiseInterface) {
-      let result
-      try {
-        deferred.resolve(await fnReturn)
-      } catch (error) {
-        deferred.reject(error || 'Promise rejected without an error')
-      }
-    } else if (!callbackInterface) {
-      deferred.resolve(fnReturn)
+      return {error: 'function accepts a callback and returns a promise'}
+    } else if (!callbackInterface && !promiseInterface) {
+      return {result: fnReturn}
     }
+
+    const racingPromises = []
+    if (callbackInterface) {
+      racingPromises.push(callbackDeferred.promise)
+    } else if (promiseInterface) {
+      racingPromises.push(fnReturn)
+    }
+
+    const uncaughtExceptionDeferred = Promise.defer()
+    const exceptionHandler = function(err) {
+      uncaughtExceptionDeferred.reject(err)
+    }
+    UncaughtExceptionManager.registerHandler(exceptionHandler)
+    racingPromises.push(uncaughtExceptionDeferred.promise)
 
     let error, result
+    let timeoutMessage = 'function timed out after ' + timeoutInMilliseconds + ' milliseconds'
     try {
-      result = await deferred.promise
+      result = await Promise.race(racingPromises).timeout(timeoutInMilliseconds, timeoutMessage)
     } catch (e) {
       if ((e instanceof Error)) {
         error = e
-      } else {
+      } else if (e) {
         error = util.format(e)
+      } else {
+        error = 'Promise rejected without a reason'
       }
     }
 
     UncaughtExceptionManager.unregisterHandler(exceptionHandler)
 
-    if (timeoutId) {
-      Time.clearTimeout(timeoutId)
-    }
-
-    if (error) {
-      throw error
-    } else {
-      return result
-    }
+    return {error, result}
   }
 }

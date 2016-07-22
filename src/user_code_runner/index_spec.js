@@ -12,38 +12,14 @@ describe('UserCodeRunner', function () {
 
     describe("function uses synchronous interface", function() {
       describe("function throws", function() {
-        describe('error object', function() {
-          beforeEach(function() {
-            this.options.fn = function() { throw 'error' }
-          })
-
-          it('returns the error', async function () {
-            try {
-              await UserCodeRunner.run(this.options)
-            } catch (error) {
-              expect(error).to.eql('error')
-              return
-            }
-            throw new Error('expected error but none was thrown')
-          })
+        beforeEach(function() {
+          this.options.fn = function() { throw 'error' }
         })
 
-        describe('non-serializable object', function() {
-          beforeEach(function() {
-            const error = {}
-            error.error = error
-            this.options.fn = function() { throw error }
-          })
-
-          it('returns the error', async function () {
-            try {
-              await UserCodeRunner.run(this.options)
-            } catch (error) {
-              expect(error).to.eql('{ error: [Circular] }')
-              return
-            }
-            throw new Error('expected error but none was thrown')
-          })
+        it('returns the error', async function () {
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('error')
+          expect(result).to.be.undefined
         })
       })
 
@@ -53,33 +29,19 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns the return value of the function', async function () {
-          const result = await UserCodeRunner.run(this.options)
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.undefined
           expect(result).to.eql('result')
         })
       })
     })
 
     describe("function uses asynchronous callback interface", function() {
-      // describe("function throws", function() {
-      //   beforeEach(function() {
-      //     this.options.fn = function(callback) {
-      //       setTimeout(function(){ throw 'error' }, 25)
-      //       setTimeout(function(){ callback() }, 50)
-      //     }
-      //   })
-      //
-      //   it('returns the error', async function () {
-      //     try {
-      //       await UserCodeRunner.run(this.options)
-      //     } catch (error) {
-      //       expect(error).to.eql('error')
-      //       return
-      //     }
-      //     throw new Error('expected error but none was thrown')
-      //   })
-      // })
+      describe("function asynchronously throws", function() {
+        // Cannot unit test because mocha also sets an uncaught exception handler
+      })
 
-      describe("function calls back with error", function() {
+      describe("function calls back with serializable error", function() {
         beforeEach(function() {
           this.options.fn = function(callback) {
             setTimeout(function(){ callback('error') }, 25)
@@ -87,17 +49,29 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns the error', async function () {
-          try {
-            await UserCodeRunner.run(this.options)
-          } catch (error) {
-            expect(error).to.eql('error')
-            return
-          }
-          throw new Error('expected error but none was thrown')
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('error')
+          expect(result).to.be.undefined
         })
       })
 
-      describe("function calls back without error", function() {
+      describe('function calls back with non-serializable rror', function() {
+        beforeEach(function() {
+          this.options.fn = function(callback) {
+            const error = {}
+            error.error = error
+            setTimeout(function(){ callback(error) }, 25)
+          }
+        })
+
+        it('returns the error', async function () {
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('{ error: [Circular] }')
+          expect(result).to.be.undefined
+        })
+      })
+
+      describe("function calls back with result", function() {
         beforeEach(function() {
           this.options.fn = function(callback) {
             setTimeout(function(){ callback(null, 'result') }, 25)
@@ -105,7 +79,8 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns the what the function calls back with', async function () {
-          const result = await UserCodeRunner.run(this.options)
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.undefined
           expect(result).to.eql('result')
         })
       })
@@ -118,13 +93,10 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns timeout as an error', async function () {
-          try {
-            await UserCodeRunner.run(this.options)
-          } catch (error) {
-            expect(error).to.eql('function timed out after 100 milliseconds')
-            return
-          }
-          throw new Error('expected error but none was thrown')
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.instanceof(Error)
+          expect(error.message).to.eql('function timed out after 100 milliseconds')
+          expect(result).to.be.undefined
         })
       })
 
@@ -138,37 +110,17 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns an error that only one interface should be used', async function () {
-          try {
-            await UserCodeRunner.run(this.options)
-          } catch (error) {
-            expect(error).to.eql('function accepts a callback and returns a promise')
-            return
-          }
-          throw new Error('expected error but none was thrown')
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('function accepts a callback and returns a promise')
+          expect(result).to.be.undefined
         })
       })
     })
 
     describe("function uses promise interface", function() {
-      // describe("function throws", function() {
-      //   beforeEach(function() {
-      //     fn = function() {
-      //       return {
-      //         then: function() {
-      //           setTimeout(function(){ throw 'error' }, 25)
-      //         }
-      //       }
-      //     }
-      //   })
-      //
-      //   it('returns the error', function (done) {
-      //     Cucumber.Util.run(fn, thisArg, argsArray, timeoutInMilliseconds, function(error, result) {
-      //       expect(error).to.eql('error')
-      //       expect(result).toBeUndefined()
-      //       done()
-      //     })
-      //   })
-      // })
+      describe("function asynchronously throws", function() {
+        // Cannot unit test because mocha also sets an uncaught exception handler
+      })
 
       describe("promise resolves", function() {
         beforeEach(function() {
@@ -182,7 +134,8 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns what the promise resolves to', async function () {
-          const result = await UserCodeRunner.run(this.options)
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.undefined
           expect(result).to.eql('result')
         })
       })
@@ -199,13 +152,9 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns what the promise rejects as an error', async function () {
-          try {
-            await UserCodeRunner.run(this.options)
-          } catch (error) {
-            expect(error).to.eql('error')
-            return
-          }
-          throw new Error('expected error but none was thrown')
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('error')
+          expect(result).to.be.undefined
         })
       })
 
@@ -221,13 +170,9 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns "promise rejected" as an error', async function () {
-          try {
-            await UserCodeRunner.run(this.options)
-          } catch (error) {
-            expect(error).to.eql('Promise rejected without an error')
-            return
-          }
-          throw new Error('expected error but none was thrown')
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('Promise rejected without a reason')
+          expect(result).to.be.undefined
         })
       })
 
@@ -243,13 +188,10 @@ describe('UserCodeRunner', function () {
         })
 
         it('returns timeout as an error', async function () {
-          try {
-            await UserCodeRunner.run(this.options)
-          } catch (error) {
-            expect(error).to.eql('function timed out after 100 milliseconds')
-            return
-          }
-          throw new Error('expected error but none was thrown')
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.instanceof(Error)
+          expect(error.message).to.eql('function timed out after 100 milliseconds')
+          expect(result).to.be.undefined
         })
       })
     })
