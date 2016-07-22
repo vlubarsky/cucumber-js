@@ -1,3 +1,4 @@
+import Promise from 'bluebird'
 import UserCodeRunner from './'
 
 describe('UserCodeRunner', function () {
@@ -10,8 +11,8 @@ describe('UserCodeRunner', function () {
       }
     })
 
-    describe("function uses synchronous interface", function() {
-      describe("function throws", function() {
+    describe('function uses synchronous interface', function() {
+      describe('function throws serializable error', function() {
         beforeEach(function() {
           this.options.fn = function() { throw 'error' }
         })
@@ -23,7 +24,23 @@ describe('UserCodeRunner', function () {
         })
       })
 
-      describe("function does not throws", function() {
+      describe('function throws non-serializable error', function() {
+        beforeEach(function() {
+          this.options.fn = function() {
+            const error = {}
+            error.error = error
+            throw error
+          }
+        })
+
+        it('returns the error', async function () {
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.eql('{ error: [Circular] }')
+          expect(result).to.be.undefined
+        })
+      })
+
+      describe('function returns', function() {
         beforeEach(function() {
           this.options.fn = function() { return 'result' }
         })
@@ -36,12 +53,12 @@ describe('UserCodeRunner', function () {
       })
     })
 
-    describe("function uses asynchronous callback interface", function() {
-      describe("function asynchronously throws", function() {
+    describe('function uses callback interface', function() {
+      describe('function asynchronously throws', function() {
         // Cannot unit test because mocha also sets an uncaught exception handler
       })
 
-      describe("function calls back with serializable error", function() {
+      describe('function calls back with serializable error', function() {
         beforeEach(function() {
           this.options.fn = function(callback) {
             setTimeout(function(){ callback('error') }, 25)
@@ -71,7 +88,7 @@ describe('UserCodeRunner', function () {
         })
       })
 
-      describe("function calls back with result", function() {
+      describe('function calls back with result', function() {
         beforeEach(function() {
           this.options.fn = function(callback) {
             setTimeout(function(){ callback(null, 'result') }, 25)
@@ -85,7 +102,7 @@ describe('UserCodeRunner', function () {
         })
       })
 
-      describe("function times out", function() {
+      describe('function times out', function() {
         beforeEach(function() {
           this.options.fn = function(callback) {
             setTimeout(function(){ callback(null, 'result') }, 200)
@@ -99,34 +116,68 @@ describe('UserCodeRunner', function () {
           expect(result).to.be.undefined
         })
       })
+    })
 
-      describe("function also returns a promise", function() {
+    describe('function uses generator interface', function() {
+      describe('function asynchronously throws', function() {
+        // Cannot unit test because mocha also sets an uncaught exception handler
+      })
+
+      describe('function throws', function() {
         beforeEach(function() {
-          this.options.fn = function(callback) {
-            return {
-              then: function() { callback() }
-            }
+          this.options.fn = function *() {
+            yield Promise.resolve(1)
+            throw 'error'
           }
         })
 
-        it('returns an error that only one interface should be used', async function () {
+        it('returns the error', async function () {
           const {error, result} = await UserCodeRunner.run(this.options)
-          expect(error).to.eql('function accepts a callback and returns a promise')
+          expect(error).to.eql('error')
+          expect(result).to.be.undefined
+        })
+      })
+
+      describe('function returns', function() {
+        beforeEach(function() {
+          this.options.fn = function *() {
+            return yield Promise.resolve('result')
+          }
+        })
+
+        it('returns the return value of the function', async function () {
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.undefined
+          expect(result).to.eql('result')
+        })
+      })
+
+      describe('function times out', function() {
+        beforeEach(function() {
+          this.options.fn = function *() {
+            yield Promise.delay(200)
+          }
+        })
+
+        it('returns timeout as an error', async function () {
+          const {error, result} = await UserCodeRunner.run(this.options)
+          expect(error).to.be.instanceof(Error)
+          expect(error.message).to.eql('function timed out after 100 milliseconds')
           expect(result).to.be.undefined
         })
       })
     })
 
-    describe("function uses promise interface", function() {
-      describe("function asynchronously throws", function() {
+    describe('function uses promise interface', function() {
+      describe('function asynchronously throws', function() {
         // Cannot unit test because mocha also sets an uncaught exception handler
       })
 
-      describe("promise resolves", function() {
+      describe('promise resolves', function() {
         beforeEach(function() {
           this.options.fn = function() {
             return {
-              then: function(resolve) {
+              then(resolve) {
                 setTimeout(function(){ resolve('result') }, 25)
               }
             }
@@ -140,11 +191,11 @@ describe('UserCodeRunner', function () {
         })
       })
 
-      describe("promise rejects with reason", function() {
+      describe('promise rejects with reason', function() {
         beforeEach(function() {
           this.options.fn = function() {
             return {
-              then: function(resolve, reject) {
+              then(resolve, reject) {
                 setTimeout(function(){ reject('error') }, 25)
               }
             }
@@ -158,29 +209,29 @@ describe('UserCodeRunner', function () {
         })
       })
 
-      describe("promise rejects without reason", function() {
+      describe('promise rejects without reason', function() {
         beforeEach(function() {
           this.options.fn = function() {
             return {
-              then: function(resolve, reject) {
+              then(resolve, reject) {
                 setTimeout(function(){ reject() }, 25)
               }
             }
           }
         })
 
-        it('returns "promise rejected" as an error', async function () {
+        it('returns a helpful error message', async function () {
           const {error, result} = await UserCodeRunner.run(this.options)
           expect(error).to.eql('Promise rejected without a reason')
           expect(result).to.be.undefined
         })
       })
 
-      describe("function times out", function() {
+      describe('function times out', function() {
         beforeEach(function() {
           this.options.fn = function() {
             return {
-              then: function(resolve) {
+              then(resolve) {
                 setTimeout(function(){ resolve('result') }, 200)
               }
             }
@@ -193,6 +244,37 @@ describe('UserCodeRunner', function () {
           expect(error.message).to.eql('function timed out after 100 milliseconds')
           expect(result).to.be.undefined
         })
+      })
+    })
+
+    describe('function uses multiple asynchronous interfaces: callback, generator', function() {
+      beforeEach(function() {
+        this.options.fn = function *(callback) {
+          yield Promise.resolve(1)
+          callback()
+        }
+      })
+
+      it('returns an error that multiple interface are used', async function () {
+        const {error, result} = await UserCodeRunner.run(this.options)
+        expect(error).to.eql('function uses multiple asynchronous interfaces: callback, generator')
+        expect(result).to.be.undefined
+      })
+    })
+
+    describe('function uses multiple asynchronous interfaces: callback, promise', function() {
+      beforeEach(function() {
+        this.options.fn = function(callback) {
+          return {
+            then() { callback() }
+          }
+        }
+      })
+
+      it('returns an error that multiple interface are used', async function () {
+        const {error, result} = await UserCodeRunner.run(this.options)
+        expect(error).to.eql('function uses multiple asynchronous interfaces: callback, promise')
+        expect(result).to.be.undefined
       })
     })
   })

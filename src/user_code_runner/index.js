@@ -1,9 +1,9 @@
+import _ from 'lodash'
 import co from 'co'
-import util from 'util'
 import isGenerator from 'is-generator'
-import Time from '../time'
 import Promise from 'bluebird'
 import UncaughtExceptionManager from '../uncaught_exception_manager'
+import util from 'util'
 
 export default class UserCodeRunner {
   static async run ({argsArray, thisArg, fn, timeoutInMilliseconds}) {
@@ -19,19 +19,24 @@ export default class UserCodeRunner {
     let fnReturn
     try {
       fnReturn = fn.apply(thisArg, argsArray)
-    } catch (error) {
+    } catch (e) {
+      const error = (e instanceof Error) ? e : util.format(e)
       return {error}
     }
 
     const callbackInterface = fn.length === argsArray.length
     const generatorInterface = isGenerator(fnReturn)
     const promiseInterface = fnReturn && typeof fnReturn.then === 'function'
-    const interfacesUsed = _.filter([callbackInterface, generatorInterface, promiseInterface]).length
+    const asyncInterfacesUsed = _({
+      callback: callbackInterface,
+      generator: generatorInterface,
+      promise: promiseInterface
+    }).pickBy().keys().value()
 
-    if (interfacesUsed.length > 1) {
-      return {error: 'function uses multiple interfaces (callback, generator, promise)'}
-    } else if (interfacesUsed.length === 0) {
+    if (asyncInterfacesUsed.length === 0) {
       return {result: fnReturn}
+    } else if (asyncInterfacesUsed.length > 1) {
+      return {error: 'function uses multiple asynchronous interfaces: ' + asyncInterfacesUsed.join(', ')}
     }
 
     const racingPromises = []
