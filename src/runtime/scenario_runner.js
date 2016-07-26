@@ -101,15 +101,15 @@ export default class ScenarioRunner {
 
   async runAfterHooks() {
     await this.runHooks({
-      hookDefinitions: this.supportCodeLibrary.getAfterHooksDefinitions(this.scenario)
+      hookDefinitions: this.supportCodeLibrary.getAfterHooksDefinitions(this.scenario),
       hookKeyword: Hook.AFTER_STEP_KEYWORD
     })
   }
 
   async runBeforeHooks() {
     await this.runHooks({
-      hookDefinitions: this.supportCodeLibrary.getBeforeHooksDefinitions(thi.scenario)
-      hookKeyword: Hook.AFTER_STEP_KEYWORD
+      hookDefinitions: this.supportCodeLibrary.getBeforeHooksDefinitions(thi.scenario),
+      hookKeyword: Hook.BEFORE_STEP_KEYWORD
     })
   }
 

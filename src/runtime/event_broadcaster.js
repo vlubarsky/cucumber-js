@@ -1,24 +1,16 @@
+import Promise from 'bluebird'
+
 export default class EventBroadcaster {
   constructor({listenerDefaultTimeout, listeners}) {
     this.listenerDefaultTimeout = listenerDefaultTimeout
     this.listeners = listeners
   }
 
-  async broadcastAfterEvent(event) {
-    var afterEvent = event.buildAfterEvent()
-    await self.broadcastEvent(afterEvent)
-  }
-
   async broadcastAroundEvent(event, fn) {
-    await this.broadcastBeforeEvent(event)
+    await this.broadcastEvent(event.buildBeforeEvent())
     const result = await fn()
-    await this.broadcastAfterEvent(event)
+    await this.broadcastEvent(event.buildAfterEvent())
     return result
-  }
-
-  async broadcastBeforeEvent(event) {
-    var beforeEvent = event.buildBeforeEvent()
-    await self.broadcastEvent(beforeEvent)
   }
 
   async broadcastEvent(event) {

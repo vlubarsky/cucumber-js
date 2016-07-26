@@ -1,6 +1,7 @@
 import Event from './event'
 import EventBroadcaster from './event_broadcaster'
 import FeaturesResult from '../models/features_result'
+import Promise from 'bluebird'
 
 export default class FeaturesRunner {
   constructor({features, listeners, options, supportCodeLibrary}) {
@@ -16,16 +17,16 @@ export default class FeaturesRunner {
   }
 
   async run() {
-    const featuresEvent = new Event(Event.FEATURES_EVENT_NAME, features)
+    const event = new Event(Event.FEATURES_EVENT_NAME, this.features)
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
-      await Promise.each(features, this.runFeature)
+      await Promise.each(this.features, this.runFeature)
       await this.broadcastFeaturesResult()
     })
     return this.featuresResult
   }
 
   async broadcastFeaturesResult() {
-    const event = new Event(Event.FEATURES_RESULT_EVENT_NAME, featuresResult)
+    const event = new Event(Event.FEATURES_RESULT_EVENT_NAME, this.featuresResult)
     await this.eventBroadcaster.broadcastEvent(event)
   }
 
