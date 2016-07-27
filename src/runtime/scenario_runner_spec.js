@@ -3,14 +3,19 @@ import Status from '../status'
 import Step from '../models/step'
 import StepResult from '../models/step_result'
 import EventBroadcaster from './event_broadcaster'
+import HookDefinition from '../models/hook_definition'
 
 
 function expectToHearEvents(hearStub, expectedEvents) {
   expect(hearStub).to.have.callCount(expectedEvents.length)
-  expectedEvents.forEach(function([name, data], index) {
+  expectedEvents.forEach(function([expectedName, expectedData], index) {
     const event = hearStub.args[index][0]
-    expect(event.getName()).to.eql(name)
-    expect(event.getData()).to.eql(data)
+    expect(event.getName()).to.eql(expectedName)
+    if (typeof expectedData === 'function') {
+      expectedData(event.getData())
+    } else {
+      expect(event.getData()).to.eql(expectedData)
+    }
   })
 }
 
@@ -21,6 +26,7 @@ describe('ScenarioRunner', function () {
     }
     this.eventBroadcaster = new EventBroadcaster({listeners: [this.listener]})
     this.scenario = {
+      getFeature: sinon.stub(),
       getSteps: sinon.stub().returns([])
     }
     this.supportCodeLibrary = {
@@ -40,8 +46,6 @@ describe('ScenarioRunner', function () {
   })
 
   describe('run()', function () {
-    var result
-
     describe('with no steps or hooks', function() {
       beforeEach(async function() {
         this.supportCodeLibrary.getAfterHookDefinitions.returns([])
@@ -128,8 +132,6 @@ describe('ScenarioRunner', function () {
     })
 
     describe('with an ambiguous step', function() {
-      var step, stepDefinitions
-
       beforeEach(async function() {
         this.step = new Step({})
         this.supportCodeLibrary.getStepDefinitions.returns([{}, {}])
@@ -137,11 +139,13 @@ describe('ScenarioRunner', function () {
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
-      it('broadcasts a scenario, step and stepResult event', function() {
+      it('broadcasts the expected events', function() {
         expectToHearEvents(this.listener.hear, [
           ['BeforeScenario', this.scenario],
           ['BeforeStep', this.step],
-          ['StepResult', ],
+          ['StepResult', function(stepResult) {
+            expect(stepResult.getStatus()).to.eql(Status.AMBIGUOUS)
+          }],
           ['AfterStep', this.step],
           ['ScenarioResult', this.scenarioResult],
           ['AfterScenario', this.scenario]
@@ -152,141 +156,100 @@ describe('ScenarioRunner', function () {
         expect(this.scenarioResult.getStatus()).to.eql(Status.AMBIGUOUS)
       })
     })
-    //
-    // describe('with an undefined step', function() {
-    //   var step
-    //
-    //   beforeEach(function(done) {
-    //     step = Cucumber.Ast.Step({})
-    //     scenario.getSteps.and.returnValue([step])
-    //     scenarioRunner.run(function(value) {
-    //       result = value
-    //       done()
-    //     })
-    //   })
-    //
-    //   it('broadcasts a scenario, step and stepResult event', function() {
-    //     expect(eventBroadcaster.broadcastAroundEvent).toHaveBeenCalledTimes(2)
-    //     expect(eventBroadcaster.broadcastEvent).toHaveBeenCalledTimes(2)
-    //
-    //     var event = this.eventBroadcaster.broadcastAroundEvent.args[0][0]
-    //     expect(event.getName()).to.eql('Scenario')
-    //     expect(event.getPayload()).to.eql(scenario)
-    //
-    //     event = this.eventBroadcaster.broadcastAroundEvent.args[1][0]
-    //     expect(event.getName()).to.eql('Step')
-    //     expect(event.getPayload()).to.eql(step)
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[0][0]
-    //     expect(event.getName()).to.eql('StepResult')
-    //     var stepResult = event.getPayload()
-    //     expect(stepResult.getStatus()).to.eql(Cucumber.Status.UNDEFINED)
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[1][0]
-    //     expect(event.getName()).to.eql('ScenarioResult')
-    //     expect(event.getPayload()).to.eql(result)
-    //   })
-    //
-    //   it('returns a failed result', function() {
-    //     expect(result.getStatus()).to.eql(Cucumber.Status.UNDEFINED)
-    //   })
-    // })
-    //
-    // describe('with a step in dry run mode', function() {
-    //   var step, stepDefinition
-    //
-    //   beforeEach(function(done) {
-    //     options.dryRun = true
-    //     step = Cucumber.Ast.Step({})
-    //     stepDefinition = createSpy('stepDefinition')
-    //     supportCodeLibrary.lookupStepDefinitionsByName.and.returnValue([stepDefinition])
-    //     scenario.getSteps.and.returnValue([step])
-    //     scenarioRunner.run(function(value) {
-    //       result = value
-    //       done()
-    //     })
-    //   })
-    //
-    //   it('broadcasts a scenario, step and stepResult event', function() {
-    //     expect(eventBroadcaster.broadcastAroundEvent).toHaveBeenCalledTimes(2)
-    //     expect(eventBroadcaster.broadcastEvent).toHaveBeenCalledTimes(2)
-    //
-    //     var event = this.eventBroadcaster.broadcastAroundEvent.args[0][0]
-    //     expect(event.getName()).to.eql('Scenario')
-    //     expect(event.getPayload()).to.eql(scenario)
-    //
-    //     event = this.eventBroadcaster.broadcastAroundEvent.args[1][0]
-    //     expect(event.getName()).to.eql('Step')
-    //     expect(event.getPayload()).to.eql(step)
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[0][0]
-    //     expect(event.getName()).to.eql('StepResult')
-    //     var stepResult = event.getPayload()
-    //     expect(stepResult.getStatus()).to.eql(Cucumber.Status.SKIPPED)
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[1][0]
-    //     expect(event.getName()).to.eql('ScenarioResult')
-    //     expect(event.getPayload()).to.eql(result)
-    //   })
-    //
-    //   it('returns a skipped result', function() {
-    //     expect(result.getStatus()).to.eql(Cucumber.Status.SKIPPED)
-    //   })
-    // })
-    //
-    // describe('with an before hook and step in dry run mode', function() {
-    //   var hook, step, stepDefinition
-    //
-    //   beforeEach(function(done) {
-    //     options.dryRun = true
-    //     hook = Cucumber.SupportCode.Hook(function(){ throw new Error('error') }, {})
-    //     step = Cucumber.Ast.Step({})
-    //     stepDefinition = createSpy('stepDefinition')
-    //     supportCodeLibrary.lookupBeforeHooksByScenario.and.returnValue([hook])
-    //     supportCodeLibrary.lookupStepDefinitionsByName.and.returnValue([stepDefinition])
-    //     scenario.getSteps.and.returnValue([step])
-    //     scenarioRunner.run(function(value) {
-    //       result = value
-    //       done()
-    //     })
-    //   })
-    //
-    //   it('broadcasts a scenario, step and stepResult event and does not run the hook', function() {
-    //     expect(eventBroadcaster.broadcastAroundEvent).toHaveBeenCalledTimes(3)
-    //     expect(eventBroadcaster.broadcastEvent).toHaveBeenCalledTimes(3)
-    //
-    //     var event = this.eventBroadcaster.broadcastAroundEvent.args[0][0]
-    //     expect(event.getName()).to.eql('Scenario')
-    //     expect(event.getPayload()).to.eql(scenario)
-    //
-    //     event = this.eventBroadcaster.broadcastAroundEvent.args[1][0]
-    //     expect(event.getName()).to.eql('Step')
-    //     var hookStep = event.getPayload()
-    //     expect(hookStep.getKeyword()).to.eql('Before ')
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[0][0]
-    //     expect(event.getName()).to.eql('StepResult')
-    //     var stepResult = event.getPayload()
-    //     expect(stepResult.getStatus()).to.eql(Cucumber.Status.SKIPPED)
-    //
-    //     event = this.eventBroadcaster.broadcastAroundEvent.args[2][0]
-    //     expect(event.getName()).to.eql('Step')
-    //     expect(event.getPayload()).to.eql(step)
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[1][0]
-    //     expect(event.getName()).to.eql('StepResult')
-    //     stepResult = event.getPayload()
-    //     expect(stepResult.getStatus()).to.eql(Cucumber.Status.SKIPPED)
-    //
-    //     event = this.eventBroadcaster.broadcastEvent.args[2][0]
-    //     expect(event.getName()).to.eql('ScenarioResult')
-    //     expect(event.getPayload()).to.eql(result)
-    //   })
-    //
-    //   it('returns a skipped result', function() {
-    //     expect(result.getStatus()).to.eql(Cucumber.Status.SKIPPED)
-    //   })
-    // })
+
+    describe('with an undefined step', function() {
+      beforeEach(async function() {
+        this.step = new Step({})
+        this.scenario.getSteps.returns([this.step])
+        this.scenarioResult = await this.scenarioRunner.run()
+      })
+
+      it('broadcasts the expected events', function() {
+        expectToHearEvents(this.listener.hear, [
+          ['BeforeScenario', this.scenario],
+          ['BeforeStep', this.step],
+          ['StepResult', function(stepResult) {
+            expect(stepResult.getStatus()).to.eql(Status.UNDEFINED)
+          }],
+          ['AfterStep', this.step],
+          ['ScenarioResult', this.scenarioResult],
+          ['AfterScenario', this.scenario]
+        ])
+      })
+
+      it('returns a failed result', function() {
+        expect(this.scenarioResult.getStatus()).to.eql(Status.UNDEFINED)
+      })
+    })
+
+    describe('with a step in dry run mode', function() {
+      beforeEach(async function() {
+        this.options.dryRun = true
+        this.step = new Step({})
+        this.supportCodeLibrary.getStepDefinitions.returns([{}])
+        this.scenario.getSteps.returns([this.step])
+        this.scenarioResult = await this.scenarioRunner.run()
+      })
+
+      it('broadcasts the expected events', function() {
+        expectToHearEvents(this.listener.hear, [
+          ['BeforeScenario', this.scenario],
+          ['BeforeStep', this.step],
+          ['StepResult', function(stepResult) {
+            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+          }],
+          ['AfterStep', this.step],
+          ['ScenarioResult', this.scenarioResult],
+          ['AfterScenario', this.scenario]
+        ])
+      })
+
+      it('returns a skipped result', function() {
+        expect(this.scenarioResult.getStatus()).to.eql(Status.SKIPPED)
+      })
+    })
+
+    describe('with an before hook and step in dry run mode', function() {
+      beforeEach(async function() {
+        this.options.dryRun = true
+        this.hookDefinition = new HookDefinition({
+          code() { throw new Error('error') }
+        })
+        this.step = new Step({})
+        this.step.setScenario(this.scenario)
+        this.stepDefinition = {}
+        this.supportCodeLibrary.getBeforeHookDefinitions.returns([this.hookDefinition])
+        this.supportCodeLibrary.getStepDefinitions.returns([{}])
+        this.scenario.getSteps.returns([this.step])
+        this.scenarioResult = await this.scenarioRunner.run()
+      })
+
+      it('broadcasts the expected events', function() {
+        expectToHearEvents(this.listener.hear, [
+          ['BeforeScenario', this.scenario],
+          ['BeforeStep', function(step) {
+            expect(step.getKeyword()).to.eql('Before ')
+          }],
+          ['StepResult', function(stepResult) {
+            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+          }],
+          ['AfterStep', function(step) {
+            expect(step.getKeyword()).to.eql('Before ')
+          }],
+          ['BeforeStep', this.step],
+          ['StepResult', function(stepResult) {
+            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+          }],
+          ['AfterStep', this.step],
+          ['ScenarioResult', this.scenarioResult],
+          ['AfterScenario', this.scenario]
+        ])
+      })
+
+      it('returns a skipped result', function() {
+        expect(this.scenarioResult.getStatus()).to.eql(Status.SKIPPED)
+      })
+    })
     //
     // describe('with an after hook and step in dry run mode', function() {
     //   var step, stepDefinition

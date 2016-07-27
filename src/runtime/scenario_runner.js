@@ -90,7 +90,7 @@ export default class ScenarioRunner {
 
   async runHooks({hookDefinitions, hookKeyword}) {
     await Promise.each(hookDefinitions, async (hookDefinition) => {
-      const hook = new Hook(hookKeyword)
+      const hook = new Hook({keyword: hookKeyword})
       hook.setScenario(this.scenario)
       const event = new Event(Event.STEP_EVENT_NAME, hook)
       await this.eventBroadcaster.broadcastAroundEvent(event, async() => {

@@ -1,12 +1,16 @@
 import Step from './step'
 
 export default class Hook extends Step {
-  isHidden() {
-    return true
+  getKeyword() {
+    return this.data.keyword
   }
 
   hasUri() {
     return false
+  }
+
+  isHidden() {
+    return true
   }
 }
 

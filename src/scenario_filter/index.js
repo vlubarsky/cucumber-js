@@ -3,7 +3,7 @@ const FEATURE_LINENUM_REGEXP = /^(.*?)((?::[\d]+)+)?$/
 
 export default class ScenarioFilter {
   constructor({featurePaths, names, tagExpressions}) {
-    this.featureUriToLinesMapping = this.getFeatureUriToLinesMapping(featurePaths)
+    this.featureUriToLinesMapping = this.getFeatureUriToLinesMapping(featurePaths || [])
     this.names = names || []
     this.tagExpressions = tagExpressions || []
   }
