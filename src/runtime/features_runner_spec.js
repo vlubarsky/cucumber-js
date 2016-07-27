@@ -1,19 +1,23 @@
 import EventBroadcaster from './event_broadcaster'
 import FeaturesRunner from './features_runner'
 import ScenarioRunner from './scenario_runner'
+import Status from '../status'
 
-describe("FeaturesRunner", function () {
+describe('FeaturesRunner', function () {
   beforeEach(function () {
     this.features = []
     this.supportCodeLibrary = {
       getDefaultTimeout() { return 5000 },
-      getListeners() { return [] }
+      getListeners() { return [] },
+      instantiateNewWorld() { return {} }
     }
     this.listeners = []
     this.options = {}
     sinon.stub(EventBroadcaster.prototype, 'broadcastEvent').returns(Promise.resolve())
-    sinon.spy(EventBroadcaster.prototype, 'broadcastAroundEvent')
-    sinon.stub(ScenarioRunner.prototype, 'run').returns(Promise.resolve())
+    sinon.stub(EventBroadcaster.prototype, 'broadcastAroundEvent', async function (event, fn) {
+      return await fn()
+    })
+    sinon.stub(ScenarioRunner.prototype, 'run')
     this.featuresRunner = new FeaturesRunner({
       features: this.features,
       listeners: this.listeners,
@@ -28,8 +32,8 @@ describe("FeaturesRunner", function () {
     ScenarioRunner.prototype.run.restore()
   })
 
-  describe("run()", function () {
-    describe("with no features", function() {
+  describe('run()', function () {
+    describe('with no features', function() {
       beforeEach(async function() {
         this.featureResult = await this.featuresRunner.run()
       })
@@ -38,87 +42,89 @@ describe("FeaturesRunner", function () {
         expect(EventBroadcaster.prototype.broadcastAroundEvent).to.have.been.calledOnce
         expect(EventBroadcaster.prototype.broadcastEvent).to.have.been.calledOnce
 
-        let event = EventBroadcaster.prototype.broadcastAroundEvent.args(0)[0];
-        expect(event.getName()).to.eql('Features');
-        expect(event.getPayload()).to.eql(this.features);
+        let event = EventBroadcaster.prototype.broadcastAroundEvent.args[0][0]
+        expect(event.getName()).to.eql('Features')
+        expect(event.getData()).to.eql(this.features)
 
-        event = EventBroadcaster.prototype.broadcastEvent.args(0)[0];
-        expect(event.getName()).to.eql('FeaturesResult');
-      });
+        event = EventBroadcaster.prototype.broadcastEvent.args[0][0]
+        expect(event.getName()).to.eql('FeaturesResult')
+      })
 
       it('returns a successful result', function() {
-        expect(this.featureResult).to.eql(true);
-      });
-    });
+        expect(this.featureResult.isSuccessful()).to.eql(true)
+      })
+    })
 
-  //   describe("with a feature with a passing scenario", function() {
-  //     var feature;
-  //
-  //     beforeEach(function(done) {
-  //       var scenario = createSpy('scenario');
-  //       feature = createSpyWithStubs('feature', {getScenarios: [scenario]});
-  //       scenarioResult = createSpyWithStubs('scenarioResult', {getDuration: 1, getStatus: Cucumber.Status.PASSED, getStepCounts: {}});
-  //       features.push(feature);
-  //       featuresRunner.run(function(value) {
-  //         result = value;
-  //         done();
-  //       });
-  //     });
-  //
-  //     it('broadcasts a features, feature and featuresResult event', function() {
-  //       expect(eventBroadcaster.broadcastAroundEvent).toHaveBeenCalledTimes(2);
-  //       expect(eventBroadcaster.broadcastEvent).toHaveBeenCalledTimes(1);
-  //
-  //       var event = eventBroadcaster.broadcastAroundEvent.calls.argsFor(0)[0];
-  //       expect(event.getName()).toEqual('Features');
-  //       expect(event.getPayload()).toEqual(features);
-  //
-  //       event = eventBroadcaster.broadcastAroundEvent.calls.argsFor(1)[0];
-  //       expect(event.getName()).toEqual('Feature');
-  //       expect(event.getPayload()).toEqual(feature);
-  //
-  //       event = eventBroadcaster.broadcastEvent.calls.argsFor(0)[0];
-  //       expect(event.getName()).toEqual('FeaturesResult');
-  //     });
-  //
-  //     it('returns a successful result', function() {
-  //       expect(result).toEqual(true);
-  //     });
-  //   });
-  //
-  //   describe("with a feature with a failing scenario", function() {
-  //     var feature;
-  //
-  //     beforeEach(function(done) {
-  //       var scenario = createSpy('scenario');
-  //       feature = createSpyWithStubs('feature', {getScenarios: [scenario]});
-  //       scenarioResult = createSpyWithStubs('scenarioResult', {getDuration: 1, getStatus: Cucumber.Status.FAILED, getStepCounts: {}});
-  //       features.push(feature);
-  //       featuresRunner.run(function(value) {
-  //         result = value;
-  //         done();
-  //       });
-  //     });
-  //
-  //     it('broadcasts a features, feature and featuresResult event', function() {
-  //       expect(eventBroadcaster.broadcastAroundEvent).toHaveBeenCalledTimes(2);
-  //       expect(eventBroadcaster.broadcastEvent).toHaveBeenCalledTimes(1);
-  //
-  //       var event = eventBroadcaster.broadcastAroundEvent.calls.argsFor(0)[0];
-  //       expect(event.getName()).toEqual('Features');
-  //       expect(event.getPayload()).toEqual(features);
-  //
-  //       event = eventBroadcaster.broadcastAroundEvent.calls.argsFor(1)[0];
-  //       expect(event.getName()).toEqual('Feature');
-  //       expect(event.getPayload()).toEqual(feature);
-  //
-  //       event = eventBroadcaster.broadcastEvent.calls.argsFor(0)[0];
-  //       expect(event.getName()).toEqual('FeaturesResult');
-  //     });
-  //
-  //     it('returns a unsuccessful result', function() {
-  //       expect(result).toEqual(false);
-  //     });
-  //   });
-  });
-});
+    describe('with a feature with a passing scenario', function() {
+      beforeEach(async function() {
+        this.feature = {
+          getScenarios() { return [{}] }
+        }
+        const scenarioResult = {
+          getDuration() { return 1 },
+          getStatus() { return Status.PASSED },
+          getStepCounts() { return {} }
+        }
+        ScenarioRunner.prototype.run.returns(Promise.resolve(scenarioResult))
+        this.features.push(this.feature)
+        this.featureResult = await this.featuresRunner.run()
+      })
+
+      it('broadcasts a features, feature and featuresResult event', function() {
+        expect(EventBroadcaster.prototype.broadcastAroundEvent).to.have.been.calledTwice
+        expect(EventBroadcaster.prototype.broadcastEvent).to.have.been.calledOnce
+
+        let event = EventBroadcaster.prototype.broadcastAroundEvent.args[0][0]
+        expect(event.getName()).to.eql('Features')
+        expect(event.getData()).to.eql(this.features)
+
+        event = EventBroadcaster.prototype.broadcastAroundEvent.args[1][0]
+        expect(event.getName()).to.eql('Feature')
+        expect(event.getData()).to.eql(this.feature)
+
+        event = EventBroadcaster.prototype.broadcastEvent.args[0][0]
+        expect(event.getName()).to.eql('FeaturesResult')
+      })
+
+      it('returns a successful result', function() {
+        expect(this.featureResult.isSuccessful()).to.eql(true)
+      })
+    })
+
+    describe('with a feature with a failing scenario', function() {
+      beforeEach(async function() {
+        this.feature = {
+          getScenarios() { return [{}] }
+        }
+        const scenarioResult = {
+          getDuration() { return 1 },
+          getStatus() { return Status.FAILED },
+          getStepCounts() { return {} }
+        }
+        ScenarioRunner.prototype.run.returns(Promise.resolve(scenarioResult))
+        this.features.push(this.feature)
+        this.featureResult = await this.featuresRunner.run()
+      })
+
+      it('broadcasts a features, feature and featuresResult event', function() {
+        expect(EventBroadcaster.prototype.broadcastAroundEvent).to.have.been.calledTwice
+        expect(EventBroadcaster.prototype.broadcastEvent).to.have.been.calledOnce
+
+        let event = EventBroadcaster.prototype.broadcastAroundEvent.args[0][0]
+        expect(event.getName()).to.eql('Features')
+        expect(event.getData()).to.eql(this.features)
+
+        event = EventBroadcaster.prototype.broadcastAroundEvent.args[1][0]
+        expect(event.getName()).to.eql('Feature')
+        expect(event.getData()).to.eql(this.feature)
+
+        event = EventBroadcaster.prototype.broadcastEvent.args[0][0]
+        expect(event.getName()).to.eql('FeaturesResult')
+      })
+
+      it('returns an unsuccessful result', function() {
+        expect(this.featureResult.isSuccessful()).to.eql(false)
+      })
+    })
+  })
+})

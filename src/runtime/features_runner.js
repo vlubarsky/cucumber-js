@@ -2,6 +2,7 @@ import Event from './event'
 import EventBroadcaster from './event_broadcaster'
 import FeaturesResult from '../models/features_result'
 import Promise from 'bluebird'
+import ScenarioRunner from './scenario_runner'
 
 export default class FeaturesRunner {
   constructor({features, listeners, options, supportCodeLibrary}) {
@@ -13,13 +14,13 @@ export default class FeaturesRunner {
     const defaultTimeout = supportCodeLibrary.getDefaultTimeout()
     this.eventBroadcaster = new EventBroadcaster(allListeners, defaultTimeout)
 
-    this.featuresResult = new FeaturesResult(options.strict);
+    this.featuresResult = new FeaturesResult(options.strict)
   }
 
   async run() {
     const event = new Event(Event.FEATURES_EVENT_NAME, this.features)
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
-      await Promise.each(this.features, this.runFeature)
+      await Promise.each(this.features, ::this.runFeature)
       await this.broadcastFeaturesResult()
     })
     return this.featuresResult
@@ -36,7 +37,7 @@ export default class FeaturesRunner {
     }
     const event = new Event(Event.FEATURE_EVENT_NAME, feature)
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
-      await Promise.each(feature.getScenarios(), this.runScenario)
+      await Promise.each(feature.getScenarios(), ::this.runScenario)
     })
   }
 
@@ -49,7 +50,7 @@ export default class FeaturesRunner {
       options: this.options,
       scenario,
       supportCodeLibrary: this.supportCodeLibrary
-    });
+    })
     const scenarioResult = await scenarioRunner.run()
     this.featuresResult.witnessScenarioResult(scenarioResult)
   }

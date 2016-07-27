@@ -1,10 +1,18 @@
 {
   "plugins": [
-    "transform-regenerator",
-    ["transform-runtime", {
-      "polyfill": false,
-      "regenerator": true
-    }]
+    "transform-async-to-generator",
+    "transform-function-bind",
   ],
-  "presets": ["es2015", "stage-3"]
+  "presets": ["es2015"],
+  "env": {
+    "production": {
+      "plugins": [
+        "transform-regenerator",
+        ["transform-runtime", {
+          "polyfill": false,
+          "regenerator": true
+        }]
+      ]
+    }
+  }
 }

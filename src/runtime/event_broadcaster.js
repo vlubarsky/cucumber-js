@@ -8,14 +8,13 @@ export default class EventBroadcaster {
 
   async broadcastAroundEvent(event, fn) {
     await this.broadcastEvent(event.buildBeforeEvent())
-    const result = await fn()
+    await fn()
     await this.broadcastEvent(event.buildAfterEvent())
-    return result
   }
 
   async broadcastEvent(event) {
-    await Promise.each(listeners, async(listener) => {
-      await listener.hear(event, listenerDefaultTimeout)
+    await Promise.each(this.listeners, async(listener) => {
+      await listener.hear(event, this.listenerDefaultTimeout)
     })
   }
 }

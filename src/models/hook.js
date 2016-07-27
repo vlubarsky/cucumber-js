@@ -1,6 +1,6 @@
 import Step from './step'
 
-export class Hook extends Step {
+export default class Hook extends Step {
   isHidden() {
     return true
   }
