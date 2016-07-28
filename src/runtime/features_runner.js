@@ -5,15 +5,11 @@ import Promise from 'bluebird'
 import ScenarioRunner from './scenario_runner'
 
 export default class FeaturesRunner {
-  constructor({features, listeners, options, supportCodeLibrary}) {
+  constructor({eventBroadcaster, features, options, supportCodeLibrary}) {
+    this.eventBroadcaster = eventBroadcaster
     this.features = features
     this.options = options
     this.supportCodeLibrary = supportCodeLibrary
-
-    const allListeners = listeners.concat(supportCodeLibrary.getListeners())
-    const defaultTimeout = supportCodeLibrary.getDefaultTimeout()
-    this.eventBroadcaster = new EventBroadcaster(allListeners, defaultTimeout)
-
     this.featuresResult = new FeaturesResult(options.strict)
   }
 

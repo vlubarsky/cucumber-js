@@ -25,5 +25,6 @@ export default class SupportCodeLoader {
         supportCodeLibrary.execute(codeExport)
       }
     })
+    return supportCodeLibrary
   }
 }

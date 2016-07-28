@@ -1,5 +1,5 @@
 import Promise from 'bluebird'
-import UserCodeRunner from './'
+import UserCodeRunner from './user_code_runner'
 
 describe('UserCodeRunner', function () {
   describe('run()', function () {

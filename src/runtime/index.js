@@ -1,26 +1,29 @@
 import StackTraceFilter from './stack_trace_filter'
 import FeaturesRunner from './features_runner'
 import Parser from './parser'
+import EventBroadcaster from './event_broadcaster'
 
 export default class Runtime {
   constructor(configuration) {
     this.configuration = configuration
     this.listeners = []
-    this.stackTraceFilter = new StackTraceFilter()
   }
 
   async start() {
-    const features = this.getFeatures()
-    const supportCodeLibrary = this.getSupportCodeLibrary()
+    const supportCodeLibrary = await this.configuration.getSupportCodeLibrary()
+
+    const eventBroadcaster = new EventBroadcaster(listeners, supportCodeLibrary.getDefaultTimeout())
+    const features = await this.getFeatures()
+    const listeners = this.listeners.concat(supportCodeLibrary.getListeners())
     const options = {
-      dryRun: this.configuration.isDryRunRequested(),
-      failFast: this.configuration.isFailFastRequested(),
-      strict: this.configuration.isStrictRequested()
+      dryRun: this.configuration.isDryRun(),
+      failFast: this.configuration.isFailFast(),
+      strict: this.configuration.isStrict()
     }
 
     const featuresRunner = new FeaturesRunner({
+      eventBroadcaster,
       features,
-      listeners: this.listeners,
       options,
       supportCodeLibrary
     })
@@ -42,14 +45,9 @@ export default class Runtime {
     this.listeners.push(listener)
   }
 
-  getFeatures() {
-    const featuresSourceMapping = this.configuration.getFeatureSourceMapping()
+  async getFeatures() {
+    const featuresSourceMapping = await this.configuration.getFeatureSourceMapping()
     const scenarioFilter = this.configuration.getScenarioFilter()
-    const parser = new Parser()
-    return parser.parse({featuresSourceMapping, scenarioFilter})
-  }
-
-  getSupportCodeLibrary() {
-    return this.configuration.getSupportCodeLibrary()
+    return new Parser().parse({featuresSourceMapping, scenarioFilter})
   }
 }

@@ -1,5 +1,6 @@
 import fs from 'mz/fs'
 import PathExpander from './path_expander'
+import Promise from 'bluebird'
 
 export default class FeatureSourceLoader {
   constructor({directory, featurePaths}) {

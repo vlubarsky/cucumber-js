@@ -87,7 +87,7 @@ export default class Configuration {
     }
   }
 
-  async getSupportCode() {
+  async getSupportCodeLibrary() {
     const extensions = ['js']
     const compilerModules = []
     this.options.compiler.forEach((compiler) => {
