@@ -1,4 +1,4 @@
-import ScenarioFilter from './'
+import ScenarioFilter from './scenario_filter'
 
 describe('ScenarioFilter', function() {
   describe('matches', function() {

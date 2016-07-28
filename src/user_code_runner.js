@@ -2,7 +2,7 @@ import _ from 'lodash'
 import co from 'co'
 import isGenerator from 'is-generator'
 import Promise from 'bluebird'
-import UncaughtExceptionManager from '../uncaught_exception_manager'
+import UncaughtExceptionManager from './uncaught_exception_manager'
 import util from 'util'
 
 export default class UserCodeRunner {

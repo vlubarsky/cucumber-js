@@ -1,8 +1,8 @@
 import _ from 'lodash'
-import HookDefinition from '../models/hook_definition'
-import Listener from '../listener'
+import HookDefinition from './models/hook_definition'
+import Listener from './listener'
 import StackTrace from 'stacktrace-js'
-import StepDefinition from '../models/step_definition'
+import StepDefinition from './models/step_definition'
 
 export default class SupportCodeLibrary {
   constructor() {

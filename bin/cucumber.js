@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Cli = require('../lib/cli');
+var Cli = require('../lib/cli').default;
 var cli = new Cli({
   argv: process.argv,
   cwd: process.cwd()
