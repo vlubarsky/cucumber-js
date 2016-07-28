@@ -4,12 +4,12 @@ import path from 'path'
 
 
 export default class ProfileLoader {
-  constructor(dir) {
-    this.dir = dir
+  constructor(directory) {
+    this.directory = directory
   }
 
   async getDefinitions() {
-    const definitionsFilePath = path.join(this.dir, 'cucumber.js')
+    const definitionsFilePath = path.join(this.directory, 'cucumber.js')
     try {
       await fs.access(definitionsFilePath)
     } catch (error) {

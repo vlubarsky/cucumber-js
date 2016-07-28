@@ -6,33 +6,34 @@ import StepDefinition from './models/step_definition'
 
 export default class SupportCodeLibrary {
   constructor() {
-    this.stepDefinitions = []
-    this.beforeHooks = []
-    this.afterHooks = []
+    this.afterHookDefinitions = []
+    this.beforeHookDefinitions = []
     this.defaultTimeout = 5000
+    this.listeners = []
+    this.stepDefinitions = []
     this.userCodeContext = {
-      After: this.defineHook(this.afterHooks),
-      Before: this.defineHook(this.beforeHooks),
-      defineStep: this.defineStep,
-      Given: this.defineStep,
-      registerHandler: this.registerHandler,
-      registerListener: this.registerListener,
-      setDefaultTimeout: this.setDefaultTimeout,
-      Then: this.defineStep,
-      When: this.defineStep,
+      After: this.defineHook(this.afterHookDefinitions),
+      Before: this.defineHook(this.beforeHookDefinitions),
+      defineStep: ::this.defineStep,
+      Given: ::this.defineStep,
+      registerHandler: ::this.registerHandler,
+      registerListener: ::this.registerListener,
+      setDefaultTimeout: ::this.setDefaultTimeout,
+      Then: ::this.defineStep,
+      When: ::this.defineStep,
       World() {}
     }
   }
 
-  defineHook(hookCollection) {
+  defineHook(collection) {
     return (options, code) => {
       if (typeof(options) === 'function') {
         code = options
         options = {}
       }
       const {line, uri} = this.getDefinitionLineAndUri()
-      const hook = new HookDefinition(code, options, uri, line)
-      hookCollection.push(hook)
+      const hookDefinition = new HookDefinition({code, options, uri, line})
+      collection.push(hookDefinition)
     }
   }
 
@@ -69,21 +70,21 @@ export default class SupportCodeLibrary {
     return new this.userCodeContext.World()
   }
 
-  lookupAfterHooksByScenario (scenario) {
-    return this.lookupHooksByScenario(this.afterHooks, scenario)
+  getAfterHookDefinitions(scenario) {
+    return this.getHookDefinitions(this.afterHookDefinitions, scenario)
   }
 
-  lookupBeforeHooksByScenario(scenario) {
-    return this.lookupHooksByScenario(this.beforeHooks, scenario)
+  getBeforeHookDefinitions(scenario) {
+    return this.getHookDefinitions(this.beforeHookDefinitions, scenario)
   }
 
-  lookupHooksByScenario(hooks, scenario) {
-    return hooks.filter(function (hook) {
-      return hook.appliesToScenario(scenario)
+  getHookDefinitions(hookDefinitions, scenario) {
+    return hookDefinitions.filter(function (hookDefinition) {
+      return hookDefinition.appliesToScenario(scenario)
     })
   }
 
-  lookupStepDefinitionsByName(name) {
+  getStepDefinitions(name) {
     return this.stepDefinitions.filter(function (stepDefinition) {
       return stepDefinition.matchesStepName(name)
     })

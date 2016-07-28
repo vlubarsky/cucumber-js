@@ -7,7 +7,7 @@ var cli = new Cli({
 });
 
 cli.run().then(function(success) {
-  var code = succeeded ? 0 : 1;
+  var code = success ? 0 : 1;
 
   function exitNow() {
     process.exit(code);

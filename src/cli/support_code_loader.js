@@ -14,7 +14,7 @@ export default class SupportCodeLoader {
   async load () {
     this.compilerModules.forEach(require)
     const pathExpander = new PathExpander(this.directory)
-    const expandedCodePaths = await pathExpander.expandPathWithExtensions(this.supportCodePaths, this.extensions)
+    const expandedCodePaths = await pathExpander.expandPathsWithExtensions(this.supportCodePaths, this.extensions)
     const sortedCodePaths = _.flatten(_.partition(expandedCodePaths, (codePath) => {
       return codePath.match(path.normalize('/support/'))
     }))

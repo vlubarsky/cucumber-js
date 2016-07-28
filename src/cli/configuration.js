@@ -26,7 +26,9 @@ export default class Configuration {
   async getFeatureDirectoryPaths() {
     const featureSourceMapping = await this.getFeatureSourceMapping()
     const featurePaths = _.keys(featureSourceMapping)
-    const featureDirs = featurePaths.map((featurePath) => path.dirname(featurePath))
+    const featureDirs = featurePaths.map((featurePath) => {
+      return path.relative(this.cwd, path.dirname(featurePath))
+    })
     return _.uniq(featureDirs)
   }
 
@@ -52,7 +54,7 @@ export default class Configuration {
   // Returns mapping of file path => file content
   async getFeatureSourceMapping() {
     const featurePaths = await this.getFeaturePaths()
-    const featureSourceLoader = new FeatureSourceLoader({dir: this.cwd, featurePaths})
+    const featureSourceLoader = new FeatureSourceLoader({directory: this.cwd, featurePaths})
     return await featureSourceLoader.load()
   }
 
@@ -98,7 +100,7 @@ export default class Configuration {
     const supportCodePaths = this.options.require.length > 0 ? this.options.require : await this.getFeatureDirectoryPaths()
     const supportCodeLoader = new SupportCodeLoader({
       compilerModules,
-      cwd: this.cwd,
+      directory: this.cwd,
       extensions,
       supportCodePaths
     })

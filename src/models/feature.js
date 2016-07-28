@@ -4,7 +4,7 @@ import Tag from './tag'
 
 export default class Feature {
   constructor (data, scenarios) {
-    this.data = this.data
+    this.data = data
     this.scenarios = scenarios
     this.initializeTags()
     this.setFeatureForScenarios()

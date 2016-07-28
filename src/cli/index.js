@@ -11,9 +11,9 @@ export default class Cli {
     this.cwd = cwd
   }
 
-  getConfiguration() {
+  async getConfiguration() {
     let {args, options} = new ArgvParser(this.argv).parse()
-    const profileArgv = new ProfileLoader(this.cwd).getArgv(options.profile)
+    const profileArgv = await new ProfileLoader(this.cwd).getArgv(options.profile)
     if (profileArgv.length > 0) {
       const fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
       const result = new ArgvParser(fullArgv).parse()
@@ -23,9 +23,9 @@ export default class Cli {
     return new Configuration({args, cwd: this.cwd, options})
   }
 
-  run() {
-    const configuration = this.getConfiguration()
+  async run() {
+    const configuration = await this.getConfiguration()
     const runtime = new Runtime(configuration)
-    return runtime.start()
+    return await runtime.start()
   }
 }

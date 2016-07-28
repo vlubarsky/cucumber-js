@@ -1,7 +1,8 @@
-import {beginTiming, endTiming} from '../time'
-import StepResult from './step_result'
-import UserCodeRunner from '../user_code_runner'
 import Status from '../status'
+import StepResult from './step_result'
+import Time from '../time'
+import UserCodeRunner from '../user_code_runner'
+const {beginTiming, endTiming} = Time
 
 const DOLLAR_PARAMETER_REGEXP = /\$[a-zA-Z_-]+/g
 const DOLLAR_PARAMETER_SUBSTITUTION = '(.*)'
@@ -19,6 +20,7 @@ export default class StepDefinition {
     this.options = options
     this.pattern = pattern
     this.uri = uri
+    console.log(pattern)
   }
 
   getInvalidCodeLengthMessage (syncOrPromiseLength, callbackLength) {

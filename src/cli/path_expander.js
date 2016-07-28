@@ -17,10 +17,10 @@ export default class PathExpander {
   }
 
   async expandPathWithExtensions(p, extensions) {
-    const realPath = fs.realpathSync(path.join(this.directory, p))
-    const stats = fs.statSync(realPath)
+    const realPath = await fs.realpath(path.join(this.directory, p))
+    const stats = await fs.stat(realPath)
     if (stats.isDirectory()) {
-      return this.expandDirectoryWithExtensions(realPath, extensions)
+      return await this.expandDirectoryWithExtensions(realPath, extensions)
     } else {
       return [realPath]
     }

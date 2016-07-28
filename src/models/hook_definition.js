@@ -11,15 +11,15 @@ export default class HookDefinition extends StepDefinition {
     return this.scenarioFilter.matches(scenario)
   }
 
-  buildInvocationParameters(step, scenario) {
-    return [scenario]
-  }
-
-  invalidCodeLengthMessage() {
+  getInvalidCodeLengthMessage() {
     return this.buildInvalidCodeLengthMessage('0 or 1', '2')
   }
 
-  validCodeLengths () {
+  getInvocationParameters(step, scenario) {
+    return [scenario]
+  }
+
+  getValidCodeLengths () {
     return [0, 1, 2]
   }
 }

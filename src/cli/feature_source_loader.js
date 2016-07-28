@@ -10,7 +10,7 @@ export default class FeatureSourceLoader {
 
   async load() {
     const pathExpander = new PathExpander(this.directory)
-    const expandedFeaturePaths = pathExpander.expandPathWithExtensions(this.featurePaths, ['.feature'])
+    const expandedFeaturePaths = await pathExpander.expandPathsWithExtensions(this.featurePaths, ['feature'])
     const mapping = {}
     await Promise.map(expandedFeaturePaths, async function(expandedFeaturePath) {
       mapping[expandedFeaturePath] = await fs.readFile(expandedFeaturePath, 'utf8')

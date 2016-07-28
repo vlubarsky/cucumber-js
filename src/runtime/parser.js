@@ -4,11 +4,11 @@ import Gherkin from 'gherkin'
 import Scenario from '../models/scenario'
 
 export default class Parser {
-  parse({featureSources, scenarioFilter}) {
+  parse({featuresSourceMapping, scenarioFilter}) {
     const gherkinCompiler = new Gherkin.Compiler()
     const gherkinParser = new Gherkin.Parser()
 
-    return _.compact(_.map(featureSources, function(source, uri) {
+    return _.compact(_.map(featuresSourceMapping, function(source, uri) {
       let gherkinDocument
       try {
         gherkinDocument = gherkinParser.parse(source)

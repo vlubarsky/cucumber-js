@@ -53,7 +53,7 @@ export default class Scenario {
     let previousStep
     this.steps = this.data.steps.map((stepData) => {
       var step = new Step(stepData)
-      step.setScenario(self)
+      step.setScenario(this)
       step.setPreviousStep(previousStep)
       previousStep = step
       return step

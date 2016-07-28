@@ -7,14 +7,17 @@ export default class Runtime {
   constructor(configuration) {
     this.configuration = configuration
     this.listeners = []
+    this.stackTraceFilter = new StackTraceFilter()
   }
 
   async start() {
     const supportCodeLibrary = await this.configuration.getSupportCodeLibrary()
-
-    const eventBroadcaster = new EventBroadcaster(listeners, supportCodeLibrary.getDefaultTimeout())
-    const features = await this.getFeatures()
     const listeners = this.listeners.concat(supportCodeLibrary.getListeners())
+    const eventBroadcaster = new EventBroadcaster({
+      listenerDefaultTimeout: supportCodeLibrary.getDefaultTimeout(),
+      listeners
+    })
+    const features = await this.getFeatures()
     const options = {
       dryRun: this.configuration.isDryRun(),
       failFast: this.configuration.isFailFast(),
@@ -47,7 +50,7 @@ export default class Runtime {
 
   async getFeatures() {
     const featuresSourceMapping = await this.configuration.getFeatureSourceMapping()
-    const scenarioFilter = this.configuration.getScenarioFilter()
+    const scenarioFilter = await this.configuration.getScenarioFilter()
     return new Parser().parse({featuresSourceMapping, scenarioFilter})
   }
 }

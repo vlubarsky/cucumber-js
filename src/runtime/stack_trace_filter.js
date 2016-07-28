@@ -4,7 +4,7 @@ import path from 'path'
 
 export default class StackTraceFilter {
   constructor() {
-    this.cucumberPath = path.join(__dirname, '..')
+    this.cucumberPath = path.join(__dirname, '..', '..')
   }
 
   filter() {
