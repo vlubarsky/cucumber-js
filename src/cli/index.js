@@ -11,21 +11,57 @@ export default class Cli {
     this.cwd = cwd
   }
 
-  async getConfiguration() {
-    let {args, options} = new ArgvParser(this.argv).parse()
-    const profileArgv = await new ProfileLoader(this.cwd).getArgv(options.profile)
+  async getArgvParser() {
+    let argvParser = new ArgvParser(this.argv)
+    const profileArgv = await new ProfileLoader(this.cwd).getArgv(argvParser.getProfiles())
     if (profileArgv.length > 0) {
       const fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
-      const result = new ArgvParser(fullArgv).parse()
-      args = result.args
-      options = result.options
+      argvParser = new ArgvParser(fullArgv)
     }
-    return new Configuration({args, cwd: this.cwd, options})
+    return new argvParser
+  }
+
+  async getFeatures(argvParser) {
+    const featurePaths = await argvParser.getFeaturePaths()
+    const featuresSourceMapping = {}
+    await Promise.map(featurePaths, async function(featurePath) {
+      featuresSourceMapping[featurePath] = await fs.readFile(featurePath, 'utf8')
+    })
+    const scenarioFilter = new ScenarioFilter(argvParser.getScenarioFilter())
+    return new Parser().parse({featuresSourceMapping, scenarioFilter})
+  }
+
+  async getFormatters(argvParser) {
+    const formatMapping = argvParser.getFormatMapping()
+  }
+
+  async getSupportCodeLibrary(argvParser) {
+    const supportCodePaths = await argvParser.getSupportCodePaths()
+    const sortedCodePaths = _.flatten(_.partition(supportCodePaths, (codePath) => {
+      return codePath.match(path.normalize('/support/'))
+    }))
+    const supportCodeLibrary = new SupportCodeLibrary()
+    sortedCodePaths.forEach(function (codePath) {
+      const codeExport = require(codePath)
+      if (typeof(codeExport) === 'function') {
+        supportCodeLibrary.execute(codeExport)
+      }
+    })
+    return supportCodeLibrary
   }
 
   async run() {
-    const configuration = await this.getConfiguration()
-    const runtime = new Runtime(configuration)
+    const argvParser = await this.getArgvParser()
+    const formatters = await this.getFormatters(argvParser)
+    const features = await this.getFeatures(argvParser)
+    const runtimeOptions = argvParser.getRuntimeOptions()
+    const supportCodeLibrary = await this.getSupportCodeLibrary(argvParser)
+    const runtime = new Runtime({
+      features,
+      listeners,
+      options,
+      supportCodeLibrary
+    })
     return await runtime.start()
   }
 }

@@ -1,19 +1,107 @@
+import fs from 'mz/fs'
 import {Command} from 'commander'
 import path from 'path'
 import {version} from '../../package.json'
 
 export default class ArgvParser {
-  constructor (argv) {
-    this.argv = argv
+  constructor ({cwd, argv}) {
+    this.cwd = cwd
+    this.pathExpander = new PathExpander(this.cwd)
+
+    const result = this.parse(argv)
+    this.args = result.args
+    this.options = result.options
   }
 
-  parse () {
+  async getFeatureDirectoryPaths() {
+    const featurePaths = await this.getFeaturePaths()
+    const featureDirs = featurePaths.map((featurePath) => {
+      return path.relative(this.cwd, path.dirname(featurePath))
+    })
+    return _.uniq(featureDirs)
+  }
+
+  async getFeaturePaths() {
+    let filePaths = await this.getUnexpandedFeaturePaths()
+    filePaths = filePaths.map((p) => p.replace(/(:\d+)*$/g, '')) // Strip line numbers
+    yield await this.pathExpander.expandPathsWithExtensions(filePaths, ['feature'])
+  }
+
+  async getUnexpandedFeaturePaths() {
+    if (this.args.length > 0) {
+      const promises = this.args.map(async (arg) => {
+        var filename = path.basename(arg)
+        if (filename[0] === '@') {
+          const filePath = path.join(this.cwd, arg)
+          const content = await fs.readFile(filePath, 'utf8')
+          return content.split('\n')
+        } else {
+          return arg
+        }
+      })
+      const featurePaths = await Promise.all(promises)
+      return _.flatten(featurePaths)
+    } else {
+      return ['features']
+    }
+  }
+
+  // Returns mapping of file path ('' for none) => formatter type
+  getFormatMapping () {
+    const mapping = {}
+    this.options.format.forEach(function (format) {
+      const parts = format.split(':')
+      const type = parts[0]
+      const outputTo = parts.slice(1).join(':')
+      mapping[outputTo] = type
+    })
+    return mapping
+  }
+
+  getProfiles() {
+    return this.options.profile
+  }
+
+  async getScenarioFilterOptions() {
+    const featurePaths = await this.getFeaturePaths()
+    return {
+      featurePaths,
+      names: this.options.name,
+      tags: this.options.tags
+    }
+  }
+
+  getCustomSnippetSyntaxPath() {
+    return this.options.snippetSyntax
+  }
+
+  getRuntimeOptions() {
+    return {
+      dryRun: this.options.dryRun,
+      failFast: this.options.failFast,
+      filterStacktraces: !this.options.backtrace,
+      strict: this.options.strict
+    }
+  }
+
+  async getSupportCodePaths() {
+    const extensions = ['js']
+    this.options.compiler.forEach((compiler) => {
+      const parts = compiler.split(':')
+      extensions.push(parts[0])
+      require(parts[1])
+    })
+    const unexpandedFilePaths = this.options.require.length > 0 ? this.options.require : await this.getFeatureDirectoryPaths()
+    return await this.pathExpander.expandPathsWithExtensions(unexpandedFilePaths, extensions)
+  }
+
+  parse (argv) {
     function collect(val, memo) {
       memo.push(val)
       return memo
     }
 
-    const program = new Command(path.basename(this.argv[1]))
+    const program = new Command(path.basename(argv[1]))
 
     program
       .usage('[options] [<DIR|FILE[:LINE]>...]')
@@ -37,7 +125,7 @@ export default class ArgvParser {
       /* eslint-enable no-console */
     })
 
-    program.parse(this.argv)
+    program.parse(argv)
 
     return {
       options: program.opts(),
