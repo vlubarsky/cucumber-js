@@ -24,7 +24,7 @@ export default class Formatter extends Listener {
   }
 
   constructor(options) {
-    this.log = options.log
     super(options)
+    this.log = options.log
   }
 }

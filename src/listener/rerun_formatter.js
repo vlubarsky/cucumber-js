@@ -9,7 +9,7 @@ export default class RerunFormatter extends Formatter {
     this.failures = {}
   }
 
-  onScenarioResult(scenarioResult) {
+  handleScenarioResult(scenarioResult) {
     if (scenarioResult.getStatus() === Status.FAILED) {
       const scenario = scenarioResult.getScenario()
       const uri = path.relative(this.cwd, scenario.getUri())
@@ -21,7 +21,7 @@ export default class RerunFormatter extends Formatter {
     }
   }
 
-  onAfterFeatures(features) {
+  handleAfterFeatures(features) {
     const text = _.map(this.failures, (lines, uri) => {
       return uri + ':' + lines.join(':')
     }).join('\n')
