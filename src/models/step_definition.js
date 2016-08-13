@@ -20,7 +20,6 @@ export default class StepDefinition {
     this.options = options
     this.pattern = pattern
     this.uri = uri
-    console.log(pattern)
   }
 
   getInvalidCodeLengthMessage (syncOrPromiseLength, callbackLength) {

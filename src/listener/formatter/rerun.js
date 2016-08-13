@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import Foramtter from './formatter'
+import Formatter from './'
 import path from 'path'
 import Status from '../status'
 
@@ -21,7 +21,7 @@ export default class RerunFormatter extends Formatter {
     }
   }
 
-  handleAfterFeatures(features) {
+  handleAfterFeatures() {
     const text = _.map(this.failures, (lines, uri) => {
       return uri + ':' + lines.join(':')
     }).join('\n')

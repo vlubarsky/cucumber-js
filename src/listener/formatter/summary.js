@@ -1,22 +1,15 @@
 import _ from 'lodash'
 import Duration from 'duration'
-import Formatter from './formatter'
+import Formatter from './'
 import indentString from 'indent-string'
 import path from 'path'
 import Table from 'cli-table'
+import Status from '../../status'
 
 export default class SummaryFormatter extends Formatter {
-  static statusReportOrder = [
-    Status.FAILED,
-    Status.AMBIGUOUS,
-    Status.UNDEFINED,
-    Status.PENDING,
-    Status.SKIPPED,
-    Status.PASSED
-  ]
-
   constructor(options) {
     super(options)
+    this.snippetBuilder = options.snippetBuilder
     this.failures = []
     this.warnings = []
   }
@@ -38,15 +31,15 @@ export default class SummaryFormatter extends Formatter {
     }
   }
 
-  handleFeaturesResultEvent(featuresResult) {
-    if (failures.length > 0) {
+  handleFeaturesResult(featuresResult) {
+    if (this.failures.length > 0) {
       this.logIssues({issues: this.failures, title: 'Failures'})
     }
-    if (warnings.length > 0) {
-      this.logIssues({issues: this.warnings, title: 'Failures'})
+    if (this.warnings.length > 0) {
+      this.logIssues({issues: this.warnings, title: 'Warnings'})
     }
-    self.logCountSummary('scenario', featuresResult.getScenarioCounts())
-    self.logCountSummary('step', featuresResult.getStepCounts())
+    this.logCountSummary('scenario', featuresResult.getScenarioCounts())
+    this.logCountSummary('step', featuresResult.getStepCounts())
     this.logDuration(featuresResult)
   }
 
@@ -59,7 +52,7 @@ export default class SummaryFormatter extends Formatter {
     let text = total + ' ' + type + (total !== 1 ? 's' : '')
     if (total > 0) {
       const details = []
-      statusReportOrder.forEach(function (status) {
+      SummaryFormatter.statusReportOrder.forEach((status) => {
         if (counts[status] > 0) {
           details.push(this.colorFns[status](counts[status] + ' ' + status))
         }
@@ -76,7 +69,7 @@ export default class SummaryFormatter extends Formatter {
     const end = new Date(milliseconds)
     const duration = new Duration(start, end)
 
-    self.log(
+    this.log(
       duration.minutes + 'm' +
       duration.toString('%S') + '.' +
       duration.toString('%L') + 's' + '\n'
@@ -85,9 +78,10 @@ export default class SummaryFormatter extends Formatter {
 
   logIssue({message, number, stepResult}) {
     const prefix = number + ') '
+    const step = stepResult.getStep()
+    const scenario = step.getScenario()
     let text = prefix
 
-    const scenario = step.getScenario()
     if (scenario) {
       const scenarioLocation = this.formatLocation(scenario)
       text += 'Scenario: ' + this.colorFns.bold(scenario.getName()) + ' - ' + this.colorFns.location(scenarioLocation)
@@ -96,23 +90,22 @@ export default class SummaryFormatter extends Formatter {
     }
     text += '\n'
 
-    const step = stepResult.getStep()
-    let stepText += '\nStep: ' + this.colorFns.bold(step.getKeyword() + (step.getName() || ''))
+    let stepText = 'Step: ' + this.colorFns.bold(step.getKeyword() + (step.getName() || ''))
     if (step.hasUri()) {
       const stepLocation = this.formatLocation(step)
       stepText += ' - ' + this.colorFns.location(stepLocation)
     }
-    text += indentString(stepLine, prefix.length) + '\n'
+    text += indentString(stepText, prefix.length) + '\n'
 
     const stepDefintion = stepResult.getStepDefinition();
     if (stepDefintion) {
       const stepDefintionLocation = this.formatLocation(stepDefintion)
-      const stepDefinitionLine = 'Step Definition: ' + this.colorFns.location(stepDefintionLocation);
+      const stepDefinitionLine = 'Step Definition: ' + this.colorFns.location(stepDefintionLocation)
       text += indentString(stepDefinitionLine, prefix.length) + '\n'
     }
 
-    const messageColorFn = this.colorFns[stepResult.getStatus()];
-    text += indentString('Message: ', prefix.length) + '\n'
+    const messageColorFn = this.colorFns[stepResult.getStatus()]
+    text += indentString('Message:', prefix.length) + '\n'
     text += indentString(messageColorFn(message), prefix.length + 2) + '\n\n'
     this.log(text)
   }
@@ -170,3 +163,13 @@ export default class SummaryFormatter extends Formatter {
     this.warnings.push({message, stepResult})
   }
 }
+
+
+SummaryFormatter.statusReportOrder = [
+  Status.FAILED,
+  Status.AMBIGUOUS,
+  Status.UNDEFINED,
+  Status.PENDING,
+  Status.SKIPPED,
+  Status.PASSED
+]

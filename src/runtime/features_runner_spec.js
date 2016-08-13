@@ -2,9 +2,14 @@ import EventBroadcaster from './event_broadcaster'
 import FeaturesRunner from './features_runner'
 import ScenarioRunner from './scenario_runner'
 import Status from '../status'
+import {expectToHearEvents} from '../../spec/listener_helpers'
 
 describe('FeaturesRunner', function () {
   beforeEach(function () {
+    this.listener = {
+      hear: sinon.stub()
+    }
+    this.eventBroadcaster = new EventBroadcaster({listeners: [this.listener]})
     this.features = []
     this.supportCodeLibrary = {
       getDefaultTimeout() { return 5000 },
@@ -13,22 +18,16 @@ describe('FeaturesRunner', function () {
     }
     this.listeners = []
     this.options = {}
-    sinon.stub(EventBroadcaster.prototype, 'broadcastEvent').returns(Promise.resolve())
-    sinon.stub(EventBroadcaster.prototype, 'broadcastAroundEvent', async function (event, fn) {
-      return await fn()
-    })
     sinon.stub(ScenarioRunner.prototype, 'run')
     this.featuresRunner = new FeaturesRunner({
+      eventBroadcaster: this.eventBroadcaster,
       features: this.features,
-      listeners: this.listeners,
       options: this.options,
       supportCodeLibrary: this.supportCodeLibrary
     })
   })
 
   afterEach(function() {
-    EventBroadcaster.prototype.broadcastEvent.restore()
-    EventBroadcaster.prototype.broadcastAroundEvent.restore()
     ScenarioRunner.prototype.run.restore()
   })
 
@@ -38,16 +37,12 @@ describe('FeaturesRunner', function () {
         this.featureResult = await this.featuresRunner.run()
       })
 
-      it('broadcasts a features event', function() {
-        expect(EventBroadcaster.prototype.broadcastAroundEvent).to.have.been.calledOnce
-        expect(EventBroadcaster.prototype.broadcastEvent).to.have.been.calledOnce
-
-        let event = EventBroadcaster.prototype.broadcastAroundEvent.args[0][0]
-        expect(event.getName()).to.eql('Features')
-        expect(event.getData()).to.eql(this.features)
-
-        event = EventBroadcaster.prototype.broadcastEvent.args[0][0]
-        expect(event.getName()).to.eql('FeaturesResult')
+      it('broadcasts features and featureResult events', function() {
+        expectToHearEvents(this.listener.hear, [
+          ['BeforeFeatures', this.features],
+          ['FeaturesResult', this.featureResult],
+          ['AfterFeatures', this.features]
+        ])
       })
 
       it('returns a successful result', function() {
@@ -71,19 +66,13 @@ describe('FeaturesRunner', function () {
       })
 
       it('broadcasts a features, feature and featuresResult event', function() {
-        expect(EventBroadcaster.prototype.broadcastAroundEvent).to.have.been.calledTwice
-        expect(EventBroadcaster.prototype.broadcastEvent).to.have.been.calledOnce
-
-        let event = EventBroadcaster.prototype.broadcastAroundEvent.args[0][0]
-        expect(event.getName()).to.eql('Features')
-        expect(event.getData()).to.eql(this.features)
-
-        event = EventBroadcaster.prototype.broadcastAroundEvent.args[1][0]
-        expect(event.getName()).to.eql('Feature')
-        expect(event.getData()).to.eql(this.feature)
-
-        event = EventBroadcaster.prototype.broadcastEvent.args[0][0]
-        expect(event.getName()).to.eql('FeaturesResult')
+        expectToHearEvents(this.listener.hear, [
+          ['BeforeFeatures', this.features],
+          ['BeforeFeature', this.feature],
+          ['AfterFeature', this.feature],
+          ['FeaturesResult', this.featureResult],
+          ['AfterFeatures', this.features]
+        ])
       })
 
       it('returns a successful result', function() {
@@ -107,19 +96,13 @@ describe('FeaturesRunner', function () {
       })
 
       it('broadcasts a features, feature and featuresResult event', function() {
-        expect(EventBroadcaster.prototype.broadcastAroundEvent).to.have.been.calledTwice
-        expect(EventBroadcaster.prototype.broadcastEvent).to.have.been.calledOnce
-
-        let event = EventBroadcaster.prototype.broadcastAroundEvent.args[0][0]
-        expect(event.getName()).to.eql('Features')
-        expect(event.getData()).to.eql(this.features)
-
-        event = EventBroadcaster.prototype.broadcastAroundEvent.args[1][0]
-        expect(event.getName()).to.eql('Feature')
-        expect(event.getData()).to.eql(this.feature)
-
-        event = EventBroadcaster.prototype.broadcastEvent.args[0][0]
-        expect(event.getName()).to.eql('FeaturesResult')
+        expectToHearEvents(this.listener.hear, [
+          ['BeforeFeatures', this.features],
+          ['BeforeFeature', this.feature],
+          ['AfterFeature', this.feature],
+          ['FeaturesResult', this.featureResult],
+          ['AfterFeatures', this.features]
+        ])
       })
 
       it('returns an unsuccessful result', function() {
