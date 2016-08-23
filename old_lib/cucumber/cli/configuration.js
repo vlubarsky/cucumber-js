@@ -48,7 +48,14 @@ function Configuration(options, args) {
       var outputTo = parts.slice(1).join(':');
       outputMapping[outputTo] = type;
     });
-
+    return _.map(outputMapping, function (type, outputTo) {
+      var stream = process.stdout;
+      if (outputTo) {
+        var fd = fs.openSync(outputTo, 'w');
+        stream = fs.createWriteStream(null, {fd: fd});
+      }
+      return {stream: stream, type: type};
+    });
   }
 
   function getSnippetSyntax () {

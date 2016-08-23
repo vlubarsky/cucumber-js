@@ -1,7 +1,9 @@
-import fs from 'mz/fs'
+import _ from 'lodash'
 import {Command} from 'commander'
-import path from 'path'
 import {version} from '../../package.json'
+import fs from 'mz/fs'
+import path from 'path'
+import PathExpander from './path_expander'
 
 export default class ArgvParser {
   constructor ({cwd, argv}) {
@@ -11,6 +13,10 @@ export default class ArgvParser {
     const result = this.parse(argv)
     this.args = result.args
     this.options = result.options
+  }
+
+  getAreColorsEnabled() {
+    return this.options.colors
   }
 
   async getFeatureDirectoryPaths() {
@@ -24,7 +30,7 @@ export default class ArgvParser {
   async getFeaturePaths() {
     let filePaths = await this.getUnexpandedFeaturePaths()
     filePaths = filePaths.map((p) => p.replace(/(:\d+)*$/g, '')) // Strip line numbers
-    yield await this.pathExpander.expandPathsWithExtensions(filePaths, ['feature'])
+    await this.pathExpander.expandPathsWithExtensions(filePaths, ['feature'])
   }
 
   async getUnexpandedFeaturePaths() {

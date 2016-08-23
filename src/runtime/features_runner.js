@@ -1,5 +1,4 @@
 import Event from './event'
-import EventBroadcaster from './event_broadcaster'
 import FeaturesResult from '../models/features_result'
 import Promise from 'bluebird'
 import ScenarioRunner from './scenario_runner'

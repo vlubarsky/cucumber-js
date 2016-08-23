@@ -1,4 +1,5 @@
 import UserCodeRunner from '../user_code_runner'
+import path from 'path'
 
 export default class Listener {
   constructor({cwd, line, timeout, uri}) {
@@ -10,7 +11,7 @@ export default class Listener {
 
   getHandlerForEvent(event) {
     const eventHandlerName = 'handle' + event.getName()
-    return this[eventHandlerName];
+    return this[eventHandlerName]
   }
 
   async hear(event, defaultTimeout) {
@@ -31,11 +32,11 @@ export default class Listener {
 
   prependLocationToError(error) {
     if (error && this.uri) {
-      const ref = path.relative(process.cwd(), this.uri) + ':' + this.line + ' ';
+      const ref = path.relative(process.cwd(), this.uri) + ':' + this.line
       if (error instanceof Error) {
-        error.message = ref + error.message
+        error.message = ref + ' ' + error.message
       } else {
-        error = ref + error
+        error = ref + ' ' + error
       }
     }
     return error

@@ -1,6 +1,5 @@
 import StackTraceFilter from './stack_trace_filter'
 import FeaturesRunner from './features_runner'
-import Parser from './parser'
 import EventBroadcaster from './event_broadcaster'
 
 export default class Runtime {
@@ -15,8 +14,8 @@ export default class Runtime {
 
   async start() {
     const eventBroadcaster = new EventBroadcaster({
-      listenerDefaultTimeout: supportCodeLibrary.getDefaultTimeout(),
-      listeners: this.listeners.concat(supportCodeLibrary.getListeners())
+      listenerDefaultTimeout: this.supportCodeLibrary.getDefaultTimeout(),
+      listeners: this.listeners.concat(this.supportCodeLibrary.getListeners())
     })
     const featuresRunner = new FeaturesRunner({
       eventBroadcaster,

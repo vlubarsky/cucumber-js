@@ -1,12 +1,11 @@
 import indentString from 'indent-string'
-import Status from '../status'
 import SummaryFormatter from './summary_formatter'
 import Table from 'cli-table'
 
 export default class PrettyFormatter extends SummaryFormatter {
   applyColor(stepResult, text) {
-    const status = stepResult.getStatus();
-    return this.colorFns[status](text);
+    const status = stepResult.getStatus()
+    return this.colorFns[status](text)
   }
 
   formatDataTable(stepResult, dataTable) {
@@ -60,7 +59,7 @@ export default class PrettyFormatter extends SummaryFormatter {
       text += '\n\n' + indentString(description, 1, ' ')
     }
     this.log(text + '\n\n')
-  };
+  }
 
   handleBeforeScenarioEvent(scenario) {
     let text = ''

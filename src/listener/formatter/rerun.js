@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import Formatter from './'
 import path from 'path'
-import Status from '../status'
+import Status from '../../status'
 
 export default class RerunFormatter extends Formatter {
   constructor(options) {

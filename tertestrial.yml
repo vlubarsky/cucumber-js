@@ -1,4 +1,4 @@
-name: 'JS: Cucumber + Mocha'
 actions:
-  - filename: '\_spec.js$'
+  - match:
+      filename: '\_spec.js$'
     command: 'mycha {{filename}}'

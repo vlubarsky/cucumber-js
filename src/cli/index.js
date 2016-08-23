@@ -1,9 +1,15 @@
 import _ from 'lodash'
 import ArgvParser from './argv_parser'
-import Configuration from './configuration'
+import FormatterBuilder from '../Listener/formatter/builder'
+import fs from 'mz/fs'
+import getColorFns from '../get_color_fns'
+import Parser from 'parser'
+import path from 'path'
 import ProfileLoader from './profile_loader'
 import Runtime from '../runtime'
-
+import ScenarioFilter from '../scenario_filter'
+import SnippetBuilder from '../snippet_builder'
+import SupportCodeLibrary from '../supoort_code_library'
 
 export default class Cli {
   constructor ({argv, cwd}) {
@@ -18,7 +24,7 @@ export default class Cli {
       const fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
       argvParser = new ArgvParser(fullArgv)
     }
-    return new argvParser
+    return argvParser
   }
 
   async getFeatures(argvParser) {
@@ -33,6 +39,28 @@ export default class Cli {
 
   async getFormatters(argvParser) {
     const formatMapping = argvParser.getFormatMapping()
+    const colorFns = getColorFns(argvParser.getAreColorsEnabled())
+    const snippetBuilder = this.getSnippetBuilder(argvParser)
+    await Promise.map(formatMapping, async function (type, outputTo) {
+      let stream = process.stdout
+      if (outputTo) {
+        let fd = await fs.open(outputTo, 'w')
+        stream = fs.createWriteStream(null, {fd})
+      }
+      const logFn = function(data) { stream.write(data) }
+      const options = {colorFns, cwd: this.cwd, logFn, snippetBuilder}
+      return FormatterBuilder.build(type, options)
+    })
+  }
+
+  getSnippetBuilder(argvParser) {
+    const customSyntaxPath = argvParser.getCustomSnippetSyntaxPath()
+    let customSyntax
+    if (customSyntaxPath) {
+      const fullSyntaxPath = path.resolve(this.cwd, customSyntaxPath)
+      customSyntax = require(fullSyntaxPath)
+    }
+    return new SnippetBuilder(customSyntax)
   }
 
   async getSupportCodeLibrary(argvParser) {
@@ -58,8 +86,8 @@ export default class Cli {
     const supportCodeLibrary = await this.getSupportCodeLibrary(argvParser)
     const runtime = new Runtime({
       features,
-      listeners,
-      options,
+      listeners: formatters,
+      options: runtimeOptions,
       supportCodeLibrary
     })
     return await runtime.start()

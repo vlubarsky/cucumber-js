@@ -97,7 +97,7 @@ export default class SummaryFormatter extends Formatter {
     }
     text += indentString(stepText, prefix.length) + '\n'
 
-    const stepDefintion = stepResult.getStepDefinition();
+    const stepDefintion = stepResult.getStepDefinition()
     if (stepDefintion) {
       const stepDefintionLocation = this.formatLocation(stepDefintion)
       const stepDefinitionLine = 'Step Definition: ' + this.colorFns.location(stepDefintionLocation)
@@ -118,7 +118,7 @@ export default class SummaryFormatter extends Formatter {
   }
 
   storeAmbiguousStepResult(stepResult) {
-    const stepDefinitions = stepResult.getAmbiguousStepDefinitions();
+    const stepDefinitions = stepResult.getAmbiguousStepDefinitions()
     const table = new Table({
       chars: {
         'bottom': '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
@@ -131,11 +131,11 @@ export default class SummaryFormatter extends Formatter {
         border: [], 'padding-left': 0, 'padding-right': 0
       }
     })
-    table.push.apply(table, stepDefinitions.map(function (stepDefinition) {
-      const pattern = stepDefinition.getPattern().toString();
-      const relativeUri = path.relative(this.cwd, stepDefinition.getUri());
-      const line = stepDefinition.getLine();
-      return [pattern, relativeUri + ':' + line];
+    table.push.apply(table, stepDefinitions.map((stepDefinition) => {
+      const pattern = stepDefinition.getPattern().toString()
+      const relativeUri = path.relative(this.cwd, stepDefinition.getUri())
+      const line = stepDefinition.getLine()
+      return [pattern, relativeUri + ':' + line]
     }))
     const message = 'Multiple step definitions match:' + '\n' + indentString(table.toString(), 2)
     this.failures.push({message, stepResult})
@@ -148,11 +148,7 @@ export default class SummaryFormatter extends Formatter {
   }
 
   storePendingStepResult(stepResult) {
-    let message = 'Pending';
-    const pendingReason = stepResult.getPendingReason()
-    if (pendingReason) {
-      message += ': ' + pendingReason
-    }
+    const message = 'Pending'
     this.warnings.push({message, stepResult})
   }
 
