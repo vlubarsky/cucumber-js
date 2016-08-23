@@ -1,4 +1,4 @@
-import Status from '../status'
+import Status from '../../status'
 import SummaryFormatter from './summary'
 
 export default class ProgressFormatter extends SummaryFormatter {

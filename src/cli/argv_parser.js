@@ -30,7 +30,7 @@ export default class ArgvParser {
   async getFeaturePaths() {
     let filePaths = await this.getUnexpandedFeaturePaths()
     filePaths = filePaths.map((p) => p.replace(/(:\d+)*$/g, '')) // Strip line numbers
-    await this.pathExpander.expandPathsWithExtensions(filePaths, ['feature'])
+    return await this.pathExpander.expandPathsWithExtensions(filePaths, ['feature'])
   }
 
   async getUnexpandedFeaturePaths() {
@@ -52,8 +52,7 @@ export default class ArgvParser {
     }
   }
 
-  // Returns mapping of file path ('' for none) => formatter type
-  getFormatMapping () {
+  getFormats() {
     const mapping = {}
     this.options.format.forEach(function (format) {
       const parts = format.split(':')
@@ -61,7 +60,9 @@ export default class ArgvParser {
       const outputTo = parts.slice(1).join(':')
       mapping[outputTo] = type
     })
-    return mapping
+    return _.map(mapping, function(type, outputTo) {
+      return {type, outputTo}
+    })
   }
 
   getProfiles() {

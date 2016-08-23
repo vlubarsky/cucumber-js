@@ -1,4 +1,5 @@
-const _ = require('lodash')
+import _ from 'lodash'
+
 const FEATURE_LINENUM_REGEXP = /^(.*?)((?::[\d]+)+)?$/
 
 export default class ScenarioFilter {

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import javascriptSyntax from './javasscript_syntax'
+import javascriptSyntax from './javascript_syntax'
 
 const NUMBER_MATCHING_GROUP = '(\\d+)'
 const NUMBER_PATTERN = /\d+/g

@@ -1,7 +1,7 @@
+import _ from 'lodash'
 import fs from 'mz/fs'
 import glob from 'glob'
 import path from 'path'
-import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default class PathExpander {
@@ -26,13 +26,13 @@ export default class PathExpander {
     }
   }
 
-  async expandDirectoryWithExtensions (realPath, extensions) {
+  expandDirectoryWithExtensions(realPath, extensions) {
     let pattern = realPath + '/**/*.'
     if (extensions.length > 1) {
       pattern += '{' + extensions.join(',') + '}'
     } else {
       pattern += extensions[0]
     }
-    return await Promise.promisify(glob)(pattern)
+    return Promise.promisify(glob)(pattern)
   }
 }

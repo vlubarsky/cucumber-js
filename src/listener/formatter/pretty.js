@@ -1,5 +1,5 @@
 import indentString from 'indent-string'
-import SummaryFormatter from './summary_formatter'
+import SummaryFormatter from './summary'
 import Table from 'cli-table'
 
 export default class PrettyFormatter extends SummaryFormatter {

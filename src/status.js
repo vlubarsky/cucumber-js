@@ -1,4 +1,4 @@
-var Status = {}
+const Status = {}
 
 Status.AMBIGUOUS = 'ambiguous'
 Status.FAILED = 'failed'

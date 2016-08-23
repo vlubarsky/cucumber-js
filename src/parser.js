@@ -1,7 +1,7 @@
 import _ from 'lodash'
-import Feature from '../models/feature'
+import Feature from './models/feature'
 import Gherkin from 'gherkin'
-import Scenario from '../models/scenario'
+import Scenario from './models/scenario'
 
 export default class Parser {
   parse({featuresSourceMapping, scenarioFilter}) {

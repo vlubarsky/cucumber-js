@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('source-map-support').install();
 
 var Cli = require('../lib/cli').default;
 var cli = new Cli({
