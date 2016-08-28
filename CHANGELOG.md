@@ -1,5 +1,12 @@
 ### [master (unreleased)](https://github.com/cucumber/cucumber-js/compare/v1.2.2...master)
 
+### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v2.0.0) (2016-08-05)
+
+#### Breaking changes
+
+* `support` directory is no longer automatically loaded first
+* Complete rewrite of the internals to use promises
+
 ### [1.2.2](https://github.com/cucumber/cucumber-js/compare/v1.2.1...v1.2.2) (2016-08-05)
 
 #### Bug Fixes

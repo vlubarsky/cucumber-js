@@ -97,10 +97,10 @@ export default class SummaryFormatter extends Formatter {
     }
     text += indentString(stepText, prefix.length) + '\n'
 
-    const stepDefintion = stepResult.getStepDefinition()
-    if (stepDefintion) {
-      const stepDefintionLocation = this.formatLocation(stepDefintion)
-      const stepDefinitionLine = 'Step Definition: ' + this.colorFns.location(stepDefintionLocation)
+    const stepDefinition = stepResult.getStepDefinition()
+    if (stepDefinition) {
+      const stepDefinitionLocation = this.formatLocation(stepDefinition)
+      const stepDefinitionLine = 'Step Definition: ' + this.colorFns.location(stepDefinitionLocation)
       text += indentString(stepDefinitionLine, prefix.length) + '\n'
     }
 

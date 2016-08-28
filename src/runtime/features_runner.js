@@ -18,7 +18,7 @@ export default class FeaturesRunner {
       await Promise.each(this.features, ::this.runFeature)
       await this.broadcastFeaturesResult()
     })
-    return this.featuresResult
+    return this.featuresResult.isSuccessful()
   }
 
   async broadcastFeaturesResult() {

@@ -18,13 +18,13 @@ export default class Listener {
     const handler = this.getHandlerForEvent(event)
     if (handler) {
       const timeout = this.timeout || defaultTimeout
-      try {
-        await UserCodeRunner.run({
-          code: handler,
-          parameters: [event.getPayload()],
-          timeoutInMilliseconds: timeout
-        })
-      } catch (error) {
+      const {error} = await UserCodeRunner.run({
+        argsArray: [event.getData()],
+        fn: handler,
+        timeoutInMilliseconds: timeout,
+        thisArg: this
+      })
+      if (error) {
         throw this.prependLocationToError(error)
       }
     }
@@ -32,7 +32,7 @@ export default class Listener {
 
   prependLocationToError(error) {
     if (error && this.uri) {
-      const ref = path.relative(process.cwd(), this.uri) + ':' + this.line
+      const ref = path.relative(this.cwd, this.uri) + ':' + this.line
       if (error instanceof Error) {
         error.message = ref + ' ' + error.message
       } else {

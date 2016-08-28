@@ -17,7 +17,7 @@ export default class PathExpander {
   }
 
   async expandPathWithExtensions(p, extensions) {
-    const realPath = await fs.realpath(path.join(this.directory, p))
+    const realPath = await fs.realpath(path.resolve(this.directory, p))
     const stats = await fs.stat(realPath)
     if (stats.isDirectory()) {
       return await this.expandDirectoryWithExtensions(realPath, extensions)

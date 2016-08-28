@@ -45,20 +45,17 @@ export default class ScenarioResult {
   }
 
   witnessStepResult(stepResult) {
-    var stepDuration = stepResult.getDuration()
+    const stepDuration = stepResult.getDuration()
     if (stepDuration) {
       this.duration += stepDuration
     }
-    var stepStatus = stepResult.getStatus()
+    const stepStatus = stepResult.getStatus()
     if (this.shouldUpdateStatus(stepStatus)) {
       this.status = stepStatus
     }
     if (stepStatus === Status.FAILED) {
       this.failureException = stepResult.getFailureException()
     }
-    var step = stepResult.getStep()
-    if (!step.isHidden()) {
-      this.stepCounts[stepStatus] += 1
-    }
+    this.stepCounts[stepStatus] += 1
   }
 }

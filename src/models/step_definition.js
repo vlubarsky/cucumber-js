@@ -22,19 +22,23 @@ export default class StepDefinition {
     this.uri = uri
   }
 
-  getInvalidCodeLengthMessage (syncOrPromiseLength, callbackLength) {
+  buildInvalidCodeLengthMessage(syncOrPromiseLength, callbackLength) {
     return 'function has ' + this.code.length + ' arguments' +
       ', should have ' + syncOrPromiseLength + ' (if synchronous or returning a promise)' +
       ' or '  + callbackLength + ' (if accepting a callback)'
   }
 
-  getInvocationParameters (step) {
+  getInvalidCodeLengthMessage(parameters) {
+    return this.buildInvalidCodeLengthMessage(parameters.length, parameters.length + 1)
+  }
+
+  getInvocationParameters(step) {
     const stepName = step.getName()
     const patternRegexp = this.getPatternRegexp()
     let parameters = patternRegexp.exec(stepName)
     parameters.shift()
     parameters = parameters.concat(step.getArguments().map(function(arg) {
-      switch (arg.getType()) {
+      switch (arg.constructor.name) {
         case 'DataTable':
           return arg
         case 'DocString':
@@ -44,6 +48,10 @@ export default class StepDefinition {
       }
     }))
     return parameters
+  }
+
+  getLine() {
+    return this.line
   }
 
   getPatternRegexp () {
@@ -60,6 +68,10 @@ export default class StepDefinition {
     }
   }
 
+  getUri() {
+    return this.uri
+  }
+
   getValidCodeLengths (parameters) {
     return [parameters.length, parameters.length + 1]
   }
@@ -74,15 +86,17 @@ export default class StepDefinition {
     if (validCodeLengths.indexOf(this.code.length) === -1) {
       error = this.getInvalidCodeLengthMessage(parameters)
     } else {
-      try {
-        await UserCodeRunner.run({code: this.code, parameters, timeoutInMilliseconds, world})
-      } catch (e) {
-        error = e
-      }
+      const data = await UserCodeRunner.run({
+        argsArray: parameters,
+        fn: this.code,
+        thisArg: world,
+        timeoutInMilliseconds
+      })
+      error = data.error
+      result = data.result
     }
 
     const stepResultData = {
-      attachments: scenario.getAttachments(),
       duration: endTiming(start),
       step,
       stepDefinition: this
@@ -101,7 +115,7 @@ export default class StepDefinition {
   }
 
   matchesStepName(stepName) {
-    const regexp = self.getPatternRegexp()
+    const regexp = this.getPatternRegexp()
     return regexp.test(stepName)
   }
 }

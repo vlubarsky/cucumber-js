@@ -12,7 +12,7 @@ export default class StackTraceFilter {
       if (frames.length > 0 && this.isFrameInCucumber(frames[0])) {
         return frames
       }
-      const index = _.findIndex(frames, this.isFrameInCucumber)
+      const index = _.findIndex(frames, ::this.isFrameInCucumber)
       if (index === -1) {
         return frames
       } else {

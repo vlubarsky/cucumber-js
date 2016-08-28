@@ -13,9 +13,10 @@ import StepDefinitionSnippetBuilder from '../step_definition_snippet_builder'
 import SupportCodeLibrary from '../support_code_library'
 
 export default class Cli {
-  constructor ({argv, cwd}) {
+  constructor ({argv, cwd, stdout}) {
     this.argv = argv
     this.cwd = cwd
+    this.stdout = stdout
   }
 
   async getArgvParser() {
@@ -42,16 +43,22 @@ export default class Cli {
     const formats = argvParser.getFormats()
     const colorFns = getColorFns(argvParser.getAreColorsEnabled())
     const snippetBuilder = this.getStepDefinitionSnippetBuilder(argvParser)
-    await Promise.map(formats, async ({type, outputTo}) => {
-      let stream = process.stdout
+    const streamsToClose = []
+    const formatters = await Promise.map(formats, async ({type, outputTo}) => {
+      let stream = this.stdout
+      let cleanup = _.noop
       if (outputTo) {
         let fd = await fs.open(outputTo, 'w')
         stream = fs.createWriteStream(null, {fd})
+        streamsToClose.push(stream)
       }
-      const logFn = function(data) { stream.write(data) }
-      const options = {colorFns, cwd: this.cwd, logFn, snippetBuilder}
+      const options = {colorFns, cwd: this.cwd, log: ::stream.write, snippetBuilder}
       return FormatterBuilder.build(type, options)
     })
+    const cleanup = function() {
+      Promise.each(streamsToClose, (stream) => Promise.promisify(stream.end)())
+    }
+    return {cleanup, formatters}
   }
 
   getStepDefinitionSnippetBuilder(argvParser) {
@@ -66,11 +73,8 @@ export default class Cli {
 
   async getSupportCodeLibrary(argvParser) {
     const supportCodePaths = await argvParser.getSupportCodePaths()
-    const sortedCodePaths = _.flatten(_.partition(supportCodePaths, (codePath) => {
-      return codePath.match(path.normalize('/support/'))
-    }))
     const supportCodeLibrary = new SupportCodeLibrary()
-    sortedCodePaths.forEach(function (codePath) {
+    supportCodePaths.forEach(function (codePath) {
       const codeExport = require(codePath)
       if (typeof(codeExport) === 'function') {
         supportCodeLibrary.execute(codeExport)
@@ -81,7 +85,7 @@ export default class Cli {
 
   async run() {
     const argvParser = await this.getArgvParser()
-    const formatters = await this.getFormatters(argvParser)
+    const {cleanup, formatters} = await this.getFormatters(argvParser)
     const features = await this.getFeatures(argvParser)
     const runtimeOptions = argvParser.getRuntimeOptions()
     const supportCodeLibrary = await this.getSupportCodeLibrary(argvParser)
@@ -91,6 +95,8 @@ export default class Cli {
       options: runtimeOptions,
       supportCodeLibrary
     })
-    return await runtime.start()
+    const result = await runtime.start()
+    await cleanup()
+    return result
   }
 }

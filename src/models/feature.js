@@ -63,7 +63,7 @@ export default class Feature {
   }
 
   setFeatureForScenarios() {
-    this.scenarios.forEach(function(scenario) {
+    this.scenarios.forEach((scenario) => {
       scenario.setFeature(this)
     })
   }

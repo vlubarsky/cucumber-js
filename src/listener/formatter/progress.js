@@ -2,18 +2,17 @@ import Status from '../../status'
 import SummaryFormatter from './summary'
 
 export default class ProgressFormatter extends SummaryFormatter {
-  constructor(options) {
-    super(options)
-    this.failures = {}
-  }
-
   handleStepResult(stepResult) {
     const status = stepResult.getStatus()
     const step = stepResult.getStep()
-    if (!step.isHidden() || status === Status.FAILED) {
-      const character = this.colorFns[status](ProgressFormatter.characters[status])
-      this.log(character)
-    }
+    const character = this.colorFns[status](ProgressFormatter.characters[status])
+    this.log(character)
+    super.handleStepResult(stepResult)
+  }
+
+  handleFeaturesResult(featuresResult) {
+    this.log('\n\n')
+    super.handleFeaturesResult(featuresResult)
   }
 }
 
