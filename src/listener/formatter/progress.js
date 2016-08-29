@@ -4,7 +4,6 @@ import SummaryFormatter from './summary'
 export default class ProgressFormatter extends SummaryFormatter {
   handleStepResult(stepResult) {
     const status = stepResult.getStatus()
-    const step = stepResult.getStep()
     const character = this.colorFns[status](ProgressFormatter.characters[status])
     this.log(character)
     super.handleStepResult(stepResult)

@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 const Status = {}
 
 Status.AMBIGUOUS = 'ambiguous'
@@ -8,7 +10,7 @@ Status.SKIPPED = 'skipped'
 Status.UNDEFINED = 'undefined'
 
 Status.getMapping = function getMapping(initialValue) {
-  var statuses = [
+  const statuses = [
     Status.AMBIGUOUS,
     Status.FAILED,
     Status.PASSED,
@@ -16,11 +18,10 @@ Status.getMapping = function getMapping(initialValue) {
     Status.SKIPPED,
     Status.UNDEFINED
   ]
-  var counts = {}
-  statuses.forEach(function (status) {
-    counts[status] = initialValue
-  })
-  return counts
+  return _.chain(statuses)
+    .map((status) => [status, initialValue])
+    .fromPairs()
+    .value()
 }
 
 export default Status

@@ -6,6 +6,7 @@
 
 * `support` directory is no longer automatically loaded first
 * Complete rewrite of the internals to use promises
+* `StepResult` duration is now in milliseconds instead of nanoseconds   
 
 ### [1.2.2](https://github.com/cucumber/cucumber-js/compare/v1.2.1...v1.2.2) (2016-08-05)
 

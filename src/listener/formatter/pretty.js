@@ -76,6 +76,7 @@ export default class PrettyFormatter extends SummaryFormatter {
     if (!step.isHidden()) {
       this.logStepResult(step, stepResult)
     }
+    super.handleStepResultEvent(stepResult)
   }
 
   logIndented(text, level) {

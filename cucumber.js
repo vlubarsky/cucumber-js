@@ -1,6 +1,7 @@
 common = [
   '--strict',
   '--format progress',
+  '--format pretty:pretty.txt',
   '--format progress:progress.txt',
   '--format summary:summary.txt',
   '--format rerun:@rerun.txt'

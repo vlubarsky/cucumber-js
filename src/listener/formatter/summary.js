@@ -14,6 +14,18 @@ export default class SummaryFormatter extends Formatter {
     this.warnings = []
   }
 
+  handleFeaturesResult(featuresResult) {
+    if (this.failures.length > 0) {
+      this.logIssues({issues: this.failures, title: 'Failures'})
+    }
+    if (this.warnings.length > 0) {
+      this.logIssues({issues: this.warnings, title: 'Warnings'})
+    }
+    this.logCountSummary('scenario', featuresResult.getScenarioCounts())
+    this.logCountSummary('step', featuresResult.getStepCounts())
+    this.logDuration(featuresResult)
+  }
+
   handleStepResult(stepResult) {
     switch (stepResult.getStatus()) {
       case Status.AMBIGUOUS:
@@ -29,18 +41,6 @@ export default class SummaryFormatter extends Formatter {
         this.storePendingStepResult(stepResult)
         break
     }
-  }
-
-  handleFeaturesResult(featuresResult) {
-    if (this.failures.length > 0) {
-      this.logIssues({issues: this.failures, title: 'Failures'})
-    }
-    if (this.warnings.length > 0) {
-      this.logIssues({issues: this.warnings, title: 'Warnings'})
-    }
-    this.logCountSummary('scenario', featuresResult.getScenarioCounts())
-    this.logCountSummary('step', featuresResult.getStepCounts())
-    this.logDuration(featuresResult)
   }
 
   formatLocation(obj) {

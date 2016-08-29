@@ -97,7 +97,7 @@ export default class StepDefinition {
     }
 
     const stepResultData = {
-      duration: endTiming(start),
+      duration: endTiming(),
       step,
       stepDefinition: this
     }

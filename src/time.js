@@ -11,24 +11,22 @@ if (typeof setImmediate !== 'undefined') {
   methods.clearImmediate = clearImmediate.bind(global)
 }
 
-const highResolutionTimeAvailable = typeof(process) !== 'undefined' && process.hrtime
+const highResolutionTimeAvailable = process.hrtime
 
-methods.beginTiming = () => {
-  if (highResolutionTimeAvailable) {
-    return process.hrtime()
-  } else {
-    return new methods.Date().getTime()
-  }
+
+let previousTimestamp
+
+function getTimestamp() {
+  new methods.Date().getTime()
 }
 
-// Returns the interval from start to now in nanoseconds
-methods.endTiming = (start) => {
-  if (highResolutionTimeAvailable) {
-    const duration = process.hrtime(start)
-    return duration[0] * 1e9 + duration[1]
-  } else {
-    return (new methods.Date().getTime() - start) * 1e6
-  }
+methods.beginTiming = () => {
+  previousTimestamp = getTimestamp()
+}
+
+// Returns the interval from the previous call of beingTiming() to now in milliseconds
+methods.endTiming = () => {
+  return (getTimestamp() - previousTimestamp)
 }
 
 export default methods
