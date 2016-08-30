@@ -111,6 +111,7 @@
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "cucumber-html": "^0.2.3",
+    "dif": "0.0.6",
     "duration": "^0.2.0",
     "gherkin": "^4.0.0",
     "glob": "^7.0.0",

@@ -2,6 +2,7 @@ var cliSteps = function cliSteps() {
   var colors = require('colors/safe');
   var execFile = require('child_process').execFile;
   var path = require('path');
+  var expect = require('chai').expect;
 
   var helpers = require('../support/helpers');
   var normalizeText = helpers.normalizeText;
@@ -50,10 +51,12 @@ var cliSteps = function cliSteps() {
     actualOutput = normalizeText(actualOutput);
     expectedOutput = normalizeText(expectedOutput);
 
-    if (actualOutput !== expectedOutput)
-      throw new Error('Expected output to match the following:\n' + expectedOutput + '\n' +
-                      'Got:\n' + actualOutput + '\n' +
-                      getAdditionalErrorText(this.lastRun));
+    expect(actualOutput).to.eql(expectedOutput);
+
+    // if (actualOutput !== expectedOutput)
+    //   throw new Error('Expected output to match the following:\n' + expectedOutput + '\n' +
+    //                   'Got:\n' + actualOutput + '\n' +
+    //                   getAdditionalErrorText(this.lastRun));
   });
 
   this.Then(/^the (error )?output contains the text:$/, function(error, expectedOutput) {
