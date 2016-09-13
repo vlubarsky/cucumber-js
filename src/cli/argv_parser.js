@@ -52,6 +52,10 @@ export default class ArgvParser {
     }
   }
 
+  getFormatterOptions() {
+    const colors = {}
+  }
+
   getFormats() {
     const mapping = {}
     this.options.format.forEach(function (format) {
@@ -78,8 +82,14 @@ export default class ArgvParser {
     }
   }
 
-  getCustomSnippetSyntaxPath() {
-    return this.options.snippetSyntax
+  getStepDefinitionSnippetBuilder() {
+    const customSyntaxPath = this.options.snippetSyntax
+    let customSyntax
+    if (customSyntaxPath) {
+      const fullSyntaxPath = path.resolve(this.cwd, customSyntaxPath)
+      customSyntax = require(fullSyntaxPath)
+    }
+    return new StepDefinitionSnippetBuilder(customSyntax)
   }
 
   getRuntimeOptions() {
@@ -118,11 +128,10 @@ export default class ArgvParser {
       .option('-d, --dry-run', 'invoke formatters without executing steps')
       .option('--fail-fast', 'abort the run on first failure')
       .option('-f, --format <TYPE[:PATH]>', 'specify the output format, optionally supply PATH to redirect formatter output (repeatable)', collect, ['pretty'])
+      .option('--format-option <NAME=VALUE>', 'set options for formats (repeatable)', collect, [])
       .option('--name <REGEXP>', 'only execute the scenarios with name matching the expression (repeatable)', collect, [])
-      .option('--no-colors', 'disable colors in formatter output')
       .option('-p, --profile <NAME>', 'specify the profile to use (repeatable)', collect, [])
       .option('-r, --require <FILE|DIR>', 'require files before executing features (repeatable)', collect, [])
-      .option('--snippet-syntax <FILE>', 'specify a custom snippet syntax')
       .option('-S, --strict', 'fail if there are any undefined or pending steps')
       .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression (repeatable)', collect, [])
 

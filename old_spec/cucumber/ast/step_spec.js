@@ -19,13 +19,13 @@ describe("Cucumber.Ast.Step", function () {
 
   describe("getKeyword()", function () {
     it("returns the keyword of the step", function () {
-      expect(step.getKeyword()).toEqual('keyword');
+      expect(step.getKeyword()).to.eql('keyword');
     });
   });
 
   describe("getName()", function () {
     it("returns the name of the step", function () {
-      expect(step.getName()).toEqual('text');
+      expect(step.getName()).to.eql('text');
     });
   });
 
@@ -43,13 +43,13 @@ describe("Cucumber.Ast.Step", function () {
 
   describe("getLine()", function () {
     it("returns the last line number", function () {
-      expect(step.getLine()).toEqual(2);
+      expect(step.getLine()).to.eql(2);
     });
   });
 
   describe("getLines()", function () {
     it("returns all the line numbers", function () {
-      expect(step.getLines()).toEqual([1, 2]);
+      expect(step.getLines()).to.eql([1, 2]);
     });
   });
 

@@ -1,12 +1,7 @@
 import _ from 'lodash'
 import DocString from './step_arguments/doc_string'
 import DataTable from './step_arguments/data_table'
-
-const EVENT_STEP_KEYWORD = 'When '
-const OUTCOME_STEP_KEYWORD = 'Then '
-const AND_STEP_KEYWORD = 'And '
-const BUT_STEP_KEYWORD = 'But '
-const STAR_STEP_KEYWORD = '* '
+import Gherkin from 'gherkin'
 
 export default class Step {
   constructor(data) {
@@ -22,6 +17,29 @@ export default class Step {
     return this.getScenario().getFeature().getStepKeywordByLines(this.getLines())
   }
 
+  getKeywordType() {
+    const keyword = this.getKeyword()
+    const language = this.getScenario().getFeature().getLanguage()
+    const dialect = Gherkin.DIALECTS[language]
+    const type = _.find(['given', 'when', 'then', 'and', 'but'], (type) => {
+      return _.includes(dialect[type], keyword)
+    })
+    switch(type) {
+      case 'when':
+        return 'event'
+      case 'then':
+        return 'outcome'
+      case 'and':
+      case 'but':
+        if (this.previousStep) {
+          return this.previousStep.getKeywordType()
+        }
+        // fallthrough
+      default:
+        return 'precondition'
+    }
+  }
+
   getLine() {
     return _.last(this.getLines())
   }
@@ -34,36 +52,12 @@ export default class Step {
     return this.data.text
   }
 
-  getPreviousStep() {
-    return this.previousStep
-  }
-
   getScenario() {
     return this.scenario
   }
 
   getUri() {
-    return _.first(this.getUris())
-  }
-
-  getUris() {
-    return _.map(this.data.locations, 'path')
-  }
-
-  hasEventStepKeyword() {
-    return this.getKeyword() === EVENT_STEP_KEYWORD
-  }
-
-  hasOutcomeStepKeyword() {
-    return this.getKeyword() === OUTCOME_STEP_KEYWORD
-  }
-
-  hasRepeatStepKeyword() {
-    return _.includes([AND_STEP_KEYWORD, BUT_STEP_KEYWORD, STAR_STEP_KEYWORD], this.getKeyword())
-  }
-
-  hasPreviousStep() {
-    return !!this.previousStep
+    return this.data.locations[0].path
   }
 
   hasUri() {
@@ -86,42 +80,8 @@ export default class Step {
     }
   }
 
-  isEventStep() {
-    return this.hasEventStepKeyword() || this.isRepeatingEventStep()
-  }
-
   isHidden() {
     return false
-  }
-
-  isOutcomeStep() {
-    return this.hasOutcomeStepKeyword() || this.isRepeatingOutcomeStep()
-  }
-
-  isPrecededByEventStep() {
-    if (this.hasPreviousStep()) {
-      var previousStep = this.getPreviousStep()
-      return previousStep.isEventStep()
-    } else {
-      return false
-    }
-  }
-
-  isPrecededByOutcomeStep() {
-    if (this.hasPreviousStep()) {
-      var previousStep = this.getPreviousStep()
-      return previousStep.isOutcomeStep()
-    } else {
-      return false
-    }
-  }
-
-  isRepeatingEventStep() {
-    return this.hasRepeatStepKeyword() && this.isPrecededByEventStep()
-  }
-
-  isRepeatingOutcomeStep() {
-    return this.hasRepeatStepKeyword() && this.isPrecededByOutcomeStep()
   }
 
   setPreviousStep(previousStep) {

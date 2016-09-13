@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import javascriptSyntax from './javascript_syntax'
+import JavascriptSyntax from './javascript_syntax'
 
 const NUMBER_MATCHING_GROUP = '(\\d+)'
 const NUMBER_PATTERN = /\d+/g
@@ -7,8 +7,8 @@ const QUOTED_STRING_MATCHING_GROUP = '"([^"]*)"'
 const QUOTED_STRING_PATTERN = /"[^"]*"/g
 
 export default class StepDefinitionSnippetBuilder {
-  constructor(syntax) {
-    this.syntax = syntax || javascriptSyntax
+  constructor(snippetSyntax) {
+    this.snippetSyntax = snippetSyntax
   }
 
   build(step) {
@@ -16,7 +16,7 @@ export default class StepDefinitionSnippetBuilder {
     const pattern = this.getPattern(step)
     const parameters = this.getParameters(step, pattern)
     const comment = 'Write code here that turns the phrase above into concrete actions'
-    return this.syntax.build(functionName, pattern, parameters, comment)
+    return this.snippetSyntax.build(functionName, pattern, parameters, comment)
   }
 
   countPatternMatchingGroups(pattern) {

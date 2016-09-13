@@ -41,6 +41,9 @@ export default class Cli {
 
   async getFormatters(argvParser) {
     const formats = argvParser.getFormats()
+    const options = argvParser.getFormatterOptions()
+    options.cwd = this.cwd
+    options.snippetBuilder = this.getStepDefinitionSnippetBuilder(argvParser)
     const colorFns = getColorFns(argvParser.getAreColorsEnabled())
     const snippetBuilder = this.getStepDefinitionSnippetBuilder(argvParser)
     const streamsToClose = []
@@ -52,7 +55,7 @@ export default class Cli {
         stream = fs.createWriteStream(null, {fd})
         streamsToClose.push(stream)
       }
-      const options = {colorFns, cwd: this.cwd, log: ::stream.write, snippetBuilder}
+      const typeOptions = _.assign({ log: ::stream.write}, options)
       return FormatterBuilder.build(type, options)
     })
     const cleanup = function() {
