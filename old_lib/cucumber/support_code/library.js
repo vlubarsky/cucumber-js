@@ -3,12 +3,14 @@ function Library(supportCodeDefinition) {
   var StackTrace = require('stacktrace-js');
   var _ = require('lodash');
 
-  var listeners        = [];
-  var stepDefinitions  = [];
-  var beforeHooks      = [];
-  var afterHooks       = [];
-  var World            = function World() {};
-  var defaultTimeout   = 5 * 1000;
+  var listeners = [];
+  var stepDefinitions = [];
+  var beforeHooks = [];
+  var afterHooks = [];
+  var World = function World(parameters) {
+    this.parameters = parameters;
+  };
+  var defaultTimeout= 5 * 1000;
 
   function createEventListenerMethod(library, eventName) {
     return function (handler) {
@@ -45,7 +47,9 @@ function Library(supportCodeDefinition) {
 
     defineHook: function defineHook(builder, collection) {
       return function(options, code) {
-        if (typeof(options) === 'function') {
+        if (typeof(options) === 'string') {
+          options = {tags: [options]};
+        } else if (typeof(options) === 'function') {
           code = options;
           options = {};
         }
@@ -90,8 +94,8 @@ function Library(supportCodeDefinition) {
       return listeners;
     },
 
-    instantiateNewWorld: function instantiateNewWorld() {
-      return new World();
+    instantiateNewWorld: function instantiateNewWorld(parameters) {
+      return new World(parameters);
     },
 
     getDefaultTimeout: function getDefaultTimeout() {

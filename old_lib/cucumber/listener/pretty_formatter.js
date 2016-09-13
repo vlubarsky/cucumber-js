@@ -1,5 +1,6 @@
 function PrettyFormatter(options) {
   var Cucumber         = require('../../cucumber');
+  var figures          = require('figures');
 
   var colors           = Cucumber.Util.Colors(options.useColors);
   var self             = Cucumber.Listener.Formatter(options);
@@ -14,6 +15,14 @@ function PrettyFormatter(options) {
       parentHear(event, defaultTimeout, callback);
     });
   };
+
+  var characters = {};
+  characters[Cucumber.Status.AMBIGUOUS] = figures.cross;
+  characters[Cucumber.Status.FAILED] = figures.cross;
+  characters[Cucumber.Status.PASSED] = figures.tick;
+  characters[Cucumber.Status.PENDING] = '?';
+  characters[Cucumber.Status.SKIPPED] = '-';
+  characters[Cucumber.Status.UNDEFINED] = '?';
 
   self.handleBeforeFeatureEvent = function handleBeforeFeatureEvent(feature) {
     var source = '';
@@ -60,6 +69,11 @@ function PrettyFormatter(options) {
     return colors[status](source);
   };
 
+  self.getSymbol = function getSymbol (stepResult) {
+    var status = stepResult.getStatus();
+    return characters[status];
+  };
+
   self.handleStepResultEvent = function handleStepResultEvent(stepResult) {
     var step = stepResult.getStep();
     if (!step.isHidden()) {
@@ -80,9 +94,10 @@ function PrettyFormatter(options) {
   };
 
   self.logStepResult = function logStepResult(step, stepResult) {
-    var identifier = step.getKeyword() + (step.getName() || '');
+    var symbol = self.getSymbol(stepResult);
+    var identifier = symbol + ' ' + step.getKeyword() + (step.getName() || '');
     identifier = self.applyColor(stepResult, identifier);
-    self.logIndented(identifier, 2);
+    self.logIndented(identifier, 1);
     self.log('\n');
 
     step.getArguments().forEach(function (arg) {

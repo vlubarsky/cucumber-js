@@ -1,13 +1,16 @@
 actions:
-  - match:
-      filename: '\_spec.js$'
-    command: 'mycha {{filename}}'
 
-  - match:
-      filename: '\.feature$'
-    command: 'npm run build-local; ./bin/cucumber.js {{filename}}'
+  - test:
 
-  - match:
-      filename: '\.feature$'
-      line: '\d+'
-    command: 'npm run build-local; ./bin/cucumber.js {{filename}}:{{line}}'
+    - match:
+        filename: '\.feature$'
+      command: 'npm run build-local; ./bin/cucumber.js {{filename}}'
+
+    - match:
+        filename: '\.feature$'
+        line: '\d+'
+      command: 'npm run build-local; ./bin/cucumber.js {{filename}}:{{line}}'
+
+    - match:
+        filename: '\_spec.js$'
+      command: 'mycha {{filename}}'
