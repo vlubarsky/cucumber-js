@@ -10,7 +10,7 @@ describe('ArgvParser', function() {
         })
       })
 
-      it('returns the default options', async function() {
+      it('returns the default options', function() {
         const result = this.argvParser.getFormatOptions()
         expect(result).to.eql({
           colorsEnabled: true,
@@ -27,7 +27,7 @@ describe('ArgvParser', function() {
         })
       })
 
-      it('returns for options', async function() {
+      it('returns for options', function() {
         const result = this.argvParser.getFormatOptions()
         expect(result).to.eql({
           colorsEnabled: false,
@@ -45,7 +45,7 @@ describe('ArgvParser', function() {
         })
       })
 
-      it('returns for options', async function() {
+      it('returns for options', function() {
         const result = this.argvParser.getFormatOptions()
         expect(result).to.eql({
           colorsEnabled: true,
