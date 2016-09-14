@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import JavascriptSyntax from './javascript_syntax'
+import KeywordType from '../keyword_type'
 
 const NUMBER_MATCHING_GROUP = '(\\d+)'
 const NUMBER_PATTERN = /\d+/g
@@ -26,12 +26,10 @@ export default class StepDefinitionSnippetBuilder {
   }
 
   getFunctionName(step) {
-    if (step.isOutcomeStep()) {
-      return 'Then'
-    } else if (step.isEventStep()) {
-      return 'When'
-    } else {
-      return 'Given'
+    switch(step.getKeywordType()) {
+      case KeywordType.EVENT: return 'When'
+      case KeywordType.OUTCOME: return 'Then'
+      case KeywordType.PRECONDITION: return 'Given'
     }
   }
 
@@ -61,7 +59,7 @@ export default class StepDefinitionSnippetBuilder {
 
   getStepArgumentParameters(step) {
     return step.getArguments().map(function (arg) {
-      const type = arg.getType()
+      const type = arg.constructor.name
       switch (type) {
         case 'DataTable':
           return 'table'

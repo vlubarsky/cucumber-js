@@ -2,6 +2,7 @@ import _ from 'lodash'
 import DocString from './step_arguments/doc_string'
 import DataTable from './step_arguments/data_table'
 import Gherkin from 'gherkin'
+import KeywordType from '../keyword_type'
 
 export default class Step {
   constructor(data) {
@@ -26,9 +27,9 @@ export default class Step {
     })
     switch(type) {
       case 'when':
-        return 'event'
+        return KeywordType.EVENT
       case 'then':
-        return 'outcome'
+        return KeywordType.OUTCOME
       case 'and':
       case 'but':
         if (this.previousStep) {
@@ -36,7 +37,7 @@ export default class Step {
         }
         // fallthrough
       default:
-        return 'precondition'
+        return KeywordType.PRECONDITION
     }
   }
 

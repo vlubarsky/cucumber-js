@@ -52,10 +52,6 @@ export default class ArgvParser {
     }
   }
 
-  getFormatterOptions() {
-    const colors = {}
-  }
-
   getFormats() {
     const mapping = {}
     this.options.format.forEach(function (format) {

@@ -1,6 +1,7 @@
 import Step from './step'
 import DataTable from './step_arguments/data_table'
 import DocString from './step_arguments/doc_string'
+import KeywordType from '../keyword_type'
 
 describe('Step', function () {
   describe('getArguments()', function () {
@@ -79,7 +80,7 @@ describe('Step', function () {
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql('precondition')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
       })
     })
 
@@ -89,7 +90,7 @@ describe('Step', function () {
       })
 
       it('returns event', function() {
-        expect(this.step.getKeywordType()).to.eql('event')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.EVENT)
       })
     })
 
@@ -99,7 +100,7 @@ describe('Step', function () {
       })
 
       it('returns outcome', function() {
-        expect(this.step.getKeywordType()).to.eql('outcome')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.OUTCOME)
       })
     })
 
@@ -109,7 +110,7 @@ describe('Step', function () {
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql('precondition')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
       })
     })
 
@@ -123,7 +124,7 @@ describe('Step', function () {
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql('precondition')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
       })
     })
 
@@ -133,7 +134,7 @@ describe('Step', function () {
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql('precondition')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
       })
     })
 
@@ -147,7 +148,7 @@ describe('Step', function () {
       })
 
       it('returns outcome', function() {
-        expect(this.step.getKeywordType()).to.eql('outcome')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.OUTCOME)
       })
     })
 
@@ -157,7 +158,7 @@ describe('Step', function () {
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql('precondition')
+        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
       })
     })
   })

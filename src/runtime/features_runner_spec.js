@@ -34,19 +34,21 @@ describe('FeaturesRunner', function () {
   describe('run()', function () {
     describe('with no features', function() {
       beforeEach(async function() {
-        this.featureResult = await this.featuresRunner.run()
+        this.result = await this.featuresRunner.run()
       })
 
       it('broadcasts features and featureResult events', function() {
         expectToHearEvents(this.listener.hear, [
           ['BeforeFeatures', this.features],
-          ['FeaturesResult', this.featureResult],
+          ['FeaturesResult', function(featureResult) {
+            expect(featureResult.isSuccessful()).to.be.true
+          }],
           ['AfterFeatures', this.features]
         ])
       })
 
       it('returns a successful result', function() {
-        expect(this.featureResult.isSuccessful()).to.eql(true)
+        expect(this.result).to.be.true
       })
     })
 
@@ -62,7 +64,7 @@ describe('FeaturesRunner', function () {
         }
         ScenarioRunner.prototype.run.returns(Promise.resolve(scenarioResult))
         this.features.push(this.feature)
-        this.featureResult = await this.featuresRunner.run()
+        this.result = await this.featuresRunner.run()
       })
 
       it('broadcasts a features, feature and featuresResult event', function() {
@@ -70,13 +72,15 @@ describe('FeaturesRunner', function () {
           ['BeforeFeatures', this.features],
           ['BeforeFeature', this.feature],
           ['AfterFeature', this.feature],
-          ['FeaturesResult', this.featureResult],
+          ['FeaturesResult', function(featureResult) {
+            expect(featureResult.isSuccessful()).to.be.true
+          }],
           ['AfterFeatures', this.features]
         ])
       })
 
       it('returns a successful result', function() {
-        expect(this.featureResult.isSuccessful()).to.eql(true)
+        expect(this.result).to.be.true
       })
     })
 
@@ -92,7 +96,7 @@ describe('FeaturesRunner', function () {
         }
         ScenarioRunner.prototype.run.returns(Promise.resolve(scenarioResult))
         this.features.push(this.feature)
-        this.featureResult = await this.featuresRunner.run()
+        this.result = await this.featuresRunner.run()
       })
 
       it('broadcasts a features, feature and featuresResult event', function() {
@@ -100,13 +104,15 @@ describe('FeaturesRunner', function () {
           ['BeforeFeatures', this.features],
           ['BeforeFeature', this.feature],
           ['AfterFeature', this.feature],
-          ['FeaturesResult', this.featureResult],
+          ['FeaturesResult', function(featureResult) {
+            expect(featureResult.isSuccessful()).to.be.false
+          }],
           ['AfterFeatures', this.features]
         ])
       })
 
       it('returns an unsuccessful result', function() {
-        expect(this.featureResult.isSuccessful()).to.eql(false)
+        expect(this.result).to.be.false
       })
     })
   })
