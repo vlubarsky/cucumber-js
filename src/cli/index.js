@@ -3,13 +3,11 @@ import Promise from 'bluebird'
 import ArgvParser from './argv_parser'
 import FormatterBuilder from '../Listener/formatter/builder'
 import fs from 'mz/fs'
-import getColorFns from '../get_color_fns'
 import Parser from '../parser'
 import path from 'path'
 import ProfileLoader from './profile_loader'
 import Runtime from '../runtime'
 import ScenarioFilter from '../scenario_filter'
-import StepDefinitionSnippetBuilder from '../step_definition_snippet_builder'
 import SupportCodeLibrary from '../support_code_library'
 
 export default class Cli {
@@ -42,10 +40,6 @@ export default class Cli {
   async getFormatters(argvParser) {
     const formats = argvParser.getFormats()
     const options = argvParser.getFormatterOptions()
-    options.cwd = this.cwd
-    options.snippetBuilder = this.getStepDefinitionSnippetBuilder(argvParser)
-    const colorFns = getColorFns(argvParser.getAreColorsEnabled())
-    const snippetBuilder = this.getStepDefinitionSnippetBuilder(argvParser)
     const streamsToClose = []
     const formatters = await Promise.map(formats, async ({type, outputTo}) => {
       let stream = this.stdout
@@ -55,23 +49,13 @@ export default class Cli {
         stream = fs.createWriteStream(null, {fd})
         streamsToClose.push(stream)
       }
-      const typeOptions = _.assign({ log: ::stream.write}, options)
+      const typeOptions = _.assign({log: ::stream.write}, options)
       return FormatterBuilder.build(type, options)
     })
     const cleanup = function() {
       Promise.each(streamsToClose, (stream) => Promise.promisify(stream.end)())
     }
     return {cleanup, formatters}
-  }
-
-  getStepDefinitionSnippetBuilder(argvParser) {
-    const customSyntaxPath = argvParser.getCustomSnippetSyntaxPath()
-    let customSyntax
-    if (customSyntaxPath) {
-      const fullSyntaxPath = path.resolve(this.cwd, customSyntaxPath)
-      customSyntax = require(fullSyntaxPath)
-    }
-    return new StepDefinitionSnippetBuilder(customSyntax)
   }
 
   async getSupportCodeLibrary(argvParser) {

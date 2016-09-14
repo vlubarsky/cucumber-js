@@ -15,10 +15,6 @@ export default class ArgvParser {
     this.options = result.options
   }
 
-  getAreColorsEnabled() {
-    return this.options.colors
-  }
-
   async getFeatureDirectoryPaths() {
     const featurePaths = await this.getFeaturePaths()
     const featureDirs = featurePaths.map((featurePath) => {
@@ -52,6 +48,26 @@ export default class ArgvParser {
     }
   }
 
+  getFormatOptions() {
+    const formatOptions = _.chain(this.options.formatOption)
+      .map((formatOption) => {
+        const parts = formatOption.split('=')
+        const name = parts[0]
+        let value = parts.slice(1).join('=')
+        if (value === 'false') {
+          value = false
+        } else if (value === 'true') {
+          value = true
+        }
+        return [name, value]
+      })
+      .fromPairs()
+      .value()
+    formatOptions.cwd = this.cwd
+    _.defaults(formatOptions, {colorsEnabled: true})
+    return formatOptions
+  }
+
   getFormats() {
     const mapping = {}
     this.options.format.forEach(function (format) {
@@ -78,16 +94,6 @@ export default class ArgvParser {
     }
   }
 
-  getStepDefinitionSnippetBuilder() {
-    const customSyntaxPath = this.options.snippetSyntax
-    let customSyntax
-    if (customSyntaxPath) {
-      const fullSyntaxPath = path.resolve(this.cwd, customSyntaxPath)
-      customSyntax = require(fullSyntaxPath)
-    }
-    return new StepDefinitionSnippetBuilder(customSyntax)
-  }
-
   getRuntimeOptions() {
     return {
       dryRun: this.options.dryRun,
@@ -104,8 +110,16 @@ export default class ArgvParser {
       extensions.push(parts[0])
       require(parts[1])
     })
-    const unexpandedFilePaths = this.options.require.length > 0 ? this.options.require : await this.getFeatureDirectoryPaths()
+    const unexpandedFilePaths = this.getUnexpandedSupportCodePaths()
     return await this.pathExpander.expandPathsWithExtensions(unexpandedFilePaths, extensions)
+  }
+
+  async getUnexpandedSupportCodePaths() {
+    if (this.options.require.length > 0) {
+      return this.options.require
+    } else {
+      return await this.getFeatureDirectoryPaths()
+    }
   }
 
   parse (argv) {
@@ -124,7 +138,7 @@ export default class ArgvParser {
       .option('-d, --dry-run', 'invoke formatters without executing steps')
       .option('--fail-fast', 'abort the run on first failure')
       .option('-f, --format <TYPE[:PATH]>', 'specify the output format, optionally supply PATH to redirect formatter output (repeatable)', collect, ['pretty'])
-      .option('--format-option <NAME=VALUE>', 'set options for formats (repeatable)', collect, [])
+      .option('--format-option <NAME=VALUE>', 'set options for formatters (repeatable)', collect, [])
       .option('--name <REGEXP>', 'only execute the scenarios with name matching the expression (repeatable)', collect, [])
       .option('-p, --profile <NAME>', 'specify the profile to use (repeatable)', collect, [])
       .option('-r, --require <FILE|DIR>', 'require files before executing features (repeatable)', collect, [])
