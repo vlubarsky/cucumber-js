@@ -9,7 +9,6 @@ import Status from '../../status'
 export default class SummaryFormatter extends Formatter {
   constructor(options) {
     super(options)
-    this.snippetBuilder = options.snippetBuilder
     this.failures = []
     this.warnings = []
   }

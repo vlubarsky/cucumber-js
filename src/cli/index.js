@@ -39,7 +39,7 @@ export default class Cli {
 
   async getFormatters(argvParser) {
     const formats = argvParser.getFormats()
-    const options = argvParser.getFormatterOptions()
+    const formatOptions = argvParser.getFormatOptions()
     const streamsToClose = []
     const formatters = await Promise.map(formats, async ({type, outputTo}) => {
       let stream = this.stdout
@@ -49,8 +49,8 @@ export default class Cli {
         stream = fs.createWriteStream(null, {fd})
         streamsToClose.push(stream)
       }
-      const typeOptions = _.assign({log: ::stream.write}, options)
-      return FormatterBuilder.build(type, options)
+      const typeOptions = _.assign({log: ::stream.write}, formatOptions)
+      return FormatterBuilder.build(type, typeOptions)
     })
     const cleanup = function() {
       Promise.each(streamsToClose, (stream) => Promise.promisify(stream.end)())

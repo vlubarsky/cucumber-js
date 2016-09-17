@@ -59,7 +59,7 @@ var jsonOutputSteps = function jsonOutputSteps() {
 
     var actualJson;
     var expectedJson;
-    var errorSuffix = '\n' + getAdditionalErrorText(this.lastRun);
+    var errorSuffix = '\n\n' + actualOutput + '\n' + getAdditionalErrorText(this.lastRun);
 
     try { actualJson = JSON.parse(actualOutput.replace(/\\\\/g,'/')); }
     catch(err) { throw new Error('Error parsing actual JSON:\n' + actualOutput + '\n' + err + errorSuffix); }

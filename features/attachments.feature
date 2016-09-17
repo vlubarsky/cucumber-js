@@ -18,9 +18,8 @@ Feature: Attachments
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.Before(function(scenario, callback) {
-          scenario.attach(new Buffer([137, 80, 78, 71]), 'image/png');
-          callback();
+        this.Before(function() {
+          this.attach(new Buffer([137, 80, 78, 71]), 'image/png');
         });
       };
 
@@ -104,16 +103,14 @@ Feature: Attachments
       var Stream = require('stream');
 
       var hooks = function () {
-        this.Before(function(scenario, callback) {
+        this.Before(function() {
           var stream = new Stream.Readable();
           stream._read = function() {};
           stream.push(new Buffer([137, 80]));
           stream.push(new Buffer([78, 71]));
           stream.push(null);
 
-          scenario.attach(stream, 'image/png', function(error) {
-            callback(error);
-          });
+          return this.attach(stream, 'image/png');
         });
       };
 
@@ -195,9 +192,8 @@ Feature: Attachments
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.Before(function(scenario, callback) {
-          scenario.attach("text");
-          callback();
+        this.Before(function() {
+          this.attach("text");
         });
       };
 
@@ -237,7 +233,7 @@ Feature: Attachments
                   "embeddings": [
                     {
                       "mime_type": "text/plain",
-                      "data": "dGV4dA=="
+                      "data": "text"
                     }
                   ]
                 },
@@ -279,9 +275,8 @@ Feature: Attachments
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.After(function(scenario, callback) {
-          scenario.attach("text");
-          callback();
+        this.After(function() {
+          this.attach("text");
         });
       };
 
@@ -334,7 +329,7 @@ Feature: Attachments
                   "embeddings": [
                     {
                       "mime_type": "text/plain",
-                      "data": "dGV4dA=="
+                      "data": "text"
                     }
                   ]
                 }
@@ -344,6 +339,7 @@ Feature: Attachments
         }
       ]
       """
+
   Scenario: Attach from a step definition
     Given a file named "features/a.feature" with:
       """
@@ -355,25 +351,11 @@ Feature: Attachments
     And a file named "features/step_definitions/cucumber_steps.js" with:
       """
       var cucumberSteps = function() {
-        this.Given(/^This step is passing$/, function(callback) {
-          var world = this;
-          world.scenario.attach("text");
-          callback();
+        this.Given(/^This step is passing$/, function() {
+          this.attach("text");
         });
       };
       module.exports = cucumberSteps;
-      """
-    And a file named "features/support/hooks.js" with:
-      """
-      var hooks = function () {
-        this.Before(function(scenario, callback) {
-          var world = this;
-          world.scenario = scenario;
-          callback();
-        });
-      };
-
-      module.exports = hooks;
       """
     When I run cucumber.js with `-f json`
     Then it outputs this json:
@@ -396,18 +378,6 @@ Feature: Attachments
               "type": "scenario",
               "steps": [
                 {
-                  "keyword": "Before ",
-                  "hidden": true,
-                  "result": {
-                    "duration": "<duration>",
-                    "status": "passed"
-                  },
-                  "arguments": [],
-                  "match": {
-                    "location": "<current-directory>/features/support/hooks.js:2"
-                  }
-                },
-                {
                   "name": "This step is passing",
                   "line": 4,
                   "keyword": "Given ",
@@ -422,7 +392,7 @@ Feature: Attachments
                   "embeddings": [
                     {
                       "mime_type": "text/plain",
-                      "data": "dGV4dA=="
+                      "data": "text"
                     }
                   ]
                 }

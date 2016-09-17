@@ -2,11 +2,11 @@ actions:
   test:
     - match:
         filename: '\.feature$'
-      command: 'npm run build-local; ./bin/cucumber.js {{filename}}'
+      command: './bin/cucumber.js {{filename}}'
     - match:
         filename: '\.feature$'
         line: '\d+'
-      command: 'npm run build-local; ./bin/cucumber.js {{filename}}:{{line}}'
+      command: './bin/cucumber.js {{filename}}:{{line}}'
     - match:
         filename: '\_spec.js$'
       command: 'mycha {{filename}}'

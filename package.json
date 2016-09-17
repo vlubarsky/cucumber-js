@@ -120,6 +120,7 @@
     "glob": "^7.0.0",
     "indent-string": "^3.0.0",
     "is-generator": "^1.0.2",
+    "is-stream": "^1.1.0",
     "lodash": "^4.0.0",
     "stack-chain": "^1.3.5",
     "stacktrace-js": "^1.3.0"
@@ -158,6 +159,7 @@
   },
   "scripts": {
     "build-local": "BABEL_ENV=production babel src -d lib --ignore '**/*_spec.js' --source-maps inline",
+    "build-local-continuous": "BABEL_ENV=production babel src --watch -d lib --ignore '**/*_spec.js' --source-maps inline",
     "build-release": "BABEL_ENV=production babel src -o dist/cucumber.js --ignore '**/*_spec.js' --source-maps inline",
     "feature-test-es5": "node ./bin/cucumber.js -p es5",
     "feature-test": "node ./bin/cucumber.js",

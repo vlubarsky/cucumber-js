@@ -1,4 +1,5 @@
 common = [
+  '--fail-fast',
   '--strict',
   '--format progress',
   '--format pretty:pretty.txt',

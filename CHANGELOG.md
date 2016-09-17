@@ -1,5 +1,55 @@
 ### [master (unreleased)](https://github.com/cucumber/cucumber-js/compare/v1.3.0...master)
 
+### [2.0.0]
+
+### Breaking Changes
+
+* CLI
+  * `--tags <EXPRESSION>` now uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/)
+    * `--tags @dev` stays the same
+    * `--tags ~@dev` becomes `--tags 'not @dev'`
+    * `--tags @foo,@bar` becomes  `--tags '@foo and @bar'`
+    * `--tags @foo --tags @bar` becomes `--tags '@foo or bar'`
+  * `--colors / --no-colors` has moved to `--format-option colors-enabled=(true | false)`
+  * `--snippet-interface <INTERFACE>` has moved to `--format-option snippet-interface=<INTERFACE>`
+  * `--snippet-syntax <SYNTAX>` has moved to `--format-option snippet-syntax=<SYNTAX>`
+* JSON Formatter
+  * String attachments are no longer base64 encoded. Buffer and Stream attachments are still base64 encoded.
+* Support Files
+  * The `attach` function used for adding attachments moved from the API scenario object to world. It no longer takes a callback as the third argument. It returns a promise when attaching a stream and nothing otherwise.
+      ```
+      // 1.3.0
+      this.After(function(scenario, callback) {
+        scenario.attach(new Buffer([137, 80, 78, 71]), 'image/png')
+      });
+
+      // 2.0.0
+      this.After(function() {
+        this.attach(new Buffer([137, 80, 78, 71]), 'image/png');
+      });
+      ```
+  * Before and After hooks now receive a [ScenarioResult]() instead of a [Scenario]()
+      ```
+      // 1.3.0
+      this.After(function(scenario) {});
+
+      // 2.0.0
+      this.After(function(scenarioResult) {});
+      ```
+  * String patterns were removed in favor [cucumber-expressions](https://docs.cucumber.io/cucumber-expressions/)
+  * The `tags` option for hook should now be a string instead of an array and uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/)
+      ```
+      // 1.3.0
+      this.Before({tags: ["@foo"]}, function (scenario) {})
+      this.Before({tags: ["@foo,@bar"]}, function (scenario) {})
+      this.Before({tags: ["@foo", "@bar"]"}, function (scenario) {})
+
+      // 2.0.0
+      this.Before({tags: "@foo"}, function (scenario) {})
+      this.Before({tags: "@foo and @bar"}, function (scenario) {})
+      this.Before({tags: "@foo or @bar"}, function (scenario) {})
+      ```
+
 ### [1.3.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v1.3.0) (2016-09-08)
 
 #### New Features

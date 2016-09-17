@@ -2,6 +2,9 @@ import Status from '../status'
 import StepResult from './step_result'
 import Time from '../time'
 import UserCodeRunner from '../user_code_runner'
+import AttachmentManager from '../attachment_manager'
+
+
 const {beginTiming, endTiming} = Time
 
 const DOLLAR_PARAMETER_REGEXP = /\$[a-zA-Z_-]+/g
@@ -44,7 +47,7 @@ export default class StepDefinition {
         case 'DocString':
           return arg.getContent()
         default:
-          throw new Error('Unknown argument type:' + arg.getType())
+          throw new Error('Unknown argument type:' + arg)
       }
     }))
     return parameters
@@ -52,6 +55,10 @@ export default class StepDefinition {
 
   getLine() {
     return this.line
+  }
+
+  getPattern() {
+    return this.pattern
   }
 
   getPatternRegexp () {
@@ -76,10 +83,12 @@ export default class StepDefinition {
     return [parameters.length, parameters.length + 1]
   }
 
-  async invoke({defaultTimeout, scenario, step, world}) {
+  async invoke({defaultTimeout, scenarioResult, step, world}) {
     const start = beginTiming()
-    const parameters = this.getInvocationParameters(step, scenario)
+    const parameters = this.getInvocationParameters(step, scenarioResult)
     const timeoutInMilliseconds = this.options.timeout || defaultTimeout
+    const attachmentManager = new AttachmentManager()
+    world.attach = ::attachmentManager.create
 
     let validCodeLengths = this.getValidCodeLengths(parameters)
     let error, result
@@ -97,6 +106,7 @@ export default class StepDefinition {
     }
 
     const stepResultData = {
+      attachments: attachmentManager.getAll(),
       duration: endTiming(),
       step,
       stepDefinition: this
