@@ -149,7 +149,7 @@ describe('ScenarioFilter', function() {
           this.scenarioFilter = new ScenarioFilter({
             featurePaths: ['features'],
             names: [],
-            tagExpressions: ['@tagA']
+            tagExpression: '@tagA'
           })
         })
 
@@ -177,7 +177,7 @@ describe('ScenarioFilter', function() {
           this.scenarioFilter = new ScenarioFilter({
             featurePaths: ['features'],
             names: [],
-            tagExpressions: ['~@tagA']
+            tagExpression: 'not @tagA'
           })
         })
 
@@ -205,7 +205,7 @@ describe('ScenarioFilter', function() {
           this.scenarioFilter = new ScenarioFilter({
             featurePaths: ['features'],
             names: [],
-            tagExpressions: ['@tagA', '@tagB']
+            tagExpression: '@tagA and @tagB'
           })
         })
 
@@ -258,7 +258,7 @@ describe('ScenarioFilter', function() {
           this.scenarioFilter = new ScenarioFilter({
             featurePaths: ['features'],
             names: [],
-            tagExpressions: ['@tagA,@tagB']
+            tagExpression: '@tagA or @tagB'
           })
         })
 
@@ -349,7 +349,7 @@ describe('ScenarioFilter', function() {
           this.scenarioFilter = new ScenarioFilter({
             featurePaths: ['b.feature:1:2'],
             names: ['nameA'],
-            tagExpressions: ['@tagA']
+            tagExpression: '@tagA'
           })
           this.scenario.getLines.returns([3])
           this.scenario.getUri.returns('b.feature')

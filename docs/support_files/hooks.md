@@ -46,19 +46,19 @@ var myHooks = function () {
     // This hook will be executed before all scenarios
   });
 
-  this.Before({tags: ["@foo"]}, function (scenario) {
+  this.Before({tags: "@foo"}, function (scenario) {
     // This hook will be executed before scenarios tagged with @foo
   });
 
-  this.Before({tags: ["@foo", "@bar"]}, function (scenario) {
+  this.Before({tags: "@foo and @bar"}, function (scenario) {
     // This hook will be executed before scenarios tagged with @foo AND @bar
   });
 
-  this.Before({tags: ["@foo,@bar", "bar"]}, function (scenario) {
+  this.Before({tags: "@foo or @bar"}, function (scenario) {
     // This hook will be executed before scenarios tagged with @foo OR @bar
   });
 
-  // You can use the following shorthand when specifying a single tag
+  // You can use the following shorthand when only specifying tags
   this.Before("@foo", function (scenario) {
     // This hook will be executed before scenarios tagged with @foo
     // ...
@@ -67,3 +67,5 @@ var myHooks = function () {
 
 module.exports = myHooks;
 ```
+
+See more documentation on [tag expressions](https://docs.cucumber.io/tag-expressions/)

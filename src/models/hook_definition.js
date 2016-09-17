@@ -4,7 +4,7 @@ import StepDefinition from './step_definition'
 export default class HookDefinition extends StepDefinition {
   constructor(data) {
     super(data)
-    this.scenarioFilter = new ScenarioFilter({tagExpressions: data.tags})
+    this.scenarioFilter = new ScenarioFilter({tagExpression: data.tags})
   }
 
   appliesToScenario(scenario) {

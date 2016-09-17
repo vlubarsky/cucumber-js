@@ -1,5 +1,5 @@
 actions:
-  - test:
+  test:
     - match:
         filename: '\.feature$'
       command: 'npm run build-local; ./bin/cucumber.js {{filename}}'
@@ -12,7 +12,7 @@ actions:
       command: 'mycha {{filename}}'
 
 
-  - lint:
+  lint:
     - match:
         filename: '\.js$'
       command: 'eslint {{filename}}'

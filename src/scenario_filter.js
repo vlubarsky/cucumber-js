@@ -1,12 +1,16 @@
 import _ from 'lodash'
+import TagExpressionParser from 'cucumber-tag-expressions/lib/tag_expression_parser'
 
+const tagExpressionParser = new TagExpressionParser()
 const FEATURE_LINENUM_REGEXP = /^(.*?)((?::[\d]+)+)?$/
 
 export default class ScenarioFilter {
-  constructor({featurePaths, names, tagExpressions}) {
+  constructor({featurePaths, names, tagExpression}) {
     this.featureUriToLinesMapping = this.getFeatureUriToLinesMapping(featurePaths || [])
     this.names = names || []
-    this.tagExpressions = tagExpressions || []
+    if (tagExpression) {
+      this.tagExpressionNode = tagExpressionParser.parse(tagExpression || '')
+    }
   }
 
   getFeatureUriToLinesMapping(featurePaths) {
@@ -55,16 +59,10 @@ export default class ScenarioFilter {
   }
 
   matchesAllTagExpressions(scenario) {
+    if (!this.tagExpressionNode) {
+      return true
+    }
     const scenarioTags = scenario.getTags().map((t) => t.getName())
-    return _.every(this.tagExpressions, function(tagExpression) {
-      const tags = tagExpression.split(',').map((s) => s.trim())
-      return _.some(tags, function(tag) {
-        if (tag[0] === '~') {
-          return !_.includes(scenarioTags, tag.slice(1))
-        } else {
-          return _.includes(scenarioTags, tag)
-        }
-      })
-    })
+    return this.tagExpressionNode.evaluate(scenarioTags)
   }
 }

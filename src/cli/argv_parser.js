@@ -143,7 +143,7 @@ export default class ArgvParser {
       .option('-p, --profile <NAME>', 'specify the profile to use (repeatable)', collect, [])
       .option('-r, --require <FILE|DIR>', 'require files before executing features (repeatable)', collect, [])
       .option('-S, --strict', 'fail if there are any undefined or pending steps')
-      .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression (repeatable)', collect, [])
+      .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression')
 
     program.on('--help', () => {
       /* eslint-disable no-console */
