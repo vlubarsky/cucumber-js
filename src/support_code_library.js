@@ -65,8 +65,9 @@ export default class SupportCodeLibrary {
 
   getDefinitionLineAndUri() {
     const stackframes = StackTrace.getSync()
-    const line = stackframes[2].getLineNumber()
-    const uri = stackframes[2].getFileName() || 'unknown'
+    const stackframe = stackframes.length > 2 ? stackframes[2] : stackframes[0]
+    const line = stackframe.getLineNumber()
+    const uri = stackframe.getFileName() || 'unknown'
     return {line, uri}
   }
 
