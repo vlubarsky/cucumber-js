@@ -6,6 +6,7 @@ import path from 'path'
 import PrettyFormatter from './pretty'
 import ProgressFormatter from './progress'
 import RerunFormatter from './rerun'
+import SnippetsFormatter from './snippets'
 import StepDefinitionSnippetBuilder from '../../step_definition_snippet_builder'
 import SummaryFormatter from './summary'
 
@@ -25,18 +26,19 @@ export default class FormatterBuilder {
       case 'pretty': return PrettyFormatter
       case 'progress': return ProgressFormatter
       case 'rerun': return RerunFormatter
+      case 'snippets': return SnippetsFormatter
       case 'summary': return SummaryFormatter
       default: throw new Error('Unknown formatter name "' + type + '".')
     }
   }
 
-  static getStepDefinitionSnippetBuilder({snippetInterface, snippetSyntax}) {
+  static getStepDefinitionSnippetBuilder({cwd, snippetInterface, snippetSyntax}) {
     if (!snippetInterface) {
       snippetInterface = 'callback'
     }
     let Syntax = JavascriptSnippetSyntax
     if (snippetSyntax) {
-      const fullSyntaxPath = path.resolve(this.cwd, snippetSyntax)
+      const fullSyntaxPath = path.resolve(cwd, snippetSyntax)
       Syntax = require(fullSyntaxPath)
     }
     const syntax = new Syntax(snippetInterface)

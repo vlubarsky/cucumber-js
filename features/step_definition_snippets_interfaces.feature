@@ -12,7 +12,7 @@ Feature: step definition snippets custom syntax
       """
 
   Scenario Outline:
-    When I run cucumber-js with `--snippet-interface <INTERFACE>`
+    When I run cucumber-js with `--format-options '{"snippetInterface": "<INTERFACE>"}'`
     Then it outputs this text:
       """
       Feature: a feature

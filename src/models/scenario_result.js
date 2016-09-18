@@ -56,8 +56,15 @@ export default class ScenarioResult {
     if (stepStatus === Status.FAILED) {
       this.failureException = stepResult.getFailureException()
     }
-    if (!stepResult.getStep().constructor.name === 'Hook') {
+    if (stepResult.getStep().constructor.name !== 'Hook') {
       this.stepCounts[stepStatus] += 1
     }
   }
 }
+
+// Adds isAmbiguous / isFailed / isPassed / isPending / isSkipped / isUndefined
+Status.addPredicates({
+  getFn: 'getStatus',
+  protoype: ScenarioResult.prototype,
+  prefix: 'is'
+})

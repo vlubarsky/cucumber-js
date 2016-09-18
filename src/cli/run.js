@@ -12,6 +12,7 @@ export default async function run() {
     success = await cli.run()
   } catch (error) {
     process.nextTick(function(){ throw error })
+    return
   }
 
   const exitCode = success ? 0 : 1

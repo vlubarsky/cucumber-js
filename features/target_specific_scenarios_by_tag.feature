@@ -52,7 +52,7 @@ Feature: Target specific scenarios
     And the exit status should be 0
 
   Scenario: filter out scenarios with ~
-    When I run cucumber.js with `--tags ~@b`
+    When I run cucumber.js with `--tags "not @b"`
     Then it outputs this text:
       """
       Feature: some feature

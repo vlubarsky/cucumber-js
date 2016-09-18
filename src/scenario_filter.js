@@ -1,11 +1,13 @@
 import _ from 'lodash'
 import TagExpressionParser from 'cucumber-tag-expressions/lib/tag_expression_parser'
+import path from 'path'
 
 const tagExpressionParser = new TagExpressionParser()
 const FEATURE_LINENUM_REGEXP = /^(.*?)((?::[\d]+)+)?$/
 
 export default class ScenarioFilter {
-  constructor({featurePaths, names, tagExpression}) {
+  constructor({cwd, featurePaths, names, tagExpression}) {
+    this.cwd = cwd
     this.featureUriToLinesMapping = this.getFeatureUriToLinesMapping(featurePaths || [])
     this.names = names || []
     if (tagExpression) {
@@ -15,10 +17,10 @@ export default class ScenarioFilter {
 
   getFeatureUriToLinesMapping(featurePaths) {
     const mapping = {}
-    featurePaths.forEach(function(featurePath) {
+    featurePaths.forEach((featurePath) => {
       var match = FEATURE_LINENUM_REGEXP.exec(featurePath)
       if (match) {
-        const uri = match[1]
+        const uri = path.resolve(this.cwd, match[1])
         const linesExpression = match[2]
         if (linesExpression) {
           if (!mapping[uri]) {

@@ -15,7 +15,7 @@ export default class ScenarioRunner {
 
     this.defaultTimeout = supportCodeLibrary.getDefaultTimeout()
     this.scenarioResult = new ScenarioResult(scenario)
-    this.world = supportCodeLibrary.instantiateNewWorld()
+    this.world = supportCodeLibrary.instantiateNewWorld(options.worldParameters)
   }
 
   async broadcastScenarioResult() {

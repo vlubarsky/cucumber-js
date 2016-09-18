@@ -243,24 +243,9 @@ describe('SummaryFormatter', function() {
       })
     })
 
-    describe('with a duration of 123 nanoseconds', function() {
-      beforeEach(function() {
-        this.featuresResult.getDuration.returns(123)
-        this.summaryFormatter.handleFeaturesResult(this.featuresResult)
-      })
-
-      it('outputs step totals, scenario totals, and duration', function() {
-        expect(this.output).to.contain(
-          '0 scenarios\n' +
-          '0 steps\n' +
-          '0m00.001s\n'
-        )
-      })
-    })
-
     describe('with a duration of 123 milliseconds', function() {
       beforeEach(function() {
-        this.featuresResult.getDuration.returns(123 * 1000 * 1000)
+        this.featuresResult.getDuration.returns(123)
         this.summaryFormatter.handleFeaturesResult(this.featuresResult)
       })
 
@@ -275,7 +260,7 @@ describe('SummaryFormatter', function() {
 
     describe('with a duration of 12.3 seconds', function() {
       beforeEach(function() {
-        this.featuresResult.getDuration.returns(123 * 1000 * 1000 * 100)
+        this.featuresResult.getDuration.returns(123 * 100)
         this.summaryFormatter.handleFeaturesResult(this.featuresResult)
       })
 
@@ -290,7 +275,7 @@ describe('SummaryFormatter', function() {
 
     describe('with a duration of 120.3 seconds', function() {
       beforeEach(function() {
-        this.featuresResult.getDuration.returns(123 * 1000 * 1000 * 1000)
+        this.featuresResult.getDuration.returns(123 * 1000)
         this.summaryFormatter.handleFeaturesResult(this.featuresResult)
       })
 

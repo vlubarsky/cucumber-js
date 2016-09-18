@@ -4,6 +4,7 @@ var helpers = {
 
   getAdditionalErrorText: function getAdditionalErrorText(lastRun) {
     return 'Error:\n' + lastRun.error + '.\n' +
+           'stdout:\n' + lastRun.stdout;
            'stderr:\n' + lastRun.stderr;
   },
 

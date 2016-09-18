@@ -17,18 +17,18 @@ Feature: Scenario Statuses
       """
     And a file named "features/support/hooks.js" with:
       """
-      function checkScenarioStatuses(scenario) {
+      function checkScenarioResultStatuses(scenarioResult) {
         var error;
 
-        if (scenario.isSuccessful() !== true)
+        if (scenarioResult.isPassed() !== true)
           error = "Expected isSuccessful to be true";
-        else if (scenario.isFailed() !== false)
+        else if (scenarioResult.isFailed() !== false)
           error = "Expected isFailed to be false";
-        else if (scenario.isPending() !== false)
+        else if (scenarioResult.isPending() !== false)
           error = "Expected isPending to be false";
-        else if (scenario.isUndefined() !== false)
+        else if (scenarioResult.isUndefined() !== false)
           error = "Expected isUndefined to be false";
-        else if (scenario.getException() !== null)
+        else if (scenarioResult.getFailureException() !== null)
           error = "Expected exception to be null";
         else
           error = null;
@@ -37,14 +37,14 @@ Feature: Scenario Statuses
       }
 
       var hooks = function () {
-        this.Before(function(scenario, callback) {
-          var error = checkScenarioStatuses(scenario);
+        this.Before(function(scenarioResult, callback) {
+          var error = checkScenarioResultStatuses(scenarioResult);
 
           callback(error);
         });
 
-        this.After(function(scenario, callback) {
-          var error = checkScenarioStatuses(scenario);
+        this.After(function(scenarioResult, callback) {
+          var error = checkScenarioResultStatuses(scenarioResult);
 
           callback(error);
         });
@@ -134,16 +134,16 @@ Feature: Scenario Statuses
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.After(function(scenario, callback) {
-          if (scenario.isSuccessful() !== true)
+        this.After(function(scenarioResult, callback) {
+          if (scenarioResult.isPassed() !== true)
             error = "Expected isSuccessful to be true";
-          else if (scenario.isFailed() !== false)
+          else if (scenarioResult.isFailed() !== false)
             error = "Expected isFailed to be false";
-          else if (scenario.isPending() !== false)
+          else if (scenarioResult.isPending() !== false)
             error = "Expected isPending to be false";
-          else if (scenario.isUndefined() !== false)
+          else if (scenarioResult.isUndefined() !== false)
             error = "Expected isUndefined to be false";
-          else if (scenario.getException() !== null)
+          else if (scenarioResult.getFailureException() !== null)
             error = "Expected exception to be null";
           else
             error = null;
@@ -224,16 +224,16 @@ Feature: Scenario Statuses
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.After(function(scenario, callback) {
-          if (scenario.isSuccessful() !== false)
+        this.After(function(scenarioResult, callback) {
+          if (scenarioResult.isPassed() !== false)
             error = "Expected isSuccessful to be false";
-          else if (scenario.isFailed() !== true)
+          else if (scenarioResult.isFailed() !== true)
             error = "Expected isFailed to be true";
-          else if (scenario.isPending() !== false)
+          else if (scenarioResult.isPending() !== false)
             error = "Expected isPending to be false";
-          else if (scenario.isUndefined() !== false)
+          else if (scenarioResult.isUndefined() !== false)
             error = "Expected isUndefined to be false";
-          else if (scenario.getException() !== "Fail")
+          else if (scenarioResult.getFailureException() !== "Fail")
             error = "Expected exception to be 'Fail'";
           else
             error = null;
@@ -315,16 +315,16 @@ Feature: Scenario Statuses
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.After(function(scenario, callback) {
-          if (scenario.isSuccessful() !== false)
+        this.After(function(scenarioResult, callback) {
+          if (scenarioResult.isPassed() !== false)
             error = "Expected isSuccessful to be false";
-          else if (scenario.isFailed() !== false)
+          else if (scenarioResult.isFailed() !== false)
             error = "Expected isFailed to be false";
-          else if (scenario.isPending() !== true)
+          else if (scenarioResult.isPending() !== true)
             error = "Expected isPending to be true";
-          else if (scenario.isUndefined() !== false)
+          else if (scenarioResult.isUndefined() !== false)
             error = "Expected isUndefined to be false";
-          else if (scenario.getException() !== null)
+          else if (scenarioResult.getFailureException() !== null)
             error = "Expected exception to be null";
           else
             error = null;
@@ -403,16 +403,16 @@ Feature: Scenario Statuses
     And a file named "features/support/hooks.js" with:
       """
       var hooks = function () {
-        this.After(function(scenario, callback) {
-          if (scenario.isSuccessful() !== false)
+        this.After(function(scenarioResult, callback) {
+          if (scenarioResult.isPassed() !== false)
             error = "Expected isSuccessful to be false";
-          else if (scenario.isFailed() !== false)
+          else if (scenarioResult.isFailed() !== false)
             error = "Expected isFailed to be false";
-          else if (scenario.isPending() !== false)
+          else if (scenarioResult.isPending() !== false)
             error = "Expected isPending to be false";
-          else if (scenario.isUndefined() !== true)
+          else if (scenarioResult.isUndefined() !== true)
             error = "Expected isUndefined to be true";
-          else if (scenario.getException() !== null)
+          else if (scenarioResult.getFailureException() !== null)
             error = "Expected exception to be null";
           else
             error = null;

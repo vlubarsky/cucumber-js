@@ -38,7 +38,7 @@ Feature: step definition snippets custom syntax
       """
 
   Scenario Outline:
-    When I run cucumber-js with `--snippet-interface <INTERFACE> --snippet-syntax coffeescript_syntax.js`
+    When I run cucumber-js with `--format-options '{"snippetInterface": "<INTERFACE>", "snippetSyntax": "coffeescript_syntax.js"}'`
     Then it outputs this text:
       """
       Feature: a feature

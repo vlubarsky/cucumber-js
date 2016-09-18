@@ -2,6 +2,7 @@ var cliSteps = function cliSteps() {
   var colors = require('colors/safe');
   var execFile = require('child_process').execFile;
   var path = require('path');
+  var stringArgv = require('string-argv')
 
   var helpers = require('../support/helpers');
   var normalizeText = helpers.normalizeText;
@@ -10,14 +11,7 @@ var cliSteps = function cliSteps() {
   var executablePath = path.join(__dirname, '..', '..', 'bin', 'cucumber.js');
 
   this.When(/^I run cucumber.js(?: from the "([^"]*)" directory)?(?: with `(|.+)`)?$/, {timeout: 10000}, function(dir, args, callback) {
-    args = args ? args.split(' ') : [];
-    args = args.map(function(arg) {
-      if (arg[0] === '\'' && arg[arg.length - 1] === '\'') {
-        return arg.slice(1, arg.length - 1);
-      } else {
-        return arg;
-      }
-    });
+    args = stringArgv(args || '')
     args.unshift(executablePath);
     args.push('--backtrace')
     var world = this;

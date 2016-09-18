@@ -4,6 +4,7 @@ import {version} from '../../package.json'
 import fs from 'mz/fs'
 import path from 'path'
 import PathExpander from './path_expander'
+import {Promise} from 'bluebird'
 
 export default class ArgvParser {
   constructor ({cwd, argv}) {
@@ -31,7 +32,7 @@ export default class ArgvParser {
 
   async getUnexpandedFeaturePaths() {
     if (this.args.length > 0) {
-      const promises = this.args.map(async (arg) => {
+      const featurePaths = await Promise.map(this.args, async (arg) => {
         var filename = path.basename(arg)
         if (filename[0] === '@') {
           const filePath = path.join(this.cwd, arg)
@@ -41,7 +42,6 @@ export default class ArgvParser {
           return arg
         }
       })
-      const featurePaths = await Promise.all(promises)
       return _.flatten(featurePaths)
     } else {
       return ['features']
@@ -49,20 +49,7 @@ export default class ArgvParser {
   }
 
   getFormatOptions() {
-    const formatOptions = _.chain(this.options.formatOption)
-      .map((formatOption) => {
-        const parts = formatOption.split('=')
-        const name = parts[0]
-        let value = parts.slice(1).join('=')
-        if (value === 'false') {
-          value = false
-        } else if (value === 'true') {
-          value = true
-        }
-        return [name, value]
-      })
-      .fromPairs()
-      .value()
+    const formatOptions = _.clone(this.options.formatOptions)
     formatOptions.cwd = this.cwd
     _.defaults(formatOptions, {colorsEnabled: true})
     return formatOptions
@@ -86,11 +73,12 @@ export default class ArgvParser {
   }
 
   async getScenarioFilterOptions() {
-    const featurePaths = await this.getFeaturePaths()
+    const featurePaths = await this.getUnexpandedFeaturePaths()
     return {
+      cwd: this.cwd,
       featurePaths,
       names: this.options.name,
-      tags: this.options.tags
+      tagExpression: this.options.tags
     }
   }
 
@@ -99,7 +87,8 @@ export default class ArgvParser {
       dryRun: this.options.dryRun,
       failFast: this.options.failFast,
       filterStacktraces: !this.options.backtrace,
-      strict: this.options.strict
+      strict: this.options.strict,
+      worldParameters: this.options.worldParameters
     }
   }
 
@@ -128,6 +117,21 @@ export default class ArgvParser {
       return memo
     }
 
+    function mergeJson(option) {
+      return function(str, memo) {
+        let val
+        try {
+          val = JSON.parse(str)
+        } catch (error) {
+          throw new Error(option + ' passed invalid JSON: ' + error.message + ': ' + str)
+        }
+        if (!_.isPlainObject(val)) {
+          throw new Error(option + ' must be passed a JSON string of an object: ' + str)
+        }
+        return _.merge(memo, val)
+      }
+    }
+
     const program = new Command(path.basename(argv[1]))
 
     program
@@ -138,12 +142,13 @@ export default class ArgvParser {
       .option('-d, --dry-run', 'invoke formatters without executing steps')
       .option('--fail-fast', 'abort the run on first failure')
       .option('-f, --format <TYPE[:PATH]>', 'specify the output format, optionally supply PATH to redirect formatter output (repeatable)', collect, ['pretty'])
-      .option('--format-option <NAME=VALUE>', 'set options for formatters (repeatable)', collect, [])
+      .option('--format-options <JSON>', 'provide options for formatters (repeatable)', mergeJson('--format-options'), {})
       .option('--name <REGEXP>', 'only execute the scenarios with name matching the expression (repeatable)', collect, [])
       .option('-p, --profile <NAME>', 'specify the profile to use (repeatable)', collect, [])
       .option('-r, --require <FILE|DIR>', 'require files before executing features (repeatable)', collect, [])
       .option('-S, --strict', 'fail if there are any undefined or pending steps')
       .option('-t, --tags <EXPRESSION>', 'only execute the features or scenarios with tags matching the expression')
+      .option('--world-parameters <JSON>', 'provide parameters that will be passed to the world constructor (repeatable)', mergeJson('--world-parameters'), {})
 
     program.on('--help', () => {
       /* eslint-disable no-console */

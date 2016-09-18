@@ -23,7 +23,9 @@ export default class SupportCodeLibrary {
       setDefaultTimeout: ::this.setDefaultTimeout,
       Then: ::this.defineStep,
       When: ::this.defineStep,
-      World() {}
+      World(parameters) {
+        this.parameters = parameters
+      }
     }
   }
 
@@ -68,8 +70,8 @@ export default class SupportCodeLibrary {
     return {line, uri}
   }
 
-  instantiateNewWorld() {
-    return new this.userCodeContext.World()
+  instantiateNewWorld(parameters) {
+    return new this.userCodeContext.World(parameters)
   }
 
   getAfterHookDefinitions(scenario) {

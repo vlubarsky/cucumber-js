@@ -32,7 +32,8 @@ export default class Cli {
     await Promise.each(featurePaths, async function(featurePath) {
       featuresSourceMapping[featurePath] = await fs.readFile(featurePath, 'utf8')
     })
-    const scenarioFilter = new ScenarioFilter(argvParser.getScenarioFilterOptions())
+    const scenarioFilterOptions = await argvParser.getScenarioFilterOptions()
+    const scenarioFilter = new ScenarioFilter(scenarioFilterOptions)
     return new Parser().parse({featuresSourceMapping, scenarioFilter})
   }
 
@@ -51,7 +52,7 @@ export default class Cli {
       return FormatterBuilder.build(type, typeOptions)
     })
     const cleanup = function() {
-      Promise.each(streamsToClose, (stream) => Promise.promisify(stream.end)())
+      return Promise.each(streamsToClose, (stream) => Promise.promisify(::stream.end)())
     }
     return {cleanup, formatters}
   }

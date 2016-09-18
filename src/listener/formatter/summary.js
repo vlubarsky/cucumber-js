@@ -62,8 +62,7 @@ export default class SummaryFormatter extends Formatter {
   }
 
   logDuration(featuresResult) {
-    const nanoseconds = featuresResult.getDuration()
-    const milliseconds = Math.ceil(nanoseconds / 1e6)
+    const milliseconds = featuresResult.getDuration()
     const start = new Date(0)
     const end = new Date(milliseconds)
     const duration = new Duration(start, end)

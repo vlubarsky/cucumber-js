@@ -13,7 +13,7 @@ if (typeof setImmediate !== 'undefined') {
 
 
 function getTimestamp() {
-  new methods.Date().getTime()
+  return new methods.Date().getTime()
 }
 
 let previousTimestamp
@@ -22,7 +22,7 @@ methods.beginTiming = () => {
   previousTimestamp = getTimestamp()
 }
 
-// Returns the interval from the previous call of beingTiming() to now in milliseconds
+// Returns the interval from the previous call of beginTiming() to now in milliseconds
 methods.endTiming = () => {
   return (getTimestamp() - previousTimestamp)
 }
