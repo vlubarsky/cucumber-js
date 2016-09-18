@@ -32,20 +32,22 @@ export default class ArgvParser {
 
   async getUnexpandedFeaturePaths() {
     if (this.args.length > 0) {
-      const featurePaths = await Promise.map(this.args, async (arg) => {
+      const nestedFeaturePaths = await Promise.map(this.args, async (arg) => {
         var filename = path.basename(arg)
         if (filename[0] === '@') {
           const filePath = path.join(this.cwd, arg)
           const content = await fs.readFile(filePath, 'utf8')
-          return content.split('\n')
+          return _.compact(content.split('\n'))
         } else {
           return arg
         }
       })
-      return _.flatten(featurePaths)
-    } else {
-      return ['features']
+      const featurePaths =_.flatten(nestedFeaturePaths)
+      if (featurePaths.length > 0) {
+        return featurePaths
+      }
     }
+    return ['features']
   }
 
   getFormatOptions() {

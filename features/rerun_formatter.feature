@@ -110,12 +110,12 @@ Feature: Rerun Formatter
       features/b.feature:5
       """
 
-  Scenario:
-    #Given a file named "@rerun.txt" with:
-    #  """
-    #  features/a.feature:5:8
-    #  features/b.feature:5
-    #  """
+  Scenario: rerunning failed scenarios
+    Given a file named "@rerun.txt" with:
+      """
+      features/a.feature:5:8
+      features/b.feature:5
+      """
     When I run cucumber.js with `@rerun.txt`
     Then it outputs this text:
       """

@@ -148,13 +148,13 @@
     "fs-extra": "^0.30.0",
     "jshint": "^2.9.1",
     "json-diff": "^0.3.1",
-    "mycha": "^2.0.1",
+    "mycha": "^3.0.0",
     "regenerator-runtime": "^0.9.5",
     "rimraf": "^2.4.3",
     "serve-static": "^1.10.0",
     "sinon": "^1.17.4",
     "sinon-chai": "^2.8.0",
-    "tmp": "0.0.28"
+    "tmp": "0.0.29"
   },
   "scripts": {
     "build-local-continuous": "BABEL_ENV=production babel src --watch -d lib --ignore '**/*_spec.js'",

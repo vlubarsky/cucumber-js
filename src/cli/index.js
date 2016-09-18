@@ -71,8 +71,8 @@ export default class Cli {
 
   async run() {
     const argvParser = await this.getArgvParser()
-    const {cleanup, formatters} = await this.getFormatters(argvParser)
     const features = await this.getFeatures(argvParser)
+    const {cleanup, formatters} = await this.getFormatters(argvParser)
     const runtimeOptions = argvParser.getRuntimeOptions()
     const supportCodeLibrary = await this.getSupportCodeLibrary(argvParser)
     const runtime = new Runtime({
