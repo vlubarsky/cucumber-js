@@ -16,9 +16,7 @@ Defines a hook which is run after each scenario.
     * `tags` - string tag expression used to apply this hook to only specific scenarios. See [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/) for more information
     * `timeout` - hook specific timeout to override the default timeout
   * string as a shorthand for specifying `tags`
-* `code` - a javascript function. The first argument will be a scenario result.
-  See [ScenarioResult](/src/models/scenario_result.js)
-  for more information. May optionally take an additional argument if using the asynchronous callback interface.
+* `code` - a javascript function. The first argument will be a [ScenarioResult](/src/models/scenario_result.js). May optionally take an additional argument if using the asynchronous callback interface.
 
 Multiple *After* hooks are executed in the **reverse** order that they were defined.
 

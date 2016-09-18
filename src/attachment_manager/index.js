@@ -7,7 +7,7 @@ export default class AttachmentManager {
     this.attachments = []
   }
 
-  create(data, mimeType) {
+  create(data, mimeType, callback) {
     if (Buffer.isBuffer(data)) {
       if (!mimeType) {
         throw Error('Buffer attachments must specify a mimeType')
@@ -17,7 +17,7 @@ export default class AttachmentManager {
       if (!mimeType) {
         throw Error('Stream attachments must specify a mimeType')
       }
-      return this.createStreamAttachment(data, mimeType)
+      return this.createStreamAttachment(data, mimeType, callback)
     } else if (typeof(data) === 'string') {
       if (!mimeType) {
         mimeType = 'text/plain'
@@ -32,8 +32,8 @@ export default class AttachmentManager {
     this.createStringAttachment(data.toString('base64'), mimeType)
   }
 
-  createStreamAttachment(data, mimeType) {
-    return new Promise((resolve, reject) => {
+  createStreamAttachment(data, mimeType, callback) {
+    const promise = new Promise((resolve, reject) => {
       const buffers = []
       data.on('data', (chunk) => { buffers.push(chunk) })
       data.on('end', () => {
@@ -42,6 +42,11 @@ export default class AttachmentManager {
       })
       data.on('error', reject)
     })
+    if (callback) {
+      promise.then(callback, callback)
+    } else {
+      return promise
+    }
   }
 
   createStringAttachment(data, mimeType) {
