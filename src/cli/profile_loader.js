@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import fs from 'mz/fs'
 import path from 'path'
-
+import stringArgv from 'string-argv'
 
 export default class ProfileLoader {
   constructor(directory) {
@@ -31,7 +31,7 @@ export default class ProfileLoader {
       if (!definitions[profile]) {
         throw new Error('Undefined profile: ' + profile)
       }
-      return definitions[profile].split(/\s/)
+      return stringArgv(definitions[profile])
     })
     return _.flatten(argvs)
   }
