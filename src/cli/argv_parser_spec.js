@@ -34,7 +34,7 @@ describe('ArgvParser', function() {
         this.result = await argvParser.getUnexpandedFeaturePaths()
       })
 
-      it('returns the files', async function() {
+      it('returns the files', function() {
         expect(this.result).to.eql(['features/a.feature', 'features/b.feature'])
       })
     })
@@ -50,7 +50,7 @@ describe('ArgvParser', function() {
         this.result = await argvParser.getUnexpandedFeaturePaths()
       })
 
-      it('returns the feature paths in the rerun file', async function() {
+      it('returns the feature paths in the rerun file', function() {
         expect(this.result).to.eql(['features/a.feature', 'features/b.feature'])
       })
     })
@@ -66,7 +66,7 @@ describe('ArgvParser', function() {
         this.result = await argvParser.getUnexpandedFeaturePaths()
       })
 
-      it('returns the feature paths in the rerun file', async function() {
+      it('returns the feature paths in the rerun file', function() {
         expect(this.result).to.eql(['features'])
       })
     })
@@ -84,7 +84,7 @@ describe('ArgvParser', function() {
         }
       })
 
-      it('returns the feature paths in the rerun file', async function() {
+      it('returns the feature paths in the rerun file', function() {
         expect(this.error).to.exist
         expect(this.error.message).to.include('ENOENT')
       })

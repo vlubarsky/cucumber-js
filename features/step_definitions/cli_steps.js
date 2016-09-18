@@ -30,7 +30,8 @@ var cliSteps = function cliSteps() {
   this.Then(/^it passes$/, function () {
     if (this.lastRun.error) {
       throw new Error('Expected last run to pass but it failed\n' +
-                      'Output:\n' + normalizeText(this.lastRun.stdout));
+                      'Output:\n' + normalizeText(this.lastRun.stdout)
+                                  + normalizeText(this.lastRun.stderr));
     }
   });
 
