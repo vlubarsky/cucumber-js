@@ -19,11 +19,7 @@ notifications:
 
 matrix:
   include:
-    - node_js: "5"
-      script: "npm run feature-test"
     - node_js: "4"
-      script: "npm run feature-test"
-    - node_js: "iojs"
       script: "npm run feature-test"
     - node_js: "0.12"
       script: "npm run feature-test-es5"
