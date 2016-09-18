@@ -5,17 +5,17 @@ import DocString from '../models/step_arguments/doc_string'
 
 describe('StepDefinitionSnippetBuilder', function () {
   beforeEach(function () {
-    this.snippetSyntax = {build: sinon.stub()}
+    this.snippetSyntax = createMock(['build'])
     this.snippetBuilder = new StepDefinitionSnippetBuilder(this.snippetSyntax)
   })
 
   describe('build()', function () {
     beforeEach(function() {
-      this.step = {
-        getArguments: sinon.stub().returns([]),
-        getKeywordType: sinon.stub().returns(KeywordType.PRECONDITION),
-        getName: sinon.stub().returns('')
-      }
+      this.step = createMock({
+        getArguments: [],
+        getKeywordType: KeywordType.PRECONDITION,
+        getName: ''
+      })
     })
 
     describe('step is an precondition step', function() {

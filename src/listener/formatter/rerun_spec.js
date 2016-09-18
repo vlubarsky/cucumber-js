@@ -25,9 +25,7 @@ describe('RerunFormatter', function() {
 
   describe('with one passing scenario', function() {
     beforeEach(function() {
-      const scenarioResult = {
-        getStatus: sinon.stub().returns(Status.PASSING)
-      }
+      const scenarioResult = createMock({getStatus: Status.PASSING})
       this.rerunFormatter.handleScenarioResult(scenarioResult)
       this.rerunFormatter.handleAfterFeatures()
     })
@@ -39,14 +37,14 @@ describe('RerunFormatter', function() {
 
   describe('with one failing scenario', function() {
     beforeEach(function() {
-      const scenario = {
-        getLine: sinon.stub().returns(1),
-        getUri: sinon.stub().returns('path/to/project/features/a.feature')
-      }
-      const scenarioResult = {
-        getScenario: sinon.stub().returns(scenario),
-        getStatus: sinon.stub().returns(Status.FAILED)
-      }
+      const scenario = createMock({
+        getLine: 1,
+        getUri: 'path/to/project/features/a.feature'
+      })
+      const scenarioResult = createMock({
+        getScenario: scenario,
+        getStatus: Status.FAILED
+      })
       this.rerunFormatter.handleScenarioResult(scenarioResult)
       this.rerunFormatter.handleAfterFeatures()
     })
@@ -58,23 +56,23 @@ describe('RerunFormatter', function() {
 
   describe('with two failing scenarios in the same file', function() {
     beforeEach(function() {
-      const scenario1 = {
-        getLine: sinon.stub().returns(1),
-        getUri: sinon.stub().returns('path/to/project/features/a.feature')
-      }
-      const scenarioResult1 = {
-        getScenario: sinon.stub().returns(scenario1),
-        getStatus: sinon.stub().returns(Status.FAILED)
-      }
+      const scenario1 = createMock({
+        getLine: 1,
+        getUri: 'path/to/project/features/a.feature'
+      })
+      const scenarioResult1 = createMock({
+        getScenario: scenario1,
+        getStatus: Status.FAILED
+      })
       this.rerunFormatter.handleScenarioResult(scenarioResult1)
-      const scenario2 = {
-        getLine: sinon.stub().returns(2),
-        getUri: sinon.stub().returns('path/to/project/features/a.feature')
-      }
-      const scenarioResult2 = {
-        getScenario: sinon.stub().returns(scenario2),
-        getStatus: sinon.stub().returns(Status.FAILED)
-      }
+      const scenario2 = createMock({
+        getLine: 2,
+        getUri: 'path/to/project/features/a.feature'
+      })
+      const scenarioResult2 = createMock({
+        getScenario: scenario2,
+        getStatus: Status.FAILED
+      })
       this.rerunFormatter.handleScenarioResult(scenarioResult2)
       this.rerunFormatter.handleAfterFeatures()
     })
@@ -86,23 +84,23 @@ describe('RerunFormatter', function() {
 
   describe('with two failing scenarios in different files', function() {
     beforeEach(function() {
-      const scenario1 = {
-        getLine: sinon.stub().returns(1),
-        getUri: sinon.stub().returns('path/to/project/features/a.feature')
-      }
-      const scenarioResult1 = {
-        getScenario: sinon.stub().returns(scenario1),
-        getStatus: sinon.stub().returns(Status.FAILED)
-      }
+      const scenario1 = createMock({
+        getLine: 1,
+        getUri: 'path/to/project/features/a.feature'
+      })
+      const scenarioResult1 = createMock({
+        getScenario: scenario1,
+        getStatus: Status.FAILED
+      })
       this.rerunFormatter.handleScenarioResult(scenarioResult1)
-      const scenario2 = {
-        getLine: sinon.stub().returns(2),
-        getUri: sinon.stub().returns('path/to/project/features/b.feature')
-      }
-      const scenarioResult2 = {
-        getScenario: sinon.stub().returns(scenario2),
-        getStatus: sinon.stub().returns(Status.FAILED)
-      }
+      const scenario2 = createMock({
+        getLine: 2,
+        getUri: 'path/to/project/features/b.feature'
+      })
+      const scenarioResult2 = createMock({
+        getScenario: scenario2,
+        getStatus: Status.FAILED
+      })
       this.rerunFormatter.handleScenarioResult(scenarioResult2)
       this.rerunFormatter.handleAfterFeatures()
     })

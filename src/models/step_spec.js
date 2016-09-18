@@ -47,10 +47,9 @@ describe('Step', function () {
 
   describe('getKeyword()', function () {
     beforeEach(function() {
-      const feature = {getStepKeywordByLines: sinon.stub()}
+      const feature = createMock(['getStepKeywordByLines'])
       feature.getStepKeywordByLines.withArgs([1,2]).returns('keyword')
-      const scenario = {getFeature: sinon.stub()}
-      scenario.getFeature.returns(feature)
+      const scenario = createMock({getFeature: feature})
 
       this.step = new Step({locations: [{line: 1}, {line: 2}]})
       this.step.setScenario(scenario)
@@ -63,13 +62,11 @@ describe('Step', function () {
 
   describe('getKeywordType()', function() {
     beforeEach(function() {
-      this.feature = {
-        getLanguage: sinon.stub(),
-        getStepKeywordByLines: sinon.stub()
-      }
-      this.feature.getLanguage.returns('en')
-      this.scenario = {getFeature: sinon.stub()}
-      this.scenario.getFeature.returns(this.feature)
+      this.feature = createMock({
+        getLanguage: 'en',
+        getStepKeywordByLines: null
+      })
+      this.scenario = createMock({getFeature: this.feature})
       this.step = new Step({locations: [{line: 2}]})
       this.step.setScenario(this.scenario)
     })

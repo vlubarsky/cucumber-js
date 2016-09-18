@@ -3,10 +3,10 @@ import HookDefinition from './hook_definition'
 describe('HookDefinition', function () {
   describe('appliesToScenario', function () {
     beforeEach(function() {
-      this.scenario = {
-        getTags: sinon.stub().returns([]),
-        getUri: sinon.stub().returns('')
-      }
+      this.scenario = createMock({
+        getTags: [],
+        getUri: ''
+      })
     })
 
     describe('no tags', function() {
@@ -22,7 +22,7 @@ describe('HookDefinition', function () {
     describe('tags match', function() {
       beforeEach(function() {
         this.scenario.getTags.returns([
-          {getName: sinon.stub().returns('@tagA')}
+          createMock({getName: '@tagA'})
         ])
         this.hookDefinition = new HookDefinition({options: {tags: '@tagA'}})
       })

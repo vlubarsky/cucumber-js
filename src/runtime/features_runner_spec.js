@@ -6,9 +6,7 @@ import {expectToHearEvents} from '../../spec/listener_helpers'
 
 describe('FeaturesRunner', function () {
   beforeEach(function () {
-    this.listener = {
-      hear: sinon.stub()
-    }
+    this.listener = createMock(['hear'])
     this.eventBroadcaster = new EventBroadcaster({listeners: [this.listener]})
     this.features = []
     this.supportCodeLibrary = {

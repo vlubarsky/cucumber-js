@@ -9,21 +9,19 @@ import {expectToHearEvents} from '../../spec/listener_helpers'
 
 describe('ScenarioRunner', function () {
   beforeEach(function () {
-    this.listener = {
-      hear: sinon.stub()
-    }
+    this.listener = createMock(['hear'])
     this.eventBroadcaster = new EventBroadcaster({listeners: [this.listener]})
-    this.scenario = {
-      getFeature: sinon.stub(),
-      getSteps: sinon.stub().returns([])
-    }
-    this.supportCodeLibrary = {
-      getAfterHookDefinitions: sinon.stub().returns([]),
-      getBeforeHookDefinitions: sinon.stub().returns([]),
-      getDefaultTimeout: sinon.stub().returns(5000),
-      getStepDefinitions: sinon.stub().returns([]),
-      instantiateNewWorld: sinon.stub().returns({})
-    }
+    this.scenario = createMock({
+      getFeature: null,
+      getSteps: []
+    })
+    this.supportCodeLibrary = createMock({
+      getAfterHookDefinitions: [],
+      getBeforeHookDefinitions: [],
+      getDefaultTimeout: 5000,
+      getStepDefinitions: [],
+      instantiateNewWorld: {}
+    })
     this.options = {}
     this.scenarioRunner = new ScenarioRunner({
       eventBroadcaster: this.eventBroadcaster,
@@ -63,9 +61,9 @@ describe('ScenarioRunner', function () {
           status: Status.PASSED,
           step: this.step
         })
-        const stepDefinition = {
-          invoke: sinon.stub().returns(Promise.resolve(this.stepResult))
-        }
+        const stepDefinition = createMock({
+          invoke: Promise.resolve(this.stepResult)
+        })
         this.supportCodeLibrary.getStepDefinitions.returns([stepDefinition])
         this.scenario.getSteps.returns([this.step])
         this.scenarioResult = await this.scenarioRunner.run()
@@ -95,9 +93,9 @@ describe('ScenarioRunner', function () {
           status: Status.FAILED,
           step: this.step
         })
-        const stepDefinition = {
-          invoke: sinon.stub().returns(Promise.resolve(this.stepResult))
-        }
+        const stepDefinition = createMock({
+          invoke: Promise.resolve(this.stepResult)
+        })
         this.supportCodeLibrary.getStepDefinitions.returns([stepDefinition])
         this.scenario.getSteps.returns([this.step])
         this.scenarioResult = await this.scenarioRunner.run()

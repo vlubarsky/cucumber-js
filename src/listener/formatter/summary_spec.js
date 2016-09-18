@@ -12,14 +12,12 @@ describe('SummaryFormatter', function() {
     const colorFns = getColorFns(false)
     this.scenarioCounts = Status.getMapping(0)
     this.stepCounts = Status.getMapping(0)
-    this.featuresResult = {
-      getScenarioCounts: sinon.stub().returns(this.scenarioCounts),
-      getStepCounts: sinon.stub().returns(this.stepCounts),
-      getDuration: sinon.stub().returns(0)
-    }
-    const snippetBuilder = {
-      build: sinon.stub().returns('snippet')
-    }
+    this.featuresResult = createMock({
+      getScenarioCounts: this.scenarioCounts,
+      getStepCounts: this.stepCounts,
+      getDuration: 0
+    })
+    const snippetBuilder = createMock({build: 'snippet'})
     this.summaryFormatter = new SummaryFormatter({
       colorFns,
       cwd: 'path/to/project',
@@ -30,27 +28,27 @@ describe('SummaryFormatter', function() {
 
   describe('issues', function() {
     beforeEach(function() {
-      const scenario = {
-        getLine: sinon.stub().returns(1),
-        getName: sinon.stub().returns('name1'),
-        getUri: sinon.stub().returns('path/to/project/a.feature')
-      }
-      this.step = {
-        getKeyword: sinon.stub().returns('keyword '),
-        getLine: sinon.stub().returns(2),
-        getName: sinon.stub().returns('name2'),
-        getScenario: sinon.stub().returns(scenario),
-        getUri: sinon.stub().returns('path/to/project/a.feature'),
-        hasUri: sinon.stub().returns(true)
-      }
+      const scenario = createMock({
+        getLine: 1,
+        getName: 'name1',
+        getUri: 'path/to/project/a.feature'
+      })
+      this.step = createMock({
+        getKeyword: 'keyword ',
+        getLine: 2,
+        getName: 'name2',
+        getScenario: scenario,
+        getUri: 'path/to/project/a.feature',
+        hasUri: true
+      })
     })
 
     describe('with a failing step', function() {
       beforeEach(function() {
-        const stepDefinition = {
-          getLine: sinon.stub().returns(3),
-          getUri: sinon.stub().returns('path/to/project/steps.js'),
-        }
+        const stepDefinition = createMock({
+          getLine: 3,
+          getUri: 'path/to/project/steps.js',
+        })
         const stepResult = new StepResult({
           duration: 0,
           failureException: 'error',
@@ -77,16 +75,16 @@ describe('SummaryFormatter', function() {
 
     describe('with an ambiguous step', function() {
       beforeEach(function() {
-        const stepDefinition1 = {
-          getLine: sinon.stub().returns(3),
-          getPattern: sinon.stub().returns('pattern1'),
-          getUri: sinon.stub().returns('path/to/project/steps.js')
-        }
-        const stepDefinition2 = {
-          getLine: sinon.stub().returns(4),
-          getPattern: sinon.stub().returns('longer pattern2'),
-          getUri: sinon.stub().returns('path/to/project/steps.js')
-        }
+        const stepDefinition1 = createMock({
+          getLine: 3,
+          getPattern: 'pattern1',
+          getUri: 'path/to/project/steps.js'
+        })
+        const stepDefinition2 = createMock({
+          getLine: 4,
+          getPattern: 'longer pattern2',
+          getUri: 'path/to/project/steps.js'
+        })
         const stepResult = new StepResult({
           ambiguousStepDefinitions: [stepDefinition1, stepDefinition2],
           duration: 0,

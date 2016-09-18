@@ -3,12 +3,12 @@ import ScenarioFilter from './scenario_filter'
 describe('ScenarioFilter', function() {
   describe('matches', function() {
     beforeEach(function() {
-      this.scenario = {
-        getLines: sinon.stub().returns([]),
-        getName: sinon.stub().returns(''),
-        getTags: sinon.stub().returns([]),
-        getUri: sinon.stub().returns('')
-      }
+      this.scenario = createMock({
+        getLines: [],
+        getName: '',
+        getTags: [],
+        getUri: ''
+      })
     })
 
     describe('no filters', function() {
