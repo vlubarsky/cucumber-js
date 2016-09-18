@@ -1,5 +1,4 @@
-import HookDefinition from './hooK_definition'
-
+import HookDefinition from './hook_definition'
 
 describe('HookDefinition', function () {
   describe('appliesToScenario', function () {
