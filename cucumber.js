@@ -6,5 +6,5 @@ common = [
 
 module.exports = {
   'default': common,
-  'es5': common + ' --tags ~@es6'
+  'es5': common + ' --tags "not @es6"'
 };
