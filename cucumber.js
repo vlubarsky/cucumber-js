@@ -1,4 +1,4 @@
-common = [
+var common = [
   '--strict',
   '--format progress',
   '--format rerun:@rerun.txt'
