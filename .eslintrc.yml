@@ -10,6 +10,7 @@ globals:
   expect: false
   it: false
   sinon: false
+  createMock: false
 parser: babel-eslint
 parserOptions:
   sourceType: module

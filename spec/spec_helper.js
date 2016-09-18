@@ -1,12 +1,20 @@
-process.env.NODE_ENV = 'test'
-
+import _ from 'lodash'
+import "regenerator-runtime/runtime"
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import "regenerator-runtime/runtime"
 
 chai.use(sinonChai)
 
-global.chai = chai
-global.expect = chai.expect
-global.sinon = sinon
+function createMock(obj) {
+  return _.mapValues(obj, (value) => {
+    return sinon.stub().returns(value)
+  })
+}
+
+_.assign(global, {
+  chai,
+  createMock,
+  expect: chai.expect,
+  sinon
+})

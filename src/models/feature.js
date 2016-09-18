@@ -18,6 +18,10 @@ export default class Feature {
     return this.data.keyword
   }
 
+  getLanguage() {
+    return this.data.language
+  }
+
   getLine() {
     return this.data.location.line
   }
@@ -27,7 +31,7 @@ export default class Feature {
   }
 
   getScenarioKeyword() {
-    return Gherkin.DIALECTS[this.data.language].scenario
+    return Gherkin.DIALECTS[this.getLanguage()].scenario
   }
 
   getScenarios() {

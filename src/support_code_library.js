@@ -5,7 +5,9 @@ import StackTrace from 'stacktrace-js'
 import StepDefinition from './models/step_definition'
 
 export default class SupportCodeLibrary {
-  constructor() {
+  constructor({cwd}) {
+    this.cwd = cwd
+
     this.afterHookDefinitions = []
     this.beforeHookDefinitions = []
     this.defaultTimeout = 5000
@@ -95,9 +97,9 @@ export default class SupportCodeLibrary {
       handler = options
       options = {}
     }
-    _.assign(options, this.getDefinitionLineAndUri())
+    _.assign(options, this.getDefinitionLineAndUri(), {cwd: this.cwd})
     const listener = new Listener(options)
-    listener.setHandlerForEvent(eventName, handler)
+    listener.setHandlerForEventName(eventName, handler)
     this.registerListener(listener)
   }
 

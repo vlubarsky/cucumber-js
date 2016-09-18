@@ -23,7 +23,7 @@ export default class JsonFormatter extends Formatter {
   formatDataTable(dataTable) {
     return {
       rows: dataTable.raw().map(function (row) {
-        return { cells: row }
+        return {cells: row}
       })
     }
   }
@@ -37,7 +37,7 @@ export default class JsonFormatter extends Formatter {
   }
 
   formatStepArguments(stepArguments) {
-    return stepArguments.map(function(arg) {
+    return stepArguments.map((arg) => {
       switch (arg.constructor.name) {
         case 'DataTable':
           return this.formatDataTable(arg)
@@ -60,14 +60,6 @@ export default class JsonFormatter extends Formatter {
     this.log(JSON.stringify(this.features, null, 2))
   }
 
-  handleAfterFeature() {
-    this.features.push(this.currentFeature)
-  }
-
-  handleAfterScenario() {
-    this.currentFeature.elements.push(this.currentScenario)
-  }
-
   handleBeforeFeature(feature) {
     this.currentFeature = {
       description: feature.getDescription(),
@@ -79,6 +71,7 @@ export default class JsonFormatter extends Formatter {
       tags: feature.getTags().map(this.formatTag),
       uri: feature.getUri()
     }
+    this.features.push(this.currentFeature)
   }
 
   handleBeforeScenario(scenario) {
@@ -92,6 +85,7 @@ export default class JsonFormatter extends Formatter {
       tags: scenario.getTags().map(this.formatTag),
       type: 'scenario'
     }
+    this.currentFeature.elements.push(this.currentScenario)
   }
 
   handleStepResult(stepResult) {
@@ -115,8 +109,9 @@ export default class JsonFormatter extends Formatter {
       currentStep.result.duration = stepResult.getDuration()
     }
 
-    if (stepResult.hasAttachments()) {
-      currentStep.embeddings = this.formatAttachments(stepResult.getAttachments())
+    const attachments = stepResult.getAttachments()
+    if (attachments.length > 0) {
+      currentStep.embeddings = this.formatAttachments(attachments)
     }
 
     if (status === Status.FAILED) {
@@ -129,7 +124,7 @@ export default class JsonFormatter extends Formatter {
     var stepDefinition = stepResult.getStepDefinition()
     if (stepDefinition) {
       var location = stepDefinition.getUri() + ':' + stepDefinition.getLine()
-      currentStep.match = {location: location}
+      currentStep.match = {location}
     }
 
     this.currentScenario.steps.push(currentStep)

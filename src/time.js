@@ -11,14 +11,12 @@ if (typeof setImmediate !== 'undefined') {
   methods.clearImmediate = clearImmediate.bind(global)
 }
 
-const highResolutionTimeAvailable = process.hrtime
-
-
-let previousTimestamp
 
 function getTimestamp() {
   new methods.Date().getTime()
 }
+
+let previousTimestamp
 
 methods.beginTiming = () => {
   previousTimestamp = getTimestamp()

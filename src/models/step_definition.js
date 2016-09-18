@@ -84,7 +84,7 @@ export default class StepDefinition {
   }
 
   async invoke({defaultTimeout, scenarioResult, step, world}) {
-    const start = beginTiming()
+    beginTiming()
     const parameters = this.getInvocationParameters(step, scenarioResult)
     const timeoutInMilliseconds = this.options.timeout || defaultTimeout
     const attachmentManager = new AttachmentManager()

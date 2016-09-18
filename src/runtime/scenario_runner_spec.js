@@ -201,7 +201,8 @@ describe('ScenarioRunner', function () {
       beforeEach(async function() {
         this.options.dryRun = true
         this.hookDefinition = new HookDefinition({
-          code() { throw new Error('error') }
+          code() { throw new Error('error') },
+          options: {}
         })
         this.step = new Step({})
         this.step.setScenario(this.scenario)
@@ -243,7 +244,8 @@ describe('ScenarioRunner', function () {
       beforeEach(async function() {
         this.options.dryRun = true
         this.hookDefinition = new HookDefinition({
-          code() { throw new Error('error') }
+          code() { throw new Error('error') },
+          options: {}
         })
         this.step = new Step({})
         this.step.setScenario(this.scenario)

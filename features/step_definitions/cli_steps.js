@@ -19,6 +19,7 @@ var cliSteps = function cliSteps() {
       }
     });
     args.unshift(executablePath);
+    args.push('--backtrace')
     var world = this;
     var cwd = dir ? path.join(this.tmpDir, dir) : this.tmpDir;
 
@@ -76,9 +77,9 @@ var cliSteps = function cliSteps() {
   });
 
   this.Then(/^I see the version of Cucumber$/, function() {
-    var Cucumber       = require('../../lib/cucumber');
-    var actualOutput   = this.lastRun.stdout;
-    var expectedOutput = Cucumber.VERSION + '\n';
+    var version = require('../../package.json').version;
+    var actualOutput = this.lastRun.stdout;
+    var expectedOutput = version + '\n';
     if (actualOutput.indexOf(expectedOutput) === -1)
       throw new Error('Expected output to match the following:\n' + expectedOutput + '\n' +
                       'Got:\n' + actualOutput);

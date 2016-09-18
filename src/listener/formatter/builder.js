@@ -2,6 +2,7 @@ import _ from 'lodash'
 import getColorFns from '../../get_color_fns'
 import JavascriptSnippetSyntax from '../../step_definition_snippet_builder/javascript_snippet_syntax'
 import JsonFormatter from './json'
+import path from 'path'
 import PrettyFormatter from './pretty'
 import ProgressFormatter from './progress'
 import RerunFormatter from './rerun'
@@ -35,8 +36,8 @@ export default class FormatterBuilder {
     }
     let Syntax = JavascriptSnippetSyntax
     if (snippetSyntax) {
-      const fullSyntaxPath = path.resolve(this.cwd, snippetSyntax);
-      Syntax = require(fullSyntaxPath);
+      const fullSyntaxPath = path.resolve(this.cwd, snippetSyntax)
+      Syntax = require(fullSyntaxPath)
     }
     const syntax = new Syntax(snippetInterface)
     return new StepDefinitionSnippetBuilder(syntax)

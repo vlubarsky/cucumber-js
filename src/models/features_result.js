@@ -34,6 +34,6 @@ export default class FeaturesResult {
   witnessScenarioResult(scenarioResult) {
     this.duration += scenarioResult.getDuration()
     this.scenarioCounts[scenarioResult.getStatus()] += 1
-    _.mergeWith(this.stepCounts, scenarioResult.getStepCounts(), function(a, b) { return a + b })
+    _.mergeWith(this.stepCounts, scenarioResult.getStepCounts(), (a, b) => { return a + b })
   }
 }

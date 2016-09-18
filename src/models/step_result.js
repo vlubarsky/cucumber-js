@@ -8,7 +8,7 @@ export default class StepResult {
   }
 
   getAttachments() {
-    return this.data.attachments
+    return this.data.attachments || []
   }
 
   getDuration() {
@@ -33,9 +33,5 @@ export default class StepResult {
 
   getStatus() {
     return this.data.status
-  }
-
-  hasAttachments() {
-    return this.data.attachments && this.data.attachments.length > 0
   }
 }

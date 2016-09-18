@@ -4,8 +4,10 @@ import SummaryFormatter from './summary'
 export default class ProgressFormatter extends SummaryFormatter {
   handleStepResult(stepResult) {
     const status = stepResult.getStatus()
-    const character = this.colorFns[status](ProgressFormatter.characters[status])
-    this.log(character)
+    if (!(stepResult.getStep().constructor.name === 'Hook' && status === Status.PASSED)) {
+      const character = this.colorFns[status](ProgressFormatter.CHARACTERS[status])
+      this.log(character)
+    }
     super.handleStepResult(stepResult)
   }
 
@@ -15,7 +17,7 @@ export default class ProgressFormatter extends SummaryFormatter {
   }
 }
 
-ProgressFormatter.characters = {
+ProgressFormatter.CHARACTERS = {
   [Status.AMBIGUOUS]: 'A',
   [Status.FAILED]: 'F',
   [Status.PASSED]: '.',

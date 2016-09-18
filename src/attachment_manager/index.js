@@ -19,7 +19,7 @@ export default class AttachmentManager {
       return this.createStreamAttachment(data, mimeType)
     } else if (typeof(data) === 'string') {
       if (!mimeType) {
-        mimeType = 'text/plain';
+        mimeType = 'text/plain'
       }
       this.createStringAttachment(data, mimeType)
     } else {

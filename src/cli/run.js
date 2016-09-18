@@ -7,17 +7,22 @@ export default async function run() {
     stdout: process.stdout
   })
 
+  let success
   try {
-    const success = await cli.run()
-    const exitCode = success ? 0 : 1
-    function exitNow() { process.exit(exitCode) }
-    // If stdout.write() returned false, kernel buffer is not empty yet
-    if (process.stdout.write('')) {
-      exitNow()
-    } else {
-      process.stdout.on('drain', exitNow)
-    }
+    success = await cli.run()
   } catch (error) {
     process.nextTick(function(){ throw error })
+  }
+
+  const exitCode = success ? 0 : 1
+  function exitNow() {
+    process.exit(exitCode)
+  }
+
+  // If stdout.write() returned false, kernel buffer is not empty yet
+  if (process.stdout.write('')) {
+    exitNow()
+  } else {
+    process.stdout.on('drain', exitNow)
   }
 }

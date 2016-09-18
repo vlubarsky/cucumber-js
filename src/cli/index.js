@@ -4,7 +4,6 @@ import ArgvParser from './argv_parser'
 import FormatterBuilder from '../Listener/formatter/builder'
 import fs from 'mz/fs'
 import Parser from '../parser'
-import path from 'path'
 import ProfileLoader from './profile_loader'
 import Runtime from '../runtime'
 import ScenarioFilter from '../scenario_filter'
@@ -43,7 +42,6 @@ export default class Cli {
     const streamsToClose = []
     const formatters = await Promise.map(formats, async ({type, outputTo}) => {
       let stream = this.stdout
-      let cleanup = _.noop
       if (outputTo) {
         let fd = await fs.open(outputTo, 'w')
         stream = fs.createWriteStream(null, {fd})
@@ -60,7 +58,7 @@ export default class Cli {
 
   async getSupportCodeLibrary(argvParser) {
     const supportCodePaths = await argvParser.getSupportCodePaths()
-    const supportCodeLibrary = new SupportCodeLibrary()
+    const supportCodeLibrary = new SupportCodeLibrary({cwd: this.cwd})
     supportCodePaths.forEach(function (codePath) {
       const codeExport = require(codePath)
       if (typeof(codeExport) === 'function') {

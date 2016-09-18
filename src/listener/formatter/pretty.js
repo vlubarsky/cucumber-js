@@ -1,4 +1,6 @@
+import figures from 'figures'
 import indentString from 'indent-string'
+import Status from '../../status'
 import SummaryFormatter from './summary'
 import Table from 'cli-table'
 
@@ -8,7 +10,7 @@ export default class PrettyFormatter extends SummaryFormatter {
     return this.colorFns[status](text)
   }
 
-  formatDataTable(stepResult, dataTable) {
+  formatDataTable(dataTable) {
     var rows = dataTable.raw().map((row) => {
       return row.map((cell) => {
         return cell.replace(/\\/g, '\\\\').replace(/\n/g, '\\n')
@@ -30,9 +32,8 @@ export default class PrettyFormatter extends SummaryFormatter {
     return table.toString()
   }
 
-  formatDocString(stepResult, docString) {
-    const contents = '"""\n' + docString.getContent() + '\n"""'
-    return this.applyColor(stepResult, contents) + '\n'
+  formatDocString(docString) {
+    return '"""\n' + docString.getContent() + '\n"""'
   }
 
   formatTags(tags) {
@@ -43,11 +44,11 @@ export default class PrettyFormatter extends SummaryFormatter {
     return this.colorFns.tag(tagNames.join(' '))
   }
 
-  handleAfterScenarioEvent() {
+  handleAfterScenario() {
     this.log('\n')
   }
 
-  handleBeforeFeatureEvent(feature) {
+  handleBeforeFeature(feature) {
     let text = ''
     let tagsText = this.formatTags(feature.getTags())
     if (tagsText) {
@@ -56,53 +57,67 @@ export default class PrettyFormatter extends SummaryFormatter {
     text += feature.getKeyword() + ': ' + feature.getName()
     let description = feature.getDescription()
     if (description) {
-      text += '\n\n' + indentString(description, 1, ' ')
+      text += '\n\n' + this.indent(description, 1)
     }
     this.log(text + '\n\n')
   }
 
-  handleBeforeScenarioEvent(scenario) {
+  handleBeforeScenario(scenario) {
     let text = ''
     let tagsText = this.formatTags(scenario.getTags())
     if (tagsText) {
       text = tagsText + '\n'
     }
     text += scenario.getKeyword() + ': ' + scenario.getName()
-    this.logIndented(text, 1)
+    this.logIndented(text + '\n', 1)
   }
 
-  handleStepResultEvent(stepResult) {
+  handleStepResult(stepResult) {
     const step = stepResult.getStep()
     if (!step.isHidden()) {
       this.logStepResult(step, stepResult)
     }
-    super.handleStepResultEvent(stepResult)
+    super.handleStepResult(stepResult)
+  }
+
+  indent(text, level) {
+    return indentString(text, level, '  ')
   }
 
   logIndented(text, level) {
-    const indented = indentString(text, level, '  ')
-    this.log(indented)
+    this.log(this.indent(text, level))
   }
 
   logStepResult(step, stepResult) {
-    let identifier = step.getKeyword() + (step.getName() || '')
-    identifier = this.applyColor(stepResult, identifier)
-    this.logIndented(identifier, 2)
-    this.log('\n')
+    const status = stepResult.getStatus()
+    const colorFn = this.colorFns[status]
 
-    step.getArguments().forEach(function (arg) {
-      var str
-      switch(arg.getType()) {
+    const symbol = PrettyFormatter.CHARACTERS[stepResult.getStatus()]
+    const identifier = colorFn(symbol + ' ' + step.getKeyword() + (step.getName() || ''))
+    this.logIndented(identifier + '\n', 1)
+
+    step.getArguments().forEach((arg) => {
+      let str
+      switch(arg.constructor.name) {
         case 'DataTable':
-          str = this.formatDataTable(stepResult, arg)
+          str = this.formatDataTable(arg)
           break
         case 'DocString':
-          str = this.formatDocString(stepResult, arg)
+          str = this.formatDocString(arg)
           break
         default:
-          throw new Error('Unknown argument type: ' + arg.getType())
+          throw new Error('Unknown argument type: ' + arg)
       }
-      this.logIndented(str, 3)
+      this.logIndented(colorFn(str) + '\n', 3)
     })
   }
+}
+
+PrettyFormatter.CHARACTERS = {
+  [Status.AMBIGUOUS]: figures.cross,
+  [Status.FAILED]: figures.cross,
+  [Status.PASSED]: figures.tick,
+  [Status.PENDING]: '?',
+  [Status.SKIPPED]: '-',
+  [Status.UNDEFINED]: '?'
 }

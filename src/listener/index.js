@@ -41,4 +41,8 @@ export default class Listener {
     }
     return error
   }
+
+  setHandlerForEventName(eventName, handler) {
+    this['handle' + eventName] = handler
+  }
 }

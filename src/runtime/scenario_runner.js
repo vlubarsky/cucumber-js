@@ -43,6 +43,7 @@ export default class ScenarioRunner {
     } else {
       return await hookDefinition.invoke({
         defaultTimeout: this.defaultTimeout,
+        scenarioResult: this.scenarioResult,
         step: hook,
         world: this.world
       })
@@ -71,6 +72,7 @@ export default class ScenarioRunner {
     } else {
       return await stepDefinitions[0].invoke({
         defaultTimeout: this.defaultTimeout,
+        scenarioResult: this.scenarioResult,
         step,
         world: this.world
       })

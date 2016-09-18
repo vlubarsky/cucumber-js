@@ -56,6 +56,8 @@ export default class ScenarioResult {
     if (stepStatus === Status.FAILED) {
       this.failureException = stepResult.getFailureException()
     }
-    this.stepCounts[stepStatus] += 1
+    if (!stepResult.getStep().constructor.name === 'Hook') {
+      this.stepCounts[stepStatus] += 1
+    }
   }
 }

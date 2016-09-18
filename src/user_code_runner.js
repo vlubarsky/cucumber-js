@@ -4,6 +4,7 @@ import isGenerator from 'is-generator'
 import Promise from 'bluebird'
 import UncaughtExceptionManager from './uncaught_exception_manager'
 import util from 'util'
+import Time from './time'
 
 export default class UserCodeRunner {
   static async run ({argsArray, thisArg, fn, timeoutInMilliseconds}) {
@@ -55,10 +56,16 @@ export default class UserCodeRunner {
     UncaughtExceptionManager.registerHandler(exceptionHandler)
     racingPromises.push(uncaughtExceptionDeferred.promise)
 
+    const timeoutDeferred = Promise.defer()
+    Time.setTimeout(function() {
+      const timeoutMessage = 'function timed out after ' + timeoutInMilliseconds + ' milliseconds'
+      timeoutDeferred.reject(new Error(timeoutMessage))
+    }, timeoutInMilliseconds)
+    racingPromises.push(timeoutDeferred.promise)
+
     let error, result
-    let timeoutMessage = 'function timed out after ' + timeoutInMilliseconds + ' milliseconds'
     try {
-      result = await Promise.race(racingPromises).timeout(timeoutInMilliseconds, timeoutMessage)
+      result = await Promise.race(racingPromises)
     } catch (e) {
       if ((e instanceof Error)) {
         error = e
