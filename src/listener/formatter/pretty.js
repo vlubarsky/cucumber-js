@@ -81,7 +81,7 @@ export default class PrettyFormatter extends SummaryFormatter {
   }
 
   indent(text, level) {
-    return indentString(text, level, '  ')
+    return indentString(text, '  ', level)
   }
 
   logIndented(text, level) {

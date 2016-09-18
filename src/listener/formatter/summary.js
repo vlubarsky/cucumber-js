@@ -46,6 +46,10 @@ export default class SummaryFormatter extends Formatter {
     return path.relative(this.cwd, obj.getUri()) + ':' + obj.getLine()
   }
 
+  indent(text, numberOfSpaces) {
+    return indentString(text, ' ', numberOfSpaces)
+  }
+
   logCountSummary(type, counts) {
     const total = _.reduce(counts, (memo, value) => memo + value)
     let text = total + ' ' + type + (total !== 1 ? 's' : '')
@@ -93,18 +97,18 @@ export default class SummaryFormatter extends Formatter {
       const stepLocation = this.formatLocation(step)
       stepText += ' - ' + this.colorFns.location(stepLocation)
     }
-    text += indentString(stepText, prefix.length) + '\n'
+    text += this.indent(stepText, prefix.length) + '\n'
 
     const stepDefinition = stepResult.getStepDefinition()
     if (stepDefinition) {
       const stepDefinitionLocation = this.formatLocation(stepDefinition)
       const stepDefinitionLine = 'Step Definition: ' + this.colorFns.location(stepDefinitionLocation)
-      text += indentString(stepDefinitionLine, prefix.length) + '\n'
+      text += this.indent(stepDefinitionLine, prefix.length) + '\n'
     }
 
     const messageColorFn = this.colorFns[stepResult.getStatus()]
-    text += indentString('Message:', prefix.length) + '\n'
-    text += indentString(messageColorFn(message), prefix.length + 2) + '\n\n'
+    text += this.indent('Message:', prefix.length) + '\n'
+    text += this.indent(messageColorFn(message), prefix.length + 2) + '\n\n'
     this.log(text)
   }
 
@@ -135,7 +139,7 @@ export default class SummaryFormatter extends Formatter {
       const line = stepDefinition.getLine()
       return [pattern, relativeUri + ':' + line]
     }))
-    const message = 'Multiple step definitions match:' + '\n' + indentString(table.toString(), 2)
+    const message = 'Multiple step definitions match:' + '\n' + this.indent(table.toString(), 2)
     this.failures.push({message, stepResult})
   }
 
@@ -153,7 +157,7 @@ export default class SummaryFormatter extends Formatter {
   storeUndefinedStepResult(stepResult) {
     const step = stepResult.getStep()
     const snippet = this.snippetBuilder.build(step)
-    const message = 'Undefined. Implement with the following snippet:' + '\n\n' + indentString(snippet, 2)
+    const message = 'Undefined. Implement with the following snippet:' + '\n\n' + this.indent(snippet, 2)
     this.warnings.push({message, stepResult})
   }
 }
