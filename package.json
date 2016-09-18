@@ -158,15 +158,15 @@
     "tmp": "0.0.28"
   },
   "scripts": {
+    "build-local-continuous": "BABEL_ENV=production babel src --watch -d lib --ignore '**/*_spec.js'",
     "build-local": "BABEL_ENV=production babel src -d lib --ignore '**/*_spec.js' --source-maps inline",
-    "build-local-continuous": "BABEL_ENV=production babel src --watch -d lib --ignore '**/*_spec.js' --source-maps inline",
-    "build-release": "BABEL_ENV=production babel src -o dist/cucumber.js --ignore '**/*_spec.js' --source-maps inline",
+    "build-release": "BABEL_ENV=production babel src -o dist/cucumber.js --ignore '**/*_spec.js'",
     "feature-test-es5": "node ./bin/cucumber.js -p es5",
     "feature-test": "node ./bin/cucumber.js",
     "lint": "eslint src/**",
     "prefeature-test-es5": "npm run build-local",
     "prefeature-test": "npm run build-local",
-    "test-es5": "npm run lint && npm run unit-test && npm run feature-test-es5",
+    "prepublish": "npm run build-local",
     "test": "npm run lint && npm run unit-test && npm run feature-test",
     "unit-test": "mycha"
   },
