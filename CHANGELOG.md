@@ -2,53 +2,79 @@
 
 ### [2.0.0]
 
+### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v2.0.0) (2016-08-05)
+
+#### Breaking changes
+
+
 ### Breaking Changes
 
 * CLI
-  * `--tags <EXPRESSION>` now uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/)
+  * `--colors / --no-colors` has moved to `--format-options '{"colorsEnabled": "<BOOLEAN>"}'`
+  * `--require <DIR|FILE>`: the required files are no longer reordered to require anything in a `support` directory first
+  * `--snippet-interface <INTERFACE>` has moved to `--format-options '{"snippetInterface": "<INTERFACE>"}'`
+  * `--snippet-syntax <SYNTAX>` has moved to `--format-options '{"snippetSyntax": "<INTERFACE>"}'`
+  * `--tags <EXPRESSION>` now uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/). It is no longer repeatable and new values will override previous
     * `--tags @dev` stays the same
     * `--tags ~@dev` becomes `--tags 'not @dev'`
     * `--tags @foo,@bar` becomes  `--tags '@foo and @bar'`
     * `--tags @foo --tags @bar` becomes `--tags '@foo or bar'`
-  * `--colors / --no-colors` has moved to `--format-option colors-enabled=(true | false)`
-  * `--snippet-interface <INTERFACE>` has moved to `--format-option snippet-interface=<INTERFACE>`
-  * `--snippet-syntax <SYNTAX>` has moved to `--format-option snippet-syntax=<SYNTAX>`
+* Internals
+  * complete rewrite using ES2015 and promises
 * JSON Formatter
   * String attachments are no longer base64 encoded. Buffer and Stream attachments are still base64 encoded.
 * Support Files
-  * The `attach` function used for adding attachments moved from the API scenario object to world. It no longer takes a callback as the third argument. It returns a promise when attaching a stream and nothing otherwise.
-      ```
-      // 1.3.0
-      this.After(function(scenario, callback) {
-        scenario.attach(new Buffer([137, 80, 78, 71]), 'image/png')
-      });
+  * Attachments
+    * The `attach` function used for adding attachments moved from the API scenario object to world. It is thus now available in step definitions without saving a reference to the scenario.
+        ```
+        // 1.3.0
+        this.After(function(scenario, callback) {
+          scenario.attach(new Buffer([137, 80, 78, 71]), 'image/png')
+        });
 
-      // 2.0.0
-      this.After(function() {
-        this.attach(new Buffer([137, 80, 78, 71]), 'image/png');
-      });
-      ```
-  * Before and After hooks now receive a [ScenarioResult]() instead of a [Scenario]()
-      ```
-      // 1.3.0
-      this.After(function(scenario) {});
+        // 2.0.0
+        this.After(function() {
+          this.attach(new Buffer([137, 80, 78, 71]), 'image/png');
+        });
+        ```
+    * When attaching buffers or strings, the callback argument is ignored.
+  * Hooks
+    * Hooks now receive a [ScenarioResult](/src/models/scenario_result.js) instead of the Scenario
+        ```
+        // 1.3.0
+        this.After(function(scenario) {});
 
-      // 2.0.0
-      this.After(function(scenarioResult) {});
-      ```
-  * String patterns were removed in favor [cucumber-expressions](https://docs.cucumber.io/cucumber-expressions/)
-  * The `tags` option for hook should now be a string instead of an array and uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/)
-      ```
-      // 1.3.0
-      this.Before({tags: ["@foo"]}, function (scenario) {})
-      this.Before({tags: ["@foo,@bar"]}, function (scenario) {})
-      this.Before({tags: ["@foo", "@bar"]"}, function (scenario) {})
+        // 2.0.0
+        this.After(function(scenarioResult) {});
+        ```
+    * The `tags` option for hook should now be a string instead of an array and uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/)
+        ```
+        // 1.3.0
+        this.Before({tags: ["@foo"]}, function (scenario) {})
+        this.Before({tags: ["@foo,@bar"]}, function (scenario) {})
+        this.Before({tags: ["@foo", "@bar"]"}, function (scenario) {})
 
-      // 2.0.0
-      this.Before({tags: "@foo"}, function (scenario) {})
-      this.Before({tags: "@foo and @bar"}, function (scenario) {})
-      this.Before({tags: "@foo or @bar"}, function (scenario) {})
-      ```
+        // 2.0.0
+        this.Before({tags: "@foo"}, function (scenario) {})
+        this.Before({tags: "@foo and @bar"}, function (scenario) {})
+        this.Before({tags: "@foo or @bar"}, function (scenario) {})
+        ```
+  * Step Definitions (TODO)
+    * String patterns were removed in favor [cucumber-expressions](https://docs.cucumber.io/cucumber-expressions/)
+    * Regular Expressions
+      * capture groups matching `(\d+)` and `(-\d+)` will be automatically converted to an integer using `parseInt`
+      * capture groups matching `(-?\d*\.?\d+)` will be automatically converted to a float using `parseFloat`
+  * Event Handlers
+    * `StepResult` duration is now in milliseconds instead of nanoseconds  
+
+
+### New Features
+
+* Support Files
+  * Attachments:
+    * When attaching a stream, the interface can either accept a callback as a third argument or will return a promise.
+  * Step Definitions (TODO)
+    * Ability to add custom argument transformations
 
 ### [1.3.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v1.3.0) (2016-09-08)
 
@@ -69,14 +95,6 @@
 
 * document order of execution for multiple hooks (John McLaughlin)
 * breakup README.md, organize docs (Charlie Rudolph)
-
-### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v2.0.0) (2016-08-05)
-
-#### Breaking changes
-
-* `support` directory is no longer automatically loaded first
-* Complete rewrite of the internals to use promises
-* `StepResult` duration is now in milliseconds instead of nanoseconds   
 
 ### [1.2.2](https://github.com/cucumber/cucumber-js/compare/v1.2.1...v1.2.2) (2016-08-05)
 

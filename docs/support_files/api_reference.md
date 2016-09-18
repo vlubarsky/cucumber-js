@@ -11,11 +11,13 @@ called with a context that exposes the following methods:
 
 Defines a hook which is run after each scenario.
 
-* `options` - object with the following keys
-  * `tags` - array of tags used to apply this hook to only specific scenarios
-  * `timeout` - hook specific timeout to override the default timeout
-* `code` - a javascript function. The first argument will be the current running scenario.
-  See [Cucumber.Api.Scenario](https://github.com/cucumber/cucumber-js/blob/master/lib/cucumber/api/scenario.js)
+* `options`
+  * object with the following keys:
+    * `tags` - string tag expression used to apply this hook to only specific scenarios. See [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/) for more information
+    * `timeout` - hook specific timeout to override the default timeout
+  * string as a shorthand for specifying `tags`
+* `code` - a javascript function. The first argument will be a scenario result.
+  See [ScenarioResult](/src/models/scenario_result.js)
   for more information. May optionally take an additional argument if using the asynchronous callback interface.
 
 Multiple *After* hooks are executed in the **reverse** order that they were defined.
@@ -29,13 +31,13 @@ Multiple *Before* hooks are executed in the order that they were defined.
 
 ---
 
-#### this.defineStep([options,] pattern, code)
+#### this.defineStep(pattern, [options,] code)
 
 Defines a step. *Aliases: this.Given, this.When, this.Then*
 
+* `pattern` - regex or string pattern to match against a gherkin step
 * `options` - object with the following keys
   * `timeout` - step specific timeout to override the default timeout
-* `pattern` - regex or string pattern to match against a gherkin step
 * `code` - a javascript function. Should have one argument for each capture in the
   regular expression. May have an additional argument if the gherkin step has
   a doc string or data table. Finally may optionally take an additional argument
@@ -43,7 +45,7 @@ Defines a step. *Aliases: this.Given, this.When, this.Then*
 
 ---
 
-#### this.Given([options,] pattern, code)
+#### this.Given(pattern, [options,] code)
 
 Alias of *this.defineStep*
 
@@ -65,13 +67,13 @@ Set the default timeout for asynchronous steps. Default is `5000` milliseconds.
 
 ---
 
-#### this.Then([options,] pattern, code)
+#### this.Then(pattern, [options,] code)
 
 Alias of *this.defineStep*
 
 ---
 
-#### this.When([options,] pattern, code)
+#### this.When(pattern, [options,] code)
 
 Alias of *this.defineStep*
 
