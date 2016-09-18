@@ -1,5 +1,4 @@
 import figures from 'figures'
-import indentString from 'indent-string'
 import Status from '../../status'
 import SummaryFormatter from './summary'
 import Table from 'cli-table'
