@@ -10,9 +10,8 @@ export default class ProfileLoader {
 
   async getDefinitions() {
     const definitionsFilePath = path.join(this.directory, 'cucumber.js')
-    try {
-      await fs.access(definitionsFilePath)
-    } catch (error) {
+    const exists = await fs.exists(definitionsFilePath)
+    if (!exists) {
       return {}
     }
     const definitions = require(definitionsFilePath)
