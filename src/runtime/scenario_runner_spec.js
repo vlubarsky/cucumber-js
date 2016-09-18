@@ -1,11 +1,11 @@
+import {expectToHearEvents} from '../../spec/listener_helpers'
+import EventBroadcaster from './event_broadcaster'
+import HookDefinition from '../models/hook_definition'
+import Promise from 'bluebird'
 import ScenarioRunner from './scenario_runner'
 import Status from '../status'
 import Step from '../models/step'
 import StepResult from '../models/step_result'
-import EventBroadcaster from './event_broadcaster'
-import HookDefinition from '../models/hook_definition'
-import {expectToHearEvents} from '../../spec/listener_helpers'
-
 
 describe('ScenarioRunner', function () {
   beforeEach(function () {

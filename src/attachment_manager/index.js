@@ -1,5 +1,6 @@
 import Attachment from './attachment'
 import isStream from 'is-stream'
+import Promise from 'bluebird'
 
 export default class AttachmentManager {
   constructor() {

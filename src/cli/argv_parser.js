@@ -4,7 +4,7 @@ import {version} from '../../package.json'
 import fs from 'mz/fs'
 import path from 'path'
 import PathExpander from './path_expander'
-import {Promise} from 'bluebird'
+import Promise from 'bluebird'
 
 export default class ArgvParser {
   constructor ({cwd, argv}) {

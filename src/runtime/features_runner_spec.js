@@ -1,8 +1,9 @@
+import {expectToHearEvents} from '../../spec/listener_helpers'
 import EventBroadcaster from './event_broadcaster'
 import FeaturesRunner from './features_runner'
+import Promise from 'bluebird'
 import ScenarioRunner from './scenario_runner'
 import Status from '../status'
-import {expectToHearEvents} from '../../spec/listener_helpers'
 
 describe('FeaturesRunner', function () {
   beforeEach(function () {
