@@ -57,7 +57,7 @@ export default class PrettyFormatter extends SummaryFormatter {
     text += feature.getKeyword() + ': ' + feature.getName()
     let description = feature.getDescription()
     if (description) {
-      text += '\n\n' + this.indent(description, 1)
+      text += '\n\n' + this.indent(description, 2)
     }
     this.log(text + '\n\n')
   }
@@ -80,12 +80,8 @@ export default class PrettyFormatter extends SummaryFormatter {
     super.handleStepResult(stepResult)
   }
 
-  indent(text, level) {
-    return indentString(text, '  ', level)
-  }
-
   logIndented(text, level) {
-    this.log(this.indent(text, level))
+    this.log(this.indent(text, level * 2))
   }
 
   logStepResult(step, stepResult) {
