@@ -1,37 +1,28 @@
 import _ from 'lodash'
 import upperCaseFirst from 'upper-case-first'
 
-const Status = {}
+const statuses = {
+  AMBIGUOUS: 'ambiguous',
+  FAILED: 'failed',
+  PASSED: 'passed',
+  PENDING: 'pending',
+  SKIPPED: 'skipped',
+  UNDEFINED: 'undefined'
+}
 
-Status.AMBIGUOUS = 'ambiguous'
-Status.FAILED = 'failed'
-Status.PENDING = 'pending'
-Status.PASSED = 'passed'
-Status.SKIPPED = 'skipped'
-Status.UNDEFINED = 'undefined'
+export default statuses
 
-const statuses = [
-  Status.AMBIGUOUS,
-  Status.FAILED,
-  Status.PASSED,
-  Status.PENDING,
-  Status.SKIPPED,
-  Status.UNDEFINED
-]
-
-Status.addPredicates = function addPredicates({getFn, protoype, prefix}) {
+export function addStatusPredicates(protoype) {
   _.each(statuses, (status) => {
-    protoype[prefix + upperCaseFirst(status)] = function () {
-      return this[getFn]() === status
+    protoype['is' + upperCaseFirst(status)] = function () {
+      return this.status === status
     }
   })
 }
 
-Status.getMapping = function getMapping(initialValue) {
+export function getStatusMapping(initialValue) {
   return _.chain(statuses)
     .map((status) => [status, initialValue])
     .fromPairs()
     .value()
 }
-
-export default Status

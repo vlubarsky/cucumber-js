@@ -1,17 +1,9 @@
 export default class DocString {
-  constructor(data) {
-    this.data = data
-  }
+  constructor(gherkinData) {
+    this.content = gherkinData.content
+    this.contentType = gherkinData.contentType
+    this.line = gherkinData.location.line
 
-  getContent() {
-    return this.data.content
-  }
-
-  getContentType() {
-    return this.data.contentType
-  }
-
-  getLine() {
-    return this.data.location.line
+    Object.freeze(this)
   }
 }

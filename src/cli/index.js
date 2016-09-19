@@ -32,9 +32,7 @@ export default class Cli {
     await Promise.each(featurePaths, async function(featurePath) {
       featuresSourceMapping[featurePath] = await fs.readFile(featurePath, 'utf8')
     })
-    const scenarioFilterOptions = await argvParser.getScenarioFilterOptions()
-    const scenarioFilter = new ScenarioFilter(scenarioFilterOptions)
-    return new Parser().parse({featuresSourceMapping, scenarioFilter})
+    return new Parser().parse(featuresSourceMapping)
   }
 
   async getFormatters(argvParser) {
@@ -74,11 +72,14 @@ export default class Cli {
     const features = await this.getFeatures(argvParser)
     const {cleanup, formatters} = await this.getFormatters(argvParser)
     const runtimeOptions = argvParser.getRuntimeOptions()
+    const scenarioFilterOptions = await argvParser.getScenarioFilterOptions()
+    const scenarioFilter = new ScenarioFilter(scenarioFilterOptions)
     const supportCodeLibrary = await this.getSupportCodeLibrary(argvParser)
     const runtime = new Runtime({
       features,
       listeners: formatters,
       options: runtimeOptions,
+      scenarioFilter,
       supportCodeLibrary
     })
     const result = await runtime.start()

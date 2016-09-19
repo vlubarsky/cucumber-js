@@ -1,74 +1,35 @@
 import _ from 'lodash'
-import Gherkin from 'gherkin'
 import Tag from './tag'
+import Scenario from './scenario'
 
 export default class Feature {
-  constructor (data, scenarios) {
-    this.data = data
-    this.scenarios = scenarios
-    this.initializeTags()
-    this.setFeatureForScenarios()
-  }
+  constructor ({gherkinData, gherkinPickles, uri}) {
+    this.description = gherkinData.description
+    this.keyword = gherkinData.keyword
+    this.language = gherkinData.language
+    this.line = gherkinData.location.line
+    this.name = gherkinData.name
+    this.tags = _.map(gherkinData.tags, Tag.build)
+    this.uri = uri
 
-  getDescription() {
-    return this.data.description
-  }
-
-  getKeyword() {
-    return this.data.keyword
-  }
-
-  getLanguage() {
-    return this.data.language
-  }
-
-  getLine() {
-    return this.data.location.line
-  }
-
-  getName() {
-    return this.data.name
-  }
-
-  getScenarioKeyword() {
-    return Gherkin.DIALECTS[this.getLanguage()].scenario
-  }
-
-  getScenarios() {
-    return this.scenarios
-  }
-
-  getStepKeywordByLines(lines) {
-    var steps = _.flatten(_.map(this.data.children, 'steps'))
-    var step = _.find(steps, function(node) {
-      return _.includes(lines, node.location.line)
-    })
-    if (step) {
-      return step.keyword
-    }
-  }
-
-  getTags() {
-    return this.tags
-  }
-
-  getUri() {
-    return this.data.uri
-  }
-
-  initializeTags() {
-    if (this.data.tags) {
-      this.tags = this.data.tags.map(function (tagData) {
-        return new Tag(tagData)
+    const stepLineToKeywordMapping = _.chain(gherkinData.children)
+      .map('steps')
+      .flatten()
+      .map((step) => {
+        return _.map(step.locations, ({line}) => [line, step.keyword])
       })
-    } else {
-      this.tags = []
-    }
-  }
+      .flatten()
+      .fromPairs()
+      .value()
 
-  setFeatureForScenarios() {
-    this.scenarios.forEach((scenario) => {
-      scenario.setFeature(this)
+    this.scenarios = _.map(gherkinPickles, (gherkinPickle) => {
+      return new Scenario({
+        feature: this,
+        gherkinData: gherkinPickle
+        stepLineToKeywordMapping
+      })
     })
+
+    Object.freeze(this)
   }
 }

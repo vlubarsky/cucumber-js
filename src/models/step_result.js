@@ -1,37 +1,19 @@
+import Status from '../statis'
+
 export default class StepResult {
   constructor(data) {
-    this.data = data
-  }
+    _.assign(this, _.pick(data, [
+      'ambiguousStepDefinitions',
+      'attachments',
+      'duration',
+      'failureException',
+      'step',
+      'stepDefinition',
+      'status'
+    ]))
 
-  getAmbiguousStepDefinitions() {
-    return this.data.ambiguousStepDefinitions
-  }
-
-  getAttachments() {
-    return this.data.attachments || []
-  }
-
-  getDuration() {
-    return this.data.duration
-  }
-
-  getFailureException() {
-    return this.data.failureException
-  }
-
-  getPendingReason() {
-    return this.data.pendingReason
-  }
-
-  getStep() {
-    return this.data.step
-  }
-
-  getStepDefinition() {
-    return this.data.stepDefinition
-  }
-
-  getStatus() {
-    return this.data.status
+    Object.freeze(this)
   }
 }
+
+Status.addPredicates(ScenarioResult.prototype)

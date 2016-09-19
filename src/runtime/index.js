@@ -4,10 +4,11 @@ import EventBroadcaster from './event_broadcaster'
 
 export default class Runtime {
   // options - {dryRun, failFast, filterStacktraces, strict}
-  constructor({features, listeners, options, supportCodeLibrary}) {
+  constructor({features, listeners, options, scenarioFilter, supportCodeLibrary}) {
     this.features = features
     this.listeners = listeners
     this.options = options
+    this.scenarioFilter = scenarioFilter
     this.supportCodeLibrary = supportCodeLibrary
     this.stackTraceFilter = new StackTraceFilter()
   }
@@ -21,6 +22,7 @@ export default class Runtime {
       eventBroadcaster,
       features: this.features,
       options: this.options,
+      scenarioFilter: this.scenarioFilter,
       supportCodeLibrary: this.supportCodeLibrary
     })
 

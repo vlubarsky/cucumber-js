@@ -1,13 +1,8 @@
 export default class Tag {
-  constructor(data) {
-    this.data = data
-  }
+  constructor(gherkinData) {
+    this.line = gherkinData.location.line
+    this.name = gherkinData.name
 
-  getLine() {
-    return this.data.location.line
-  }
-
-  getName() {
-    return this.data.name
+    Object.freeze(this)
   }
 }

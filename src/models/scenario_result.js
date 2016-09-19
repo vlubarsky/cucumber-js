@@ -10,26 +10,6 @@ export default class ScenarioResult {
     this.stepCounts = Status.getMapping(0)
   }
 
-  getDuration() {
-    return this.duration
-  }
-
-  getFailureException() {
-    return this.failureException
-  }
-
-  getScenario() {
-    return this.scenario
-  }
-
-  getStatus() {
-    return this.status
-  }
-
-  getStepCounts() {
-    return _.clone(this.stepCounts)
-  }
-
   shouldUpdateStatus(stepStatus) {
     switch (stepStatus) {
       case Status.FAILED:
@@ -62,9 +42,4 @@ export default class ScenarioResult {
   }
 }
 
-// Adds isAmbiguous / isFailed / isPassed / isPending / isSkipped / isUndefined
-Status.addPredicates({
-  getFn: 'getStatus',
-  protoype: ScenarioResult.prototype,
-  prefix: 'is'
-})
+Status.addPredicates(ScenarioResult.prototype)

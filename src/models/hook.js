@@ -1,16 +1,9 @@
-import Step from './step'
+export default class Hook {
+  constructor({keyword, scenario}) {
+    this.keyword = keyword
+    this.scenario = scenario
 
-export default class Hook extends Step {
-  getKeyword() {
-    return this.data.keyword
-  }
-
-  hasUri() {
-    return false
-  }
-
-  isHidden() {
-    return true
+    Object.freeze(this)
   }
 }
 

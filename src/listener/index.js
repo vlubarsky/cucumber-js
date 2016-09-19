@@ -10,8 +10,7 @@ export default class Listener {
   }
 
   getHandlerForEvent(event) {
-    const eventHandlerName = 'handle' + event.getName()
-    return this[eventHandlerName]
+    return this['handle' + event.getName()]
   }
 
   async hear(event, defaultTimeout) {

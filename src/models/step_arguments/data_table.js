@@ -1,8 +1,10 @@
 import _ from 'lodash'
 
 export default class DataTable {
-  constructor(data) {
-    this.rawTable = data.rows.map((row) => row.cells.map((cell) => cell.value))
+  constructor(gherkinData) {
+    this.rawTable = gherkinData.rows.map((row) => row.cells.map((cell) => cell.value))
+
+    Object.freeze(this)
   }
 
   hashes() {
@@ -12,7 +14,7 @@ export default class DataTable {
     return valuesArray.map((values) => _.zipObject(keys, values))
   }
 
-  raw () {
+  raw() {
     return this.rawTable.slice(0)
   }
 

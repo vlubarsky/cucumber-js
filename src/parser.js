@@ -4,11 +4,11 @@ import Gherkin from 'gherkin'
 import Scenario from './models/scenario'
 
 export default class Parser {
-  parse({featuresSourceMapping, scenarioFilter}) {
+  parse(featuresSourceMapping) {
     const gherkinCompiler = new Gherkin.Compiler()
     const gherkinParser = new Gherkin.Parser()
 
-    return _.compact(_.map(featuresSourceMapping, function(source, uri) {
+    return _.map(featuresSourceMapping, function(source, uri) {
       let gherkinDocument
       try {
         gherkinDocument = gherkinParser.parse(source)
@@ -17,17 +17,11 @@ export default class Parser {
         throw error
       }
 
-      const pickles = gherkinCompiler.compile(gherkinDocument, uri)
-      const scenarios = _.chain(pickles)
-        .map((pickleData) => new Scenario(pickleData))
-        .filter((scenario) => scenarioFilter.matches(scenario))
-        .value()
-
-      if (scenarios.length > 0) {
-        const featureData = gherkinDocument.feature
-        featureData.uri = uri
-        return new Feature(featureData, scenarios)
-      }
-    }))
+      return new Feature({
+        gherkinData: gherkinDocument.feature,
+        gherkinPickles: gherkinCompiler.compile(gherkinDocument, uri),
+        uri: uri
+      })
+    })
   }
 }

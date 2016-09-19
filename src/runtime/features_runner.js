@@ -4,10 +4,11 @@ import Promise from 'bluebird'
 import ScenarioRunner from './scenario_runner'
 
 export default class FeaturesRunner {
-  constructor({eventBroadcaster, features, options, supportCodeLibrary}) {
+  constructor({eventBroadcaster, features, options, scenarioFilter, supportCodeLibrary}) {
     this.eventBroadcaster = eventBroadcaster
     this.features = features
     this.options = options
+    this.scenarioFilter = scenarioFilter
     this.supportCodeLibrary = supportCodeLibrary
     this.featuresResult = new FeaturesResult(options.strict)
   }
@@ -32,12 +33,15 @@ export default class FeaturesRunner {
     }
     const event = new Event(Event.FEATURE_EVENT_NAME, feature)
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
-      await Promise.each(feature.getScenarios(), ::this.runScenario)
+      await Promise.each(feature.scenarios, ::this.runScenario)
     })
   }
 
   async runScenario(scenario) {
     if (!this.featuresResult.isSuccessful() && this.options.failFast) {
+      return
+    }
+    if (!this.scenarioFilter.matches(scenario)) {
       return
     }
     const scenarioRunner = new ScenarioRunner({

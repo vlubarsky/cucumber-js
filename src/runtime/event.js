@@ -1,25 +1,23 @@
 import _ from 'lodash'
 
 export default class Event {
-  constructor(name, data) {
-    this.name = name
+  constructor({data, name}) {
     this.data = data
-  }
-
-  getName() {
-    return this.name
-  }
-
-  getData() {
-    return this.data
+    this.name = name
   }
 
   buildBeforeEvent() {
-    return new Event('Before' + this.name, this.data)
+    return new Event({
+      data: this.data,
+      name: 'Before' + this.name,
+    })
   }
 
   buildAfterEvent() {
-    return new Event('After' + this.name, this.data)
+    return new Event({
+      data: this.data,
+      name: 'After' + this.name,
+    })
   }
 }
 
