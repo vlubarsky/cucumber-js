@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import Status from '../status'
+import Status, {addStatusPredicates, getStatusMapping} from '../status'
 
 export default class ScenarioResult {
   constructor(scenario) {
@@ -7,7 +7,7 @@ export default class ScenarioResult {
     this.failureException = null
     this.scenario = scenario
     this.status = Status.PASSED
-    this.stepCounts = Status.getMapping(0)
+    this.stepCounts = getStatusMapping(0)
   }
 
   shouldUpdateStatus(stepStatus) {
@@ -42,4 +42,4 @@ export default class ScenarioResult {
   }
 }
 
-Status.addPredicates(ScenarioResult.prototype)
+addStatusPredicates(ScenarioResult.prototype)

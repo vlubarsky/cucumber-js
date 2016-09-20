@@ -1,3 +1,6 @@
+import DataTable from './data_table'
+import DocString from './doc_string'
+
 export default class StepArguments {
   static build(gherkinData) {
     if (gherkinData.hasOwnProperty('content')) {

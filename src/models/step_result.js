@@ -1,4 +1,4 @@
-import Status from '../statis'
+import {addStatusPredicates} from '../status'
 
 export default class StepResult {
   constructor(data) {
@@ -16,4 +16,4 @@ export default class StepResult {
   }
 }
 
-Status.addPredicates(ScenarioResult.prototype)
+addStatusPredicates(StepResult.prototype)

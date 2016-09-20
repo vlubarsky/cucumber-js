@@ -4,17 +4,30 @@ import DocString from './step_arguments/doc_string'
 import KeywordType from '../keyword_type'
 
 describe('Step', function () {
-  describe('getArguments()', function () {
+  beforeEach(function() {
+    this.gherkinData = {
+      locations: [{line: 2, path: '/path/to/feature'}]
+    }
+    this.lineToKeywordMapping = {}
+    this.stepOptions = {
+      gherkinData: this.gherkinData,
+      language: 'en',
+      lineToKeywordMapping: this.lineToKeywordMapping
+    }
+  })
+
+  describe('arguments', function () {
     describe('with content', function() {
       beforeEach(function() {
-        this.step = new Step({arguments: [{content: 'data'}]})
+        this.gherkinData.arguments = [
+          {content: 'data', location: {line: 3}}
+        ]
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns a DocString', function () {
-        const stepArguments = this.step.getArguments()
-        expect(stepArguments).to.have.lengthOf(1)
-        expect(stepArguments[0]).to.be.instanceOf(DocString)
-        expect(stepArguments[0].getContent()).to.eql('data')
+        expect(this.step.arguments).to.have.lengthOf(1)
+        expect(this.step.arguments[0]).to.be.instanceOf(DocString)
       })
     })
 
@@ -22,214 +35,172 @@ describe('Step', function () {
       beforeEach(function() {
         const rows = [
           {cells: [{value: 1}, {value: 2}]},
-          {cells: [{value: 3}, {value: 4}]},
+          {cells: [{value: 3}, {value: 4}]}
         ]
-        this.step = new Step({arguments: [{rows}]})
+        this.gherkinData.arguments = [{rows}]
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns a DataTable', function () {
-        const stepArguments = this.step.getArguments()
-        expect(stepArguments).to.have.lengthOf(1)
-        expect(stepArguments[0]).to.be.instanceOf(DataTable)
-        expect(stepArguments[0].raw()).to.eql([[1,2],[3,4]])
+        expect(this.step.arguments).to.have.lengthOf(1)
+        expect(this.step.arguments[0]).to.be.instanceOf(DataTable)
       })
-
     })
 
     describe('with unknown argument', function() {
       it('throws', function() {
-        expect(function() {
-          new Step({arguments: [{some: 'data'}]})
+        this.gherkinData.arguments = [{some: 'data'}]
+        expect(() => {
+          new Step(this.stepOptions)
         }).to.throw('Unknown step argument type: {"some":"data"}')
       })
     })
   })
 
-  describe('getKeyword()', function () {
+  describe('keyword', function () {
     beforeEach(function() {
-      const feature = createMock(['getStepKeywordByLines'])
-      feature.getStepKeywordByLines.withArgs([1,2]).returns('keyword')
-      const scenario = createMock({getFeature: feature})
-
-      this.step = new Step({locations: [{line: 1}, {line: 2}]})
-      this.step.setScenario(scenario)
+      this.lineToKeywordMapping[2] = 'keyword '
+      this.step = new Step(this.stepOptions)
     })
 
-    it('returns the keyword by querying the feature', function () {
-      expect(this.step.getKeyword()).to.eql('keyword')
+    it('returns the keyword', function () {
+      expect(this.step.keyword).to.eql('keyword ')
     })
   })
 
-  describe('getKeywordType()', function() {
-    beforeEach(function() {
-      this.feature = createMock({
-        getLanguage: 'en',
-        getStepKeywordByLines: null
-      })
-      this.scenario = createMock({getFeature: this.feature})
-      this.step = new Step({locations: [{line: 2}]})
-      this.step.setScenario(this.scenario)
-    })
-
+  describe('keywordType', function() {
     describe('keyword is Given', function(){
       beforeEach(function() {
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('Given ')
+        this.lineToKeywordMapping[2] = 'Given '
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
+        expect(this.step.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
 
     describe('keyword is When', function(){
       beforeEach(function() {
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('When ')
+        this.lineToKeywordMapping[2] = 'When '
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns event', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.EVENT)
+        expect(this.step.keywordType).to.eql(KeywordType.EVENT)
       })
     })
 
     describe('keyword is Then', function(){
       beforeEach(function() {
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('Then ')
+        this.lineToKeywordMapping[2] = 'Then '
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns outcome', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.OUTCOME)
+        expect(this.step.keywordType).to.eql(KeywordType.OUTCOME)
       })
     })
 
     describe('keyword is And, no previous step', function(){
       beforeEach(function() {
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('And ')
+        this.lineToKeywordMapping[2] = 'And '
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
+        expect(this.step.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
 
-    describe('keyword is And, previous step keyword is Given', function(){
+    describe('keyword is And, previous step keyword type is is EVENT', function(){
       beforeEach(function() {
-        const previousStep = new Step({locations: [{line: 1}]})
-        previousStep.setScenario(this.scenario)
-        this.feature.getStepKeywordByLines.withArgs([1]).returns('Given ')
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('And ')
-        this.step.setPreviousStep(previousStep)
+        this.lineToKeywordMapping[2] = 'And '
+        this.stepOptions.previousStep = {keywordType: KeywordType.EVENT}
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
+        expect(this.step.keywordType).to.eql(KeywordType.EVENT)
       })
     })
 
     describe('keyword is But, no previous step', function(){
       beforeEach(function() {
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('But ')
+        this.lineToKeywordMapping[2] = 'But '
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
+        expect(this.step.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
 
-    describe('keyword is But, previous step keyword is Then', function(){
+    describe('keyword is But, previous step keyword type is OUTCOME', function(){
       beforeEach(function() {
-        const previousStep = new Step({locations: [{line: 1}]})
-        previousStep.setScenario(this.scenario)
-        this.feature.getStepKeywordByLines.withArgs([1]).returns('Then ')
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('But ')
-        this.step.setPreviousStep(previousStep)
+        this.lineToKeywordMapping[2] = 'But '
+        this.stepOptions.previousStep = {keywordType: KeywordType.OUTCOME}
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns outcome', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.OUTCOME)
+        expect(this.step.keywordType).to.eql(KeywordType.OUTCOME)
       })
     })
 
     describe('keyword is unknown', function(){
       beforeEach(function() {
-        this.feature.getStepKeywordByLines.withArgs([2]).returns('other')
+        this.lineToKeywordMapping[1] = 'other '
+        this.step = new Step(this.stepOptions)
       })
 
       it('returns precondition', function() {
-        expect(this.step.getKeywordType()).to.eql(KeywordType.PRECONDITION)
+        expect(this.step.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
   })
 
-  describe('getLine()', function () {
+  describe('line', function () {
     beforeEach(function() {
-      this.step = new Step({locations: [{line: 1}, {line: 2}]})
+      this.gherkinData.locations = [{line: 1}, {line: 2}]
+      this.step = new Step(this.stepOptions)
     })
 
     it('returns the last line number', function () {
-      expect(this.step.getLine()).to.eql(2)
+      expect(this.step.line).to.eql(2)
     })
   })
 
-  describe('getLines()', function () {
+  describe('name', function () {
     beforeEach(function() {
-      this.step = new Step({locations: [{line: 1}, {line: 2}]})
-    })
-
-    it('returns all the line numbers', function () {
-      expect(this.step.getLines()).to.eql([1,2])
-    })
-  })
-
-  describe('getName()', function () {
-    beforeEach(function() {
-      this.step = new Step({text: 'text'})
+      this.gherkinData.text = 'text'
+      this.step = new Step(this.stepOptions)
     })
 
     it('returns the text', function () {
-      expect(this.step.getName()).to.eql('text')
+      expect(this.step.name).to.eql('text')
     })
   })
 
-  describe('getScenario() / setScenario(value)', function () {
+  describe('scenario', function () {
     beforeEach(function() {
-      this.scenario = {scenario: 'data'}
-      this.step = new Step({})
-      this.step.setScenario(this.scenario)
+      this.stepOptions.scenario = {scenario: 'data'}
+      this.step = new Step(this.stepOptions)
     })
 
-    it('returns the set scenario', function () {
-      this.step.getScenario()
-      expect(this.step.getScenario()).to.eql(this.scenario)
+    it('returns the scenario', function () {
+      expect(this.step.scenario).to.eql({scenario: 'data'})
     })
   })
 
-  describe('getUri()', function () {
+  describe('uri', function () {
     beforeEach(function() {
-      this.step = new Step({locations: [{path: 'path1'}, {path: 'path2'}]})
+      this.gherkinData.locations = [{path: 'path1'}, {path: 'path2'}]
+      this.step = new Step(this.stepOptions)
     })
 
     it('returns the first path', function () {
-      expect(this.step.getUri()).to.eql('path1')
-    })
-  })
-
-  describe('hasUri()', function () {
-    beforeEach(function() {
-      this.step = new Step({})
-    })
-
-    it('returns true', function () {
-      expect(this.step.hasUri()).to.be.true
-    })
-  })
-
-  describe('isHidden()', function () {
-    beforeEach(function() {
-      this.step = new Step({})
-    })
-
-    it('returns false', function () {
-      expect(this.step.isHidden()).to.be.false
+      expect(this.step.uri).to.eql('path1')
     })
   })
 })

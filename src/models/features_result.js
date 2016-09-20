@@ -1,24 +1,12 @@
 import _ from 'lodash'
-import Status from '../status'
+import Status, {getStatusMapping} from '../status'
 
 export default class FeaturesResult {
   constructor(strict) {
     this.duration = 0
-    this.scenarioCounts = Status.getMapping(0)
-    this.stepCounts = Status.getMapping(0)
+    this.scenarioCounts = getStatusMapping(0)
+    this.stepCounts = getStatusMapping(0)
     this.strict = strict
-  }
-
-  getDuration() {
-    return this.duration
-  }
-
-  getScenarioCounts() {
-    return _.clone(this.scenarioCounts)
-  }
-
-  getStepCounts() {
-    return _.clone(this.stepCounts)
   }
 
   isSuccessful() {

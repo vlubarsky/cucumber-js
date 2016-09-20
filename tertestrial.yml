@@ -9,7 +9,7 @@ actions:
       command: './bin/cucumber.js {{filename}}:{{line}}'
     - match:
         filename: '\_spec.js$'
-      command: 'mycha {{filename}}'
+      command: 'mycha --reporter spec {{filename}}'
 
 
   lint:

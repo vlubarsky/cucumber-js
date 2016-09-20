@@ -4,11 +4,13 @@ import Step from './step'
 import Tag from './tag'
 
 export default class Scenario {
-  static buildSteps({gherkinStepsData, scenario}) {
+  static buildSteps({gherkinStepsData, language, scenario, stepLineToKeywordMapping}) {
     let previousStep
     return _.map(gherkinStepsData, (gherkinStepData) => {
       const step = new Step({
         gherkinData: gherkinStepData,
+        language,
+        lineToKeywordMapping: stepLineToKeywordMapping
         previousStep,
         scenario,
       })
@@ -17,7 +19,7 @@ export default class Scenario {
     })
   }
 
-  constructor({gherkinData, language, feature}) {
+  constructor({feature, gherkinData, language, stepLineToKeywordMapping}) {
     this.description = gherkinData.description
     this.feature = feature
     this.keyword = Gherkin.DIALECTS[language].scenario
@@ -27,7 +29,12 @@ export default class Scenario {
     this.uri = gherkinData.locations[0].path
 
     this.line = _.first(this.lines)
-    this.steps = Scenario.buildSteps({gherkinStepsData: gherkinData.steps, scenario: this})
+    this.steps = Scenario.buildSteps({
+      gherkinStepsData: gherkinData.steps,
+      language,
+      scenario: this,
+      stepLineToKeywordMapping
+    })
 
     Object.freeze(this)
   }

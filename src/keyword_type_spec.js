@@ -1,4 +1,4 @@
-import KeywordType, {getKeywordType} from './keyword_type'
+import KeywordType, {getStepKeywordType} from './keyword_type'
 
 describe('KeywordType', function() {
   describe('constants', function() {
@@ -11,90 +11,110 @@ describe('KeywordType', function() {
     })
   })
 
-  describe('getKeywordType()', function() {
-    beforeEach(function() {
-      this.language = 'en'
-    })
-
+  describe('getStepKeywordType()', function() {
     describe('keyword is Given', function(){
       beforeEach(function() {
-        this.step = {keyword: 'Given '}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          step: {keyword: 'Given '}
+        })
       })
 
       it('returns precondition', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.PRECONDITION)
+        expect(this.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
 
     describe('keyword is When', function(){
       beforeEach(function() {
-        this.step = {keyword: 'When '}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          step: {keyword: 'When '}
+        })
       })
 
       it('returns event', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.EVENT)
+        expect(this.keywordType).to.eql(KeywordType.EVENT)
       })
     })
 
     describe('keyword is Then', function(){
       beforeEach(function() {
-        this.step = {keyword: 'Then '}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          step: {keyword: 'Then '}
+        })
       })
 
       it('returns outcome', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.OUTCOME)
+        expect(this.keywordType).to.eql(KeywordType.OUTCOME)
       })
     })
 
     describe('keyword is And, no previous step', function(){
       beforeEach(function() {
-        this.step = {keyword: 'And '}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          step: {keyword: 'And '}
+        })
       })
 
       it('returns precondition', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.PRECONDITION)
+        expect(this.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
 
-    describe('keyword is And, previous step keyword is Given', function(){
+    describe('keyword is And, previous step keyword type is EVENT', function(){
       beforeEach(function() {
-        const previousStep = {keyword: 'Given '}
-        this.step = {keyword: 'And ', previousStep}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          previousStep: {keywordType: KeywordType.EVENT},
+          step: {keyword: 'And '}
+        })
       })
 
       it('returns precondition', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.PRECONDITION)
+        expect(this.keywordType).to.eql(KeywordType.EVENT)
       })
     })
 
     describe('keyword is But, no previous step', function(){
       beforeEach(function() {
-        this.step = {keyword: 'But '}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          step: {keyword: 'But '}
+        })
       })
 
       it('returns precondition', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.PRECONDITION)
+        expect(this.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
 
-    describe('keyword is But, previous step keyword is Then', function(){
+    describe('keyword is But, previous step keyword type is OUTCOME', function(){
       beforeEach(function() {
-        const previousStep = {keyword: 'Then '}
-        this.step = {keyword: 'But ', previousStep}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          previousStep: {keywordType: KeywordType.OUTCOME},
+          step: {keyword: 'But '}
+        })
       })
 
       it('returns outcome', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.OUTCOME)
+        expect(this.keywordType).to.eql(KeywordType.OUTCOME)
       })
     })
 
     describe('keyword is unknown', function(){
       beforeEach(function() {
-        this.step = {keyword: 'other'}
+        this.keywordType = getStepKeywordType({
+          language: 'en',
+          step: {keyword: 'other '}
+        })
       })
 
       it('returns precondition', function() {
-        expect(getKeywordType(this.step, this.language)).to.eql(KeywordType.PRECONDITION)
+        expect(this.keywordType).to.eql(KeywordType.PRECONDITION)
       })
     })
   })
