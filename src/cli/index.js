@@ -1,14 +1,14 @@
 import _ from 'lodash'
-import Promise from 'bluebird'
 import ArgvParser from './argv_parser'
+import ConfigurationBuilder from './configuration_builder'
 import FormatterBuilder from '../listener/formatter/builder'
 import fs from 'mz/fs'
 import Parser from '../parser'
 import ProfileLoader from './profile_loader'
+import Promise from 'bluebird'
 import Runtime from '../runtime'
 import ScenarioFilter from '../scenario_filter'
 import SupportCodeLibrary from '../support_code_library'
-import ConfigurationBuilder from './configuration_builder'
 
 export default class Cli {
   constructor ({argv, cwd, stdout}) {
@@ -28,11 +28,10 @@ export default class Cli {
   }
 
   async getFeatures(featurePaths) {
-    const featuresSourceMapping = {}
-    await Promise.each(featurePaths, async function(featurePath) {
-      featuresSourceMapping[featurePath] = await fs.readFile(featurePath, 'utf8')
+    return await Promise.map(featurePaths, async (featurePath) => {
+      const source = await fs.readFile(featurePath, 'utf8')
+      return Parser.parse({source, uri: featurePath})
     })
-    return new Parser().parse(featuresSourceMapping)
   }
 
   async getFormatters({formatOptions, formats}) {
