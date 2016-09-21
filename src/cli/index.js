@@ -8,6 +8,7 @@ import ProfileLoader from './profile_loader'
 import Runtime from '../runtime'
 import ScenarioFilter from '../scenario_filter'
 import SupportCodeLibrary from '../support_code_library'
+import ConfigurationBuilder from './configuration_builder'
 
 export default class Cli {
   constructor ({argv, cwd, stdout}) {
@@ -16,18 +17,17 @@ export default class Cli {
     this.stdout = stdout
   }
 
-  async getArgvParser() {
-    let argvParser = new ArgvParser({argv: this.argv, cwd: this.cwd})
-    const profileArgv = await new ProfileLoader(this.cwd).getArgv(argvParser.getProfiles())
+  async getConfiguration() {
+    let {options} = ArgvParser.parse(this.argv)
+    let fullArgv = this.argv
+    const profileArgv = await new ProfileLoader(this.cwd).getArgv(options.profile)
     if (profileArgv.length > 0) {
-      const fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
-      argvParser = new ArgvParser({argv: fullArgv, cwd: this.cwd})
+      fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
     }
-    return argvParser
+    return await ConfigurationBuilder.build({argv: fullArgv, cwd: this.cwd})
   }
 
-  async getFeatures(argvParser) {
-    const featurePaths = await argvParser.getFeaturePaths()
+  async getFeatures(featurePaths) {
     const featuresSourceMapping = {}
     await Promise.each(featurePaths, async function(featurePath) {
       featuresSourceMapping[featurePath] = await fs.readFile(featurePath, 'utf8')
@@ -35,9 +35,7 @@ export default class Cli {
     return new Parser().parse(featuresSourceMapping)
   }
 
-  async getFormatters(argvParser) {
-    const formats = argvParser.getFormats()
-    const formatOptions = argvParser.getFormatOptions()
+  async getFormatters({formatOptions, formats}) {
     const streamsToClose = []
     const formatters = await Promise.map(formats, async ({type, outputTo}) => {
       let stream = this.stdout
@@ -55,8 +53,7 @@ export default class Cli {
     return {cleanup, formatters}
   }
 
-  async getSupportCodeLibrary(argvParser) {
-    const supportCodePaths = await argvParser.getSupportCodePaths()
+  async getSupportCodeLibrary(supportCodePaths) {
     const supportCodeLibrary = new SupportCodeLibrary({cwd: this.cwd})
     supportCodePaths.forEach(function (codePath) {
       const codeExport = require(codePath)
@@ -68,17 +65,17 @@ export default class Cli {
   }
 
   async run() {
-    const argvParser = await this.getArgvParser()
-    const features = await this.getFeatures(argvParser)
-    const {cleanup, formatters} = await this.getFormatters(argvParser)
-    const runtimeOptions = argvParser.getRuntimeOptions()
-    const scenarioFilterOptions = await argvParser.getScenarioFilterOptions()
-    const scenarioFilter = new ScenarioFilter(scenarioFilterOptions)
-    const supportCodeLibrary = await this.getSupportCodeLibrary(argvParser)
+    const configuration = await this.getConfiguration()
+    const [features, {cleanup, formatters}, supportCodeLibrary] = await Promise.all([
+      this.getFeatures(configuration.featurePaths),
+      this.getFormatters(configuration),
+      this.getSupportCodeLibrary(configuration.supportCodePaths)
+    ])
+    const scenarioFilter = new ScenarioFilter(configuration.scenarioFilterOptions)
     const runtime = new Runtime({
       features,
       listeners: formatters,
-      options: runtimeOptions,
+      options: configuration.runtimeOptions,
       scenarioFilter,
       supportCodeLibrary
     })

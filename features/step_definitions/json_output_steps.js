@@ -10,7 +10,7 @@ var jsonOutputSteps = function jsonOutputSteps() {
     var found = null;
     features.forEach(function(feature) {
       feature.elements.forEach(function(element, index){
-        if (element.type === 'scenario' && predicate(element, index)){
+        if (predicate(element, index)){
           found = element;
         }
       });

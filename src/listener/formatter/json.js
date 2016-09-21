@@ -36,7 +36,7 @@ export default class JsonFormatter extends Formatter {
   }
 
   formatStepArguments(stepArguments) {
-    return stepArguments.map((arg) => {
+    return _.map(stepArguments, (arg) => {
       if (arg instanceof DataTable) {
         return this.formatDataTable(arg)
       } else if (arg instanceof DocString) {
@@ -103,7 +103,7 @@ export default class JsonFormatter extends Formatter {
       currentStep.result.duration = stepResult.duration
     }
 
-    if (stepResult.attachments.length > 0) {
+    if (_.size(stepResult.attachments) > 0) {
       currentStep.embeddings = this.formatAttachments(stepResult.attachments)
     }
 

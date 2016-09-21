@@ -1,0 +1,81 @@
+import Scenario from './scenario'
+
+describe('Scenario', function () {
+  beforeEach(function() {
+    this.feature = {feature: 'data'}
+    this.gherkinData = {
+      locations: [{line: 2, path: '/path/to/feature'}]
+    }
+    this.stepLineToKeywordMapping = {stepLine: 'data'}
+    this.scenarioOptions = {
+      feature: this.feature,
+      gherkinData: this.gherkinData,
+      language: 'en',
+      stepLineToKeywordMapping: this.stepLineToKeywordMapping
+    }
+  })
+
+  describe('feature', function () {
+    beforeEach(function() {
+      this.scenario = new Scenario(this.scenarioOptions)
+    })
+
+    it('returns the scenario', function () {
+      expect(this.scenario.feature).to.eql({feature: 'data'})
+    })
+  })
+
+  describe('keyword', function () {
+    beforeEach(function() {
+      this.scenario = new Scenario(this.scenarioOptions)
+    })
+
+    it('returns the keyword', function () {
+      expect(this.scenario.keyword).to.eql('Scenario')
+    })
+  })
+
+  describe('line', function () {
+    beforeEach(function() {
+      this.gherkinData.locations = [{line: 1}, {line: 2}]
+      this.scenario = new Scenario(this.scenarioOptions)
+    })
+
+    it('returns the first line number', function () {
+      expect(this.scenario.line).to.eql(1)
+    })
+  })
+
+  describe('lines', function () {
+    beforeEach(function() {
+      this.gherkinData.locations = [{line: 1}, {line: 2}]
+      this.scenario = new Scenario(this.scenarioOptions)
+    })
+
+    it('returns the line numbers', function () {
+      expect(this.scenario.lines).to.eql([1, 2])
+    })
+  })
+
+  describe('name', function () {
+    beforeEach(function() {
+      this.gherkinData.name = 'name'
+      this.scenario = new Scenario(this.scenarioOptions)
+    })
+
+    it('returns the text', function () {
+      expect(this.scenario.name).to.eql('name')
+    })
+  })
+
+  describe('uri', function () {
+    beforeEach(function() {
+      this.gherkinData.locations = [{path: 'path1'}, {path: 'path2'}]
+      this.scenario = new Scenario(this.scenarioOptions)
+    })
+
+    it('returns the first path', function () {
+      expect(this.scenario.uri).to.eql('path1')
+    })
+  })
+})

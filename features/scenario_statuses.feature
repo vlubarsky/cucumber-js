@@ -28,7 +28,7 @@ Feature: Scenario Statuses
           error = "Expected isPending to be false";
         else if (scenarioResult.isUndefined() !== false)
           error = "Expected isUndefined to be false";
-        else if (scenarioResult.getFailureException() !== null)
+        else if (scenarioResult.failureException !== null)
           error = "Expected exception to be null";
         else
           error = null;
@@ -70,7 +70,6 @@ Feature: Scenario Statuses
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "keyword": "Before ",
@@ -143,7 +142,7 @@ Feature: Scenario Statuses
             error = "Expected isPending to be false";
           else if (scenarioResult.isUndefined() !== false)
             error = "Expected isUndefined to be false";
-          else if (scenarioResult.getFailureException() !== null)
+          else if (scenarioResult.failureException !== null)
             error = "Expected exception to be null";
           else
             error = null;
@@ -172,7 +171,6 @@ Feature: Scenario Statuses
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "name": "This step is passing",
@@ -233,7 +231,7 @@ Feature: Scenario Statuses
             error = "Expected isPending to be false";
           else if (scenarioResult.isUndefined() !== false)
             error = "Expected isUndefined to be false";
-          else if (scenarioResult.getFailureException() !== "Fail")
+          else if (scenarioResult.failureException !== "Fail")
             error = "Expected exception to be 'Fail'";
           else
             error = null;
@@ -262,7 +260,6 @@ Feature: Scenario Statuses
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "name": "This step is failing",
@@ -324,7 +321,7 @@ Feature: Scenario Statuses
             error = "Expected isPending to be true";
           else if (scenarioResult.isUndefined() !== false)
             error = "Expected isUndefined to be false";
-          else if (scenarioResult.getFailureException() !== null)
+          else if (scenarioResult.failureException !== null)
             error = "Expected exception to be null";
           else
             error = null;
@@ -353,7 +350,6 @@ Feature: Scenario Statuses
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "name": "This step is pending",
@@ -412,7 +408,7 @@ Feature: Scenario Statuses
             error = "Expected isPending to be false";
           else if (scenarioResult.isUndefined() !== true)
             error = "Expected isUndefined to be true";
-          else if (scenarioResult.getFailureException() !== null)
+          else if (scenarioResult.failureException !== null)
             error = "Expected exception to be null";
           else
             error = null;
@@ -441,7 +437,6 @@ Feature: Scenario Statuses
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "name": "This step is undefined",

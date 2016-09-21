@@ -155,9 +155,9 @@
     "tmp": "0.0.29"
   },
   "scripts": {
-    "build-local-continuous": "BABEL_ENV=production babel src --watch -d lib --ignore '**/*_spec.js'",
-    "build-local": "BABEL_ENV=production babel src -d lib --ignore '**/*_spec.js'",
-    "build-release": "BABEL_ENV=production babel src -o dist/cucumber.js --ignore '**/*_spec.js'",
+    "build-local-continuous": "BABEL_ENV=production babel src --watch -d lib --ignore '**/*_spec.js' --retain-lines",
+    "build-local": "BABEL_ENV=production babel src -d lib --ignore '**/*_spec.js' --retain-lines",
+    "build-release": "BABEL_ENV=production babel src -o dist/cucumber.js --ignore '**/*_spec.js' --retain-lines",
     "feature-test-es5": "node ./bin/cucumber.js -p es5",
     "feature-test": "node ./bin/cucumber.js",
     "lint": "eslint src/**",

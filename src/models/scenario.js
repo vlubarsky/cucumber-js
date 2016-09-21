@@ -7,7 +7,7 @@ export default class Scenario {
   constructor({feature, gherkinData, language, stepLineToKeywordMapping}) {
     this.description = gherkinData.description
     this.feature = feature
-    this.keyword = Gherkin.DIALECTS[language].scenario
+    this.keyword = _.first(Gherkin.DIALECTS[language].scenario)
     this.lines = _.map(gherkinData.locations, 'line')
     this.name = gherkinData.name
     this.tags = _.map(gherkinData.tags, Tag.build)

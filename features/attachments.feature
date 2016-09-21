@@ -43,7 +43,6 @@ Feature: Attachments
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "keyword": "Before ",
@@ -132,7 +131,6 @@ Feature: Attachments
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "keyword": "Before ",
@@ -222,7 +220,6 @@ Feature: Attachments
                 "line": 3,
                 "keyword": "Scenario",
                 "tags": [],
-                "type": "scenario",
                 "steps": [
                   {
                     "keyword": "Before ",
@@ -305,7 +302,6 @@ Feature: Attachments
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "keyword": "Before ",
@@ -388,7 +384,6 @@ Feature: Attachments
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "name": "This step is passing",
@@ -463,7 +458,6 @@ Feature: Attachments
               "line": 3,
               "keyword": "Scenario",
               "tags": [],
-              "type": "scenario",
               "steps": [
                 {
                   "name": "This step is passing",

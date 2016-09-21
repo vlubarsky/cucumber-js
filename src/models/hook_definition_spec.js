@@ -3,10 +3,10 @@ import HookDefinition from './hook_definition'
 describe('HookDefinition', function () {
   describe('appliesToScenario', function () {
     beforeEach(function() {
-      this.scenario = createMock({
-        getTags: [],
-        getUri: ''
-      })
+      this.scenario = {
+        tags: [],
+        uri: ''
+      }
     })
 
     describe('no tags', function() {
@@ -21,9 +21,7 @@ describe('HookDefinition', function () {
 
     describe('tags match', function() {
       beforeEach(function() {
-        this.scenario.getTags.returns([
-          createMock({getName: '@tagA'})
-        ])
+        this.scenario.tags = [{name: '@tagA'}]
         this.hookDefinition = new HookDefinition({options: {tags: '@tagA'}})
       })
 
