@@ -1,5 +1,5 @@
-import _ from 'lodash'
 import Status, {addStatusPredicates, getStatusMapping} from '../status'
+import Hook from './hook'
 
 export default class ScenarioResult {
   constructor(scenario) {
@@ -25,18 +25,17 @@ export default class ScenarioResult {
   }
 
   witnessStepResult(stepResult) {
-    const stepDuration = stepResult.getDuration()
-    if (stepDuration) {
-      this.duration += stepDuration
+    const {duration, failureException, status: stepStatus, step} = stepResult
+    if (duration) {
+      this.duration += duration
     }
-    const stepStatus = stepResult.getStatus()
     if (this.shouldUpdateStatus(stepStatus)) {
       this.status = stepStatus
     }
     if (stepStatus === Status.FAILED) {
-      this.failureException = stepResult.getFailureException()
+      this.failureException = failureException
     }
-    if (stepResult.getStep().constructor.name !== 'Hook') {
+    if (!(step instanceof Hook)) {
       this.stepCounts[stepStatus] += 1
     }
   }

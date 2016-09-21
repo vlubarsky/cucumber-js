@@ -6,6 +6,7 @@ mochaOptions:
   compilers: js:babel-register
   colors: true
   reporter: dot
+  fullTrace: true
 
 # Path patten used for finding tests (see https://github.com/isaacs/minimatch)
 testFilePattern: 'src/**/*_spec.js'

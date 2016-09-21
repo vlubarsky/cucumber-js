@@ -16,11 +16,11 @@ describe('AttachmentManager', function() {
         it('adds the data base64 encoded and mime type', function() {
           const attachments = this.attachmentManager.getAll()
           expect(attachments).to.have.lengthOf(1)
-          const encodedData = attachments[0].getData()
+          const encodedData = attachments[0].data
           expect(encodedData).to.eql('bXkgc3RyaW5n')
           const decodedData = new Buffer(encodedData, 'base64').toString()
           expect(decodedData).to.eql('my string')
-          expect(attachments[0].getMimeType()).to.eql('text/special')
+          expect(attachments[0].mimeType).to.eql('text/special')
         })
       })
 
@@ -52,11 +52,11 @@ describe('AttachmentManager', function() {
           it('adds the data base64 encoded and mime type', function() {
             const attachments = this.attachmentManager.getAll()
             expect(attachments).to.have.lengthOf(1)
-            const encodedData = attachments[0].getData()
+            const encodedData = attachments[0].data
             expect(encodedData).to.eql('bXkgc3RyaW5n')
             const decodedData = new Buffer(encodedData, 'base64').toString()
             expect(decodedData).to.eql('my string')
-            expect(attachments[0].getMimeType()).to.eql('text/special')
+            expect(attachments[0].mimeType).to.eql('text/special')
           })
         })
 
@@ -78,11 +78,11 @@ describe('AttachmentManager', function() {
           it('adds the data base64 encoded and mime type', function() {
             const attachments = this.attachmentManager.getAll()
             expect(attachments).to.have.lengthOf(1)
-            const encodedData = attachments[0].getData()
+            const encodedData = attachments[0].data
             expect(encodedData).to.eql('bXkgc3RyaW5n')
             const decodedData = new Buffer(encodedData, 'base64').toString()
             expect(decodedData).to.eql('my string')
-            expect(attachments[0].getMimeType()).to.eql('text/special')
+            expect(attachments[0].mimeType).to.eql('text/special')
           })
         })
       })
@@ -106,8 +106,8 @@ describe('AttachmentManager', function() {
         it('adds the data and mime type', function() {
           const attachments = this.attachmentManager.getAll()
           expect(attachments).to.have.lengthOf(1)
-          expect(attachments[0].getData()).to.eql('my string')
-          expect(attachments[0].getMimeType()).to.eql('text/special')
+          expect(attachments[0].data).to.eql('my string')
+          expect(attachments[0].mimeType).to.eql('text/special')
         })
       })
 
@@ -119,8 +119,8 @@ describe('AttachmentManager', function() {
         it('adds the data with the default mime type', function() {
           const attachments = this.attachmentManager.getAll()
           expect(attachments).to.have.lengthOf(1)
-          expect(attachments[0].getData()).to.eql('my string')
-          expect(attachments[0].getMimeType()).to.eql('text/plain')
+          expect(attachments[0].data).to.eql('my string')
+          expect(attachments[0].mimeType).to.eql('text/plain')
         })
       })
     })

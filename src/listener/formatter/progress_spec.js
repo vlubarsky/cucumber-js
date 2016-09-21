@@ -28,15 +28,15 @@ describe('ProgressFormatter', function() {
   describe('step result', function() {
     describe('step is a hook', function() {
       beforeEach(function(){
-        this.stepResult = createMock({
-          getStatus: null,
-          getStep: new Hook({})
-        })
+        this.stepResult = {
+          status: null,
+          step: Object.create(Hook.prototype)
+        }
       })
 
       describe('failed', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.FAILED)
+          this.stepResult.status = Status.FAILED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -47,7 +47,7 @@ describe('ProgressFormatter', function() {
 
       describe('passed', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.PASSED)
+          this.stepResult.status = Status.PASSED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -58,7 +58,7 @@ describe('ProgressFormatter', function() {
 
       describe('pending', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.PENDING)
+          this.stepResult.status = Status.PENDING
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -69,7 +69,7 @@ describe('ProgressFormatter', function() {
 
       describe('skipped', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.SKIPPED)
+          this.stepResult.status = Status.SKIPPED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -82,14 +82,14 @@ describe('ProgressFormatter', function() {
     describe('step is a normal step', function() {
       beforeEach(function(){
         this.stepResult = createMock({
-          getStatus: null,
-          getStep: new Step({})
+          status: null,
+          step: Object.create(Step.prototype)
         })
       })
 
       describe('ambiguous', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.AMBIGUOUS)
+          this.stepResult.status = Status.AMBIGUOUS
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -100,7 +100,7 @@ describe('ProgressFormatter', function() {
 
       describe('failed', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.FAILED)
+          this.stepResult.status = Status.FAILED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -111,7 +111,7 @@ describe('ProgressFormatter', function() {
 
       describe('passed', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.PASSED)
+          this.stepResult.status = Status.PASSED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -122,7 +122,7 @@ describe('ProgressFormatter', function() {
 
       describe('pending', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.PENDING)
+          this.stepResult.status = Status.PENDING
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -133,7 +133,7 @@ describe('ProgressFormatter', function() {
 
       describe('skipped', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.SKIPPED)
+          this.stepResult.status = Status.SKIPPED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -144,7 +144,7 @@ describe('ProgressFormatter', function() {
 
       describe('undefined', function() {
         beforeEach(function() {
-          this.stepResult.getStatus.returns(Status.UNDEFINED)
+          this.stepResult.status = Status.UNDEFINED
           this.progressFormatter.handleStepResult(this.stepResult)
         })
 
@@ -156,10 +156,10 @@ describe('ProgressFormatter', function() {
 
     describe('summary formatter', function() {
       beforeEach(function() {
-        this.stepResult = createMock({
-          getStatus: Status.PASSED,
-          getStep: new Step({})
-        })
+        this.stepResult = {
+          status: Status.PASSED,
+          step: Object.create(Step.prototype)
+        }
         this.progressFormatter.handleStepResult(this.stepResult)
       })
 

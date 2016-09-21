@@ -20,8 +20,8 @@ export default class FeaturesResult {
   }
 
   witnessScenarioResult(scenarioResult) {
-    this.duration += scenarioResult.getDuration()
-    this.scenarioCounts[scenarioResult.getStatus()] += 1
-    _.mergeWith(this.stepCounts, scenarioResult.getStepCounts(), (a, b) => { return a + b })
+    this.duration += scenarioResult.duration
+    this.scenarioCounts[scenarioResult.status] += 1
+    _.mergeWith(this.stepCounts, scenarioResult.stepCounts, (a, b) => { return a + b })
   }
 }

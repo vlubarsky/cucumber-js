@@ -11,16 +11,16 @@ describe('StepDefinitionSnippetBuilder', function () {
 
   describe('build()', function () {
     beforeEach(function() {
-      this.step = createMock({
-        getArguments: [],
-        getKeywordType: KeywordType.PRECONDITION,
-        getName: ''
-      })
+      this.step = {
+        arguments: [],
+        keywordType: KeywordType.PRECONDITION,
+        name: ''
+      }
     })
 
     describe('step is an precondition step', function() {
       beforeEach(function() {
-        this.step.getKeywordType.returns(KeywordType.PRECONDITION)
+        this.step.keywordType = KeywordType.PRECONDITION
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -31,7 +31,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step is an event step', function() {
       beforeEach(function() {
-        this.step.getKeywordType.returns(KeywordType.EVENT)
+        this.step.keywordType = KeywordType.EVENT
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -42,7 +42,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step is an outcome step', function() {
       beforeEach(function() {
-        this.step.getKeywordType.returns(KeywordType.OUTCOME)
+        this.step.keywordType = KeywordType.OUTCOME
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -53,7 +53,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step has simple name', function() {
       beforeEach(function() {
-        this.step.getName.returns('abc')
+        this.step.name = 'abc'
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -64,7 +64,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step name has a quoted string', function() {
       beforeEach(function() {
-        this.step.getName.returns('abc "def" ghi')
+        this.step.name = 'abc "def" ghi'
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -76,7 +76,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step name has multiple quoted strings', function() {
       beforeEach(function() {
-        this.step.getName.returns('abc "def" ghi "jkl" mno')
+        this.step.name = 'abc "def" ghi "jkl" mno'
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -88,7 +88,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step name has a standalone number', function() {
       beforeEach(function() {
-        this.step.getName.returns('abc 123 def')
+        this.step.name = 'abc 123 def'
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -100,7 +100,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step has a data table argument', function() {
       beforeEach(function() {
-        this.step.getArguments.returns([new DataTable({rows: []})])
+        this.step.arguments = [new DataTable({rows: []})]
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -111,7 +111,7 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step has a doc string argument', function() {
       beforeEach(function() {
-        this.step.getArguments.returns([new DocString()])
+        this.step.arguments = [Object.create(DocString.prototype)]
         this.result = this.snippetBuilder.build(this.step)
       })
 
@@ -122,8 +122,8 @@ describe('StepDefinitionSnippetBuilder', function () {
 
     describe('step name has multiple quoted strings and a data table argument', function() {
       beforeEach(function() {
-        this.step.getName.returns('abc "def" ghi "jkl" mno')
-        this.step.getArguments.returns([new DataTable({rows: []})])
+        this.step.name = 'abc "def" ghi "jkl" mno'
+        this.step.arguments = [Object.create(DataTable.prototype)]
         this.result = this.snippetBuilder.build(this.step)
       })
 

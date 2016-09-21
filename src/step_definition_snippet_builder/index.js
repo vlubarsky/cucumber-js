@@ -1,4 +1,6 @@
 import _ from 'lodash'
+import DataTable from '../models/step_arguments/data_table'
+import DocString from '../models/step_arguments/doc_string'
 import KeywordType from '../keyword_type'
 
 const NUMBER_MATCHING_GROUP = '(\\d+)'
@@ -26,7 +28,7 @@ export default class StepDefinitionSnippetBuilder {
   }
 
   getFunctionName(step) {
-    switch(step.getKeywordType()) {
+    switch(step.keywordType) {
       case KeywordType.EVENT: return 'When'
       case KeywordType.OUTCOME: return 'Then'
       case KeywordType.PRECONDITION: return 'Given'
@@ -42,8 +44,7 @@ export default class StepDefinitionSnippetBuilder {
   }
 
   getPattern(step) {
-    const stepName = step.getName()
-    const escapedStepName = stepName.replace(/[-[\]{}()*+?.\\^$|#\n\/]/g, '\\$&')
+    const escapedStepName = step.name.replace(/[-[\]{}()*+?.\\^$|#\n\/]/g, '\\$&')
     const parameterizedStepName = escapedStepName
       .replace(NUMBER_PATTERN, NUMBER_MATCHING_GROUP)
       .replace(QUOTED_STRING_PATTERN, QUOTED_STRING_MATCHING_GROUP)
@@ -58,15 +59,13 @@ export default class StepDefinitionSnippetBuilder {
   }
 
   getStepArgumentParameters(step) {
-    return step.getArguments().map(function (arg) {
-      const type = arg.constructor.name
-      switch (type) {
-        case 'DataTable':
-          return 'table'
-        case 'DocString':
-          return 'string'
-        default:
-          throw new Error(`Unknown argument type: ${type}`)
+    return step.arguments.map(function (arg) {
+      if (arg instanceof DataTable) {
+        return 'table'
+      } else if (arg instanceof DocString) {
+        return 'string'
+      } else {
+        throw new Error(`Unknown argument type: ${arg}`)
       }
     })
   }

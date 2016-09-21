@@ -10,7 +10,7 @@ export default class Listener {
   }
 
   getHandlerForEvent(event) {
-    return this['handle' + event.getName()]
+    return this['handle' + event.name]
   }
 
   async hear(event, defaultTimeout) {
@@ -18,7 +18,7 @@ export default class Listener {
     if (handler) {
       const timeout = this.timeout || defaultTimeout
       const {error} = await UserCodeRunner.run({
-        argsArray: [event.getData()],
+        argsArray: [event.data],
         fn: handler,
         timeoutInMilliseconds: timeout,
         thisArg: this

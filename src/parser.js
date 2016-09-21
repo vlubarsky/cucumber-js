@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import Feature from './models/feature'
 import Gherkin from 'gherkin'
-import Scenario from './models/scenario'
 
 export default class Parser {
   parse(featuresSourceMapping) {
@@ -20,7 +19,7 @@ export default class Parser {
       return new Feature({
         gherkinData: gherkinDocument.feature,
         gherkinPickles: gherkinCompiler.compile(gherkinDocument, uri),
-        uri: uri
+        uri
       })
     })
   }

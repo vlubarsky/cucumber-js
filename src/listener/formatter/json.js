@@ -1,3 +1,6 @@
+import _ from 'lodash'
+import DataTable from '../../models/step_arguments/data_table'
+import DocString from '../../models/step_arguments/doc_string'
 import Formatter from './'
 import Status from '../../status'
 
@@ -8,14 +11,14 @@ export default class JsonFormatter extends Formatter {
   }
 
   convertNameToId(obj) {
-    return obj.getName().replace(/ /g, '-').toLowerCase()
+    return obj.name.replace(/ /g, '-').toLowerCase()
   }
 
   formatAttachments(attachments) {
     return attachments.map(function (attachment) {
       return {
-        data: attachment.getData(),
-        mime_type: attachment.getMimeType()
+        data: attachment.data,
+        mime_type: attachment.mimeType
       }
     })
   }
@@ -29,31 +32,19 @@ export default class JsonFormatter extends Formatter {
   }
 
   formatDocString(docString) {
-    return {
-      line: docString.getLine(),
-      content: docString.getContent(),
-      contentType: docString.getContentType()
-    }
+    return _.pick(docString, ['content', 'contentType', 'line'])
   }
 
   formatStepArguments(stepArguments) {
     return stepArguments.map((arg) => {
-      switch (arg.constructor.name) {
-        case 'DataTable':
-          return this.formatDataTable(arg)
-        case 'DocString':
-          return this.formatDocString(arg)
-        default:
-          throw new Error('Unknown argument type:' + arg)
+      if (arg instanceof DataTable) {
+        return this.formatDataTable(arg)
+      } else if (arg instanceof DocString) {
+        return this.formatDocString(arg)
+      } else {
+        throw new Error('Unknown argument type:' + arg)
       }
     })
-  }
-
-  formatTag(tag) {
-    return {
-      name: tag.getName(),
-      line: tag.getLine()
-    }
   }
 
   handleAfterFeatures() {
@@ -61,69 +52,67 @@ export default class JsonFormatter extends Formatter {
   }
 
   handleBeforeFeature(feature) {
-    this.currentFeature = {
-      description: feature.getDescription(),
+    this.currentFeature = _.pick(feature, [
+      'description',
+      'keyword',
+      'line' ,
+      'name',
+      'tags',
+      'uri'
+    ])
+    _.assign(this.currentFeature, {
       elements: [],
-      id: this.convertNameToId(feature),
-      keyword: feature.getKeyword(),
-      line: feature.getLine(),
-      name: feature.getName(),
-      tags: feature.getTags().map(this.formatTag),
-      uri: feature.getUri()
-    }
+      id: this.convertNameToId(feature)
+    })
     this.features.push(this.currentFeature)
   }
 
   handleBeforeScenario(scenario) {
-    this.currentScenario = {
-      description: scenario.getDescription(),
+    this.currentScenario = _.pick(scenario, [
+      'description',
+      'keyword',
+      'line',
+      'name',
+      'tags'
+    ])
+    _.assign(this.currentScenario, {
       id: this.currentFeature.id + ';' + this.convertNameToId(scenario),
-      keyword: 'Scenario',
-      line: scenario.getLine(),
-      name: scenario.getName(),
-      steps: [],
-      tags: scenario.getTags().map(this.formatTag),
-      type: 'scenario'
-    }
+      steps: []
+    })
     this.currentFeature.elements.push(this.currentScenario)
   }
 
   handleStepResult(stepResult) {
-    var step = stepResult.getStep()
-    var status = stepResult.getStatus()
+    const step = stepResult.step
+    const status = stepResult.status
 
-    var currentStep = {
-      arguments: this.formatStepArguments(step.getArguments()),
-      keyword: step.getKeyword(),
-      name: step.getName(),
+    const currentStep = {
+      arguments: this.formatStepArguments(step.arguments),
+      keyword: step.keyword,
+      name: step.name,
       result: {status}
     }
 
-    if (step.isHidden()) {
+    if (step.constructor.name === 'Hook') {
       currentStep.hidden = true
     } else {
-      currentStep.line = step.getLine()
+      currentStep.line = step.line
     }
 
     if (status === Status.PASSED || status === Status.FAILED) {
-      currentStep.result.duration = stepResult.getDuration()
+      currentStep.result.duration = stepResult.duration
     }
 
-    const attachments = stepResult.getAttachments()
-    if (attachments.length > 0) {
-      currentStep.embeddings = this.formatAttachments(attachments)
+    if (stepResult.attachments.length > 0) {
+      currentStep.embeddings = this.formatAttachments(stepResult.attachments)
     }
 
-    if (status === Status.FAILED) {
-      var failureMessage = stepResult.getFailureException()
-      if (failureMessage) {
-        currentStep.result.error_message = (failureMessage.stack || failureMessage)
-      }
+    if (status === Status.FAILED && stepResult.failureException) {
+      currentStep.result.error_message = (stepResult.failureException.stack || stepResult.failureException)
     }
 
-    var stepDefinition = stepResult.getStepDefinition()
-    if (stepDefinition) {
-      var location = stepDefinition.getUri() + ':' + stepDefinition.getLine()
+    if (stepResult.stepDefinition) {
+      var location = stepResult.stepDefinition.uri + ':' + stepResult.stepDefinition.line
       currentStep.match = {location}
     }
 

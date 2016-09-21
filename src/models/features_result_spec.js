@@ -1,12 +1,9 @@
 import FeaturesResult from './features_result'
 import ScenarioResult from './scenario_result'
 import Status from '../status'
-import Step from './step'
-import StepResult from './step_result'
 
 describe('FeaturesResult', function () {
   beforeEach(function() {
-    this.step = new Step({})
     this.scenarioResult = new ScenarioResult()
   })
 
@@ -19,9 +16,9 @@ describe('FeaturesResult', function () {
       expect(this.featuresResult.isSuccessful()).to.eql(true)
     })
 
-    describe('after a passing scenario', function () {
+    describe('after a passed scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.PASSED, step: this.step})
+        const stepResult = {status: Status.PASSED}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -31,9 +28,9 @@ describe('FeaturesResult', function () {
       })
     })
 
-    describe('after a failing scenario', function () {
+    describe('after a failed scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.FAILED, step: this.step})
+        const stepResult = {status: Status.FAILED}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -45,7 +42,7 @@ describe('FeaturesResult', function () {
 
     describe('after an ambiguous scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.AMBIGUOUS, step: this.step})
+        const stepResult = {status: Status.AMBIGUOUS}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -57,7 +54,7 @@ describe('FeaturesResult', function () {
 
     describe('after a pending scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.PENDING, step: this.step})
+        const stepResult = {status: Status.PENDING}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -69,7 +66,7 @@ describe('FeaturesResult', function () {
 
     describe('after an undefined step', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.UNDEFINED, step: this.step})
+        const stepResult = {status: Status.UNDEFINED}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -91,7 +88,7 @@ describe('FeaturesResult', function () {
 
     describe('after a passing scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.PASSING, step: this.step})
+        const stepResult = {status: Status.PASSED}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -103,7 +100,7 @@ describe('FeaturesResult', function () {
 
     describe('after a failing scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.FAILED, step: this.step})
+        const stepResult = {status: Status.FAILED}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -115,7 +112,7 @@ describe('FeaturesResult', function () {
 
     describe('after an ambiguous scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.AMBIGUOUS, step: this.step})
+        const stepResult = {status: Status.AMBIGUOUS}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -127,7 +124,7 @@ describe('FeaturesResult', function () {
 
     describe('after a pending scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.PENDING, step: this.step})
+        const stepResult = {status: Status.PENDING}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })
@@ -139,7 +136,7 @@ describe('FeaturesResult', function () {
 
     describe('after an undefined scenario', function () {
       beforeEach(function () {
-        const stepResult = new StepResult({status: Status.UNDEFINED, step: this.step})
+        const stepResult = {status: Status.UNDEFINED}
         this.scenarioResult.witnessStepResult(stepResult)
         this.featuresResult.witnessScenarioResult(this.scenarioResult)
       })

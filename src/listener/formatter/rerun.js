@@ -10,14 +10,13 @@ export default class RerunFormatter extends Formatter {
   }
 
   handleScenarioResult(scenarioResult) {
-    if (scenarioResult.getStatus() === Status.FAILED) {
-      const scenario = scenarioResult.getScenario()
-      const uri = path.relative(this.cwd, scenario.getUri())
-      const line = scenario.getLine()
+    if (scenarioResult.status === Status.FAILED) {
+      const scenario = scenarioResult.scenario
+      const uri = path.relative(this.cwd, scenario.uri)
       if (!this.failures[uri]) {
         this.failures[uri] = []
       }
-      this.failures[uri].push(line)
+      this.failures[uri].push(scenario.line)
     }
   }
 

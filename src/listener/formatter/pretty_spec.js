@@ -1,7 +1,11 @@
+import _ from 'lodash'
+import DataTable from '../../models/step_arguments/data_table'
+import DocString from '../../models/step_arguments/doc_string'
 import figures from 'figures'
 import getColorFns from '../../get_color_fns'
 import PrettyFormatter from './pretty'
 import Status from '../../status'
+import Step from '../../models/step'
 import SummaryFormatter from './summary'
 
 describe('PrettyFormatter', function() {
@@ -24,12 +28,12 @@ describe('PrettyFormatter', function() {
 
   describe('before feature', function() {
     beforeEach(function(){
-      this.feature = createMock({
-        getKeyword: 'feature-keyword',
-        getName: 'feature-name',
-        getDescription: '',
-        getTags: []
-      })
+      this.feature = {
+        keyword: 'feature-keyword',
+        name: 'feature-name',
+        description: '',
+        tags: []
+      }
     })
 
     describe('without tags or description', function() {
@@ -47,10 +51,7 @@ describe('PrettyFormatter', function() {
 
     describe('with tags', function() {
       beforeEach(function() {
-        this.feature.getTags.returns([
-          createMock({getName: '@tagA'}),
-          createMock({getName: '@tagB'})
-        ])
+        this.feature.tags = [{name: '@tagA'}, {name: '@tagB'}]
         this.prettyFormatter.handleBeforeFeature(this.feature)
       })
 
@@ -65,7 +66,7 @@ describe('PrettyFormatter', function() {
 
     describe('with description', function() {
       beforeEach(function() {
-        this.feature.getDescription.returns('line1\nline2')
+        this.feature.description = 'line1\nline2'
         this.prettyFormatter.handleBeforeFeature(this.feature)
       })
 
@@ -83,11 +84,11 @@ describe('PrettyFormatter', function() {
 
   describe('before scenario', function() {
     beforeEach(function(){
-      this.scenario = createMock({
-        getKeyword: 'scenario-keyword',
-        getName: 'scenario-name',
-        getTags: []
-      })
+      this.scenario = {
+        keyword: 'scenario-keyword',
+        name: 'scenario-name',
+        tags: []
+      }
     })
 
     describe('without tags or description', function() {
@@ -104,10 +105,7 @@ describe('PrettyFormatter', function() {
 
     describe('with tags', function() {
       beforeEach(function() {
-        this.scenario.getTags.returns([
-          createMock({getName: '@tagA'}),
-          createMock({getName: '@tagB'})
-        ])
+        this.scenario.tags = [{name: '@tagA'}, {name: '@tagB'}]
         this.prettyFormatter.handleBeforeScenario(this.scenario)
       })
 
@@ -122,21 +120,21 @@ describe('PrettyFormatter', function() {
 
   describe('step result', function() {
     beforeEach(function(){
-      this.step = createMock({
-        getArguments: [],
-        getKeyword: 'step-keyword ',
-        getName: 'step-name',
-        isHidden: false
+      this.step = Object.create(Step.prototype)
+      _.assign(this.step, {
+        arguments: [],
+        keyword: 'step-keyword ',
+        name: 'step-name'
       })
-      this.stepResult = createMock({
-        getStatus: Status.PASSED,
-        getStep: this.step
-      })
+      this.stepResult = {
+        status: Status.PASSED,
+        step: this.step
+      }
     })
 
     describe('failed step', function () {
       beforeEach(function () {
-        this.stepResult.getStatus.returns(Status.FAILED)
+        this.stepResult.status = Status.FAILED
         this.prettyFormatter.handleStepResult(this.stepResult)
       })
 
@@ -150,7 +148,7 @@ describe('PrettyFormatter', function() {
     describe('passed', function() {
       describe('without name', function() {
         beforeEach(function() {
-          this.step.getName.returns(undefined)
+          delete this.step.name
           this.prettyFormatter.handleStepResult(this.stepResult)
         })
 
@@ -175,14 +173,15 @@ describe('PrettyFormatter', function() {
 
       describe('with data table', function () {
         beforeEach(function() {
-          const raw = [
-            ['cuk', 'cuke', 'cukejs'],
-            ['c',   'cuke', 'cuke.js'],
-            ['cu',  'cuke', 'cucumber']
-          ]
-          const dataTable = createMock({raw})
-          dataTable.constructor = {name: 'DataTable'}
-          this.step.getArguments.returns([dataTable])
+          const dataTable = Object.create(DataTable.prototype)
+          _.assign(dataTable, createMock({
+            raw: [
+              ['cuk', 'cuke', 'cukejs'],
+              ['c',   'cuke', 'cuke.js'],
+              ['cu',  'cuke', 'cucumber']
+            ]
+          }))
+          this.step.arguments = [dataTable]
           this.prettyFormatter.handleStepResult(this.stepResult)
         })
 
@@ -198,10 +197,9 @@ describe('PrettyFormatter', function() {
 
       describe('with doc string', function() {
         beforeEach(function () {
-          const content = 'this is a multiline\ndoc string\n\n:-)'
-          const docString = createMock({getContent: content})
-          docString.constructor = {name: 'DocString'}
-          this.step.getArguments.returns([docString])
+          const docString = Object.create(DocString.prototype)
+          docString.content = 'this is a multiline\ndoc string\n\n:-)'
+          this.step.arguments = [docString]
           this.prettyFormatter.handleStepResult(this.stepResult)
         })
 
@@ -221,7 +219,7 @@ describe('PrettyFormatter', function() {
 
     describe('pending', function () {
       beforeEach(function () {
-        this.stepResult.getStatus.returns(Status.PENDING)
+        this.stepResult.status = Status.PENDING
         this.prettyFormatter.handleStepResult(this.stepResult)
       })
 
@@ -234,7 +232,7 @@ describe('PrettyFormatter', function() {
 
     describe('skipped', function () {
       beforeEach(function () {
-        this.stepResult.getStatus.returns(Status.SKIPPED)
+        this.stepResult.status = Status.SKIPPED
         this.prettyFormatter.handleStepResult(this.stepResult)
       })
 
@@ -247,7 +245,7 @@ describe('PrettyFormatter', function() {
 
     describe('undefined', function () {
       beforeEach(function () {
-        this.stepResult.getStatus.returns(Status.UNDEFINED)
+        this.stepResult.status = Status.UNDEFINED
         this.prettyFormatter.handleStepResult(this.stepResult)
       })
 

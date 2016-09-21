@@ -19,18 +19,18 @@ export default class ScenarioRunner {
   }
 
   async broadcastScenarioResult() {
-    const event = new Event(Event.SCENARIO_RESULT_EVENT_NAME, this.scenarioResult)
+    const event = new Event({data: this.scenarioResult, name: Event.SCENARIO_RESULT_EVENT_NAME})
     await this.eventBroadcaster.broadcastEvent(event)
   }
 
   async broadcastStepResult(stepResult) {
     this.scenarioResult.witnessStepResult(stepResult)
-    const event = new Event(Event.STEP_RESULT_EVENT_NAME, stepResult)
+    const event = new Event({data: stepResult, name: Event.STEP_RESULT_EVENT_NAME})
     await this.eventBroadcaster.broadcastEvent(event)
   }
 
   isSkippingSteps() {
-    return this.scenarioResult.getStatus() !== Status.PASSED
+    return this.scenarioResult.status !== Status.PASSED
   }
 
   async processHook(hook, hookDefinition) {
@@ -80,7 +80,7 @@ export default class ScenarioRunner {
   }
 
   async run() {
-    const event = new Event(Event.SCENARIO_EVENT_NAME, this.scenario)
+    const event = new Event({data: this.scenario, name: Event.SCENARIO_EVENT_NAME})
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
       await this.runBeforeHooks()
       await this.runSteps()
@@ -93,7 +93,7 @@ export default class ScenarioRunner {
   async runHooks({hookDefinitions, hookKeyword}) {
     await Promise.each(hookDefinitions, async (hookDefinition) => {
       const hook = new Hook({keyword: hookKeyword, scenario: this.scenario})
-      const event = new Event(Event.STEP_EVENT_NAME, hook)
+      const event = new Event({data: hook, name: Event.STEP_EVENT_NAME})
       await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
         const stepResult = await this.processHook(hook, hookDefinition)
         await this.broadcastStepResult(stepResult)
@@ -116,8 +116,8 @@ export default class ScenarioRunner {
   }
 
   async runSteps() {
-    await Promise.each(this.scenario.getSteps(), async(step) => {
-      const event = new Event(Event.STEP_EVENT_NAME, step)
+    await Promise.each(this.scenario.steps, async(step) => {
+      const event = new Event({data: step, name: Event.STEP_EVENT_NAME})
       await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
         await Promise.resolve() // synonymous to process.nextTick / setImmediate
         const stepResult = await this.processStep(step)

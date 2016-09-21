@@ -9,21 +9,21 @@ describe('DocString', function () {
     })
   })
 
-  describe('getContent()', function () {
+  describe('content', function () {
     it('returns the content', function () {
-      expect(this.docString.getContent()).to.eql('content')
+      expect(this.docString.content).to.eql('content')
     })
   })
 
-  describe('getContentType()', function () {
+  describe('contentType', function () {
     it('returns the doc', function () {
-      expect(this.docString.getContentType()).to.eql('contentType')
+      expect(this.docString.contentType).to.eql('contentType')
     })
   })
 
   describe('getLine()', function () {
     it('returns the line', function () {
-      expect(this.docString.getLine()).to.eql(1)
+      expect(this.docString.line).to.eql(1)
     })
   })
 })

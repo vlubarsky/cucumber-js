@@ -1,3 +1,6 @@
+import _ from 'lodash'
+import DataTable from '../../models/step_arguments/data_table'
+import DocString from '../../models/step_arguments/doc_string'
 import JsonFormatter from './json'
 import Status from '../../status'
 
@@ -22,16 +25,16 @@ describe('JsonFormatter', function () {
 
   describe('one feature', function() {
     beforeEach(function () {
-      const tag1 = createMock({getName: 'tag 1', getLine: 1})
-      const tag2 = createMock({getName: 'tag 2', getLine: 1})
-      const feature = createMock({
-        getKeyword: 'Feature',
-        getName: 'A Feature Name',
-        getDescription: 'A Feature Description',
-        getLine: 2,
-        getUri: 'uri',
-        getTags: [tag1, tag2]
-      })
+      const tag1 = {name: 'tag 1', line: 1}
+      const tag2 = {name: 'tag 2', line: 1}
+      const feature = {
+        keyword: 'Feature',
+        name: 'A Feature Name',
+        description: 'A Feature Description',
+        line: 2,
+        uri: 'uri',
+        tags: [tag1, tag2]
+      }
       this.jsonFormatter.handleBeforeFeature(feature)
     })
 
@@ -59,15 +62,15 @@ describe('JsonFormatter', function () {
 
     describe('with a scenario', function () {
       beforeEach(function () {
-        var tag1 = createMock({getName: 'tag 1', getLine: 3})
-        var tag2 = createMock({getName: 'tag 2', getLine: 3})
-        var scenario = createMock({
-          getKeyword: 'Scenario',
-          getName: 'A Scenario Name',
-          getDescription: 'A Scenario Description',
-          getLine: 4,
-          getTags: [tag1, tag2]
-        })
+        var tag1 = {name: 'tag 1', line: 3}
+        var tag2 = {name: 'tag 2', line: 3}
+        var scenario = {
+          keyword: 'Scenario',
+          name: 'A Scenario Name',
+          description: 'A Scenario Description',
+          line: 4,
+          tags: [tag1, tag2]
+        }
         this.jsonFormatter.handleBeforeScenario(scenario)
       })
 
@@ -88,31 +91,29 @@ describe('JsonFormatter', function () {
             tags: [
               {name: 'tag 1', line: 3},
               {name: 'tag 2', line: 3}
-            ],
-            type: 'scenario'
+            ]
           }])
         })
       })
 
       describe('with a step', function () {
         beforeEach(function() {
-          this.step = createMock({
-            getArguments: [],
-            getLine: 1,
-            getKeyword: 'Step',
-            getName: 'A Step Name',
+          this.step = {
+            arguments: [],
+            line: 1,
+            keyword: 'Step',
+            name: 'A Step Name',
             isHidden: false
-          })
+          }
 
-          this.stepResult = createMock({
-            getDuration: 1,
-            getFailureException: null,
-            getStatus: Status.PASSED,
-            getStep: this.step,
-            getStepDefinition: null,
-            hasAttachments: false,
-            getAttachments: []
-          })
+          this.stepResult = {
+            duration: 1,
+            failureException: null,
+            status: Status.PASSED,
+            step: this.step,
+            stepDefinition: null,
+            attachments: []
+          }
         })
 
         describe('that is passing', function () {
@@ -138,8 +139,8 @@ describe('JsonFormatter', function () {
 
         describe('that is failing', function () {
           beforeEach(function() {
-            this.stepResult.getStatus.returns(Status.FAILED)
-            this.stepResult.getFailureException.returns({stack: 'failure stack'})
+            this.stepResult.status = Status.FAILED
+            this.stepResult.failureException = {stack: 'failure stack'}
             this.jsonFormatter.handleStepResult(this.stepResult)
             this.jsonFormatter.handleAfterFeatures()
           })
@@ -156,7 +157,7 @@ describe('JsonFormatter', function () {
 
         describe('that is hidden', function () {
           beforeEach(function() {
-            this.step.isHidden.returns(true)
+            this.step.constructor = {name: 'Hook'}
             this.jsonFormatter.handleStepResult(this.stepResult)
             this.jsonFormatter.handleAfterFeatures({})
           })
@@ -171,13 +172,13 @@ describe('JsonFormatter', function () {
 
         describe('with a doc string', function () {
           beforeEach(function (){
-            const docString = createMock({
-              getContent: 'This is a DocString',
-              getLine: 2,
-              getContentType: null,
+            const docString = Object.create(DocString.prototype)
+            _.assign(docString, {
+              content: 'This is a DocString',
+              contentType: null,
+              line: 2
             })
-            docString.constructor = {name: 'DocString'}
-            this.step.getArguments.returns([docString])
+            this.step.arguments = [docString]
             this.jsonFormatter.handleStepResult(this.stepResult)
             this.jsonFormatter.handleAfterFeatures({})
           })
@@ -194,15 +195,15 @@ describe('JsonFormatter', function () {
 
         describe('with a data table', function () {
           beforeEach(function (){
-            const dataTable = createMock({
+            const dataTable = Object.create(DataTable.prototype)
+            _.assign(dataTable, createMock({
               raw: [
                 ['a:1', 'a:2', 'a:3'],
                 ['b:1', 'b:2', 'b:3'],
                 ['c:1', 'c:2', 'c:3']
               ]
-            })
-            dataTable.constructor = {name: 'DataTable'}
-            this.step.getArguments.returns([dataTable])
+            }))
+            this.step.arguments = [dataTable]
             this.jsonFormatter.handleStepResult(this.stepResult)
             this.jsonFormatter.handleAfterFeatures()
           })
@@ -221,15 +222,15 @@ describe('JsonFormatter', function () {
 
         describe('with attachments', function () {
           beforeEach(function (){
-            const attachment1 = createMock({
-              getMimeType: 'first mime type',
-              getData: 'first data'
-            })
-            const attachment2 = createMock({
-              getMimeType: 'second mime type',
-              getData: 'second data'
-            })
-            this.stepResult.getAttachments.returns([attachment1, attachment2])
+            const attachment1 = {
+              mimeType: 'first mime type',
+              data: 'first data'
+            }
+            const attachment2 = {
+              mimeType: 'second mime type',
+              data: 'second data'
+            }
+            this.stepResult.attachments = [attachment1, attachment2]
             this.jsonFormatter.handleStepResult(this.stepResult)
             this.jsonFormatter.handleAfterFeatures({})
           })
@@ -245,11 +246,11 @@ describe('JsonFormatter', function () {
 
         describe('with a step definition', function () {
           beforeEach(function (){
-            const stepDefinition = createMock({
-              getLine: 2,
-              getUri: 'path/to/stepDef'
-            })
-            this.stepResult.getStepDefinition.returns(stepDefinition)
+            const stepDefinition = {
+              line: 2,
+              uri: 'path/to/stepDef'
+            }
+            this.stepResult.stepDefinition = stepDefinition
             this.jsonFormatter.handleStepResult(this.stepResult)
             this.jsonFormatter.handleAfterFeatures({})
           })

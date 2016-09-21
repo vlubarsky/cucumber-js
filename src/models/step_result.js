@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {addStatusPredicates} from '../status'
 
 export default class StepResult {

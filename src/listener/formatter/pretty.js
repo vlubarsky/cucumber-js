@@ -1,11 +1,14 @@
+import DataTable from '../../models/step_arguments/data_table'
+import DocString from '../../models/step_arguments/doc_string'
 import figures from 'figures'
+import Hook from '../../models/hook'
 import Status from '../../status'
 import SummaryFormatter from './summary'
 import Table from 'cli-table'
 
 export default class PrettyFormatter extends SummaryFormatter {
   applyColor(stepResult, text) {
-    const status = stepResult.getStatus()
+    const status = stepResult.status
     return this.colorFns[status](text)
   }
 
@@ -32,14 +35,14 @@ export default class PrettyFormatter extends SummaryFormatter {
   }
 
   formatDocString(docString) {
-    return '"""\n' + docString.getContent() + '\n"""'
+    return '"""\n' + docString.content + '\n"""'
   }
 
   formatTags(tags) {
     if (tags.length === 0) {
       return ''
     }
-    const tagNames = tags.map((tag) => tag.getName())
+    const tagNames = tags.map((tag) => tag.name)
     return this.colorFns.tag(tagNames.join(' '))
   }
 
@@ -49,12 +52,12 @@ export default class PrettyFormatter extends SummaryFormatter {
 
   handleBeforeFeature(feature) {
     let text = ''
-    let tagsText = this.formatTags(feature.getTags())
+    let tagsText = this.formatTags(feature.tags)
     if (tagsText) {
       text = tagsText + '\n'
     }
-    text += feature.getKeyword() + ': ' + feature.getName()
-    let description = feature.getDescription()
+    text += feature.keyword + ': ' + feature.name
+    let description = feature.description
     if (description) {
       text += '\n\n' + this.indent(description, 2)
     }
@@ -63,18 +66,17 @@ export default class PrettyFormatter extends SummaryFormatter {
 
   handleBeforeScenario(scenario) {
     let text = ''
-    let tagsText = this.formatTags(scenario.getTags())
+    let tagsText = this.formatTags(scenario.tags)
     if (tagsText) {
       text = tagsText + '\n'
     }
-    text += scenario.getKeyword() + ': ' + scenario.getName()
+    text += scenario.keyword + ': ' + scenario.name
     this.logIndented(text + '\n', 1)
   }
 
   handleStepResult(stepResult) {
-    const step = stepResult.getStep()
-    if (!step.isHidden()) {
-      this.logStepResult(step, stepResult)
+    if (!(stepResult.step instanceof Hook)) {
+      this.logStepResult(stepResult)
     }
     super.handleStepResult(stepResult)
   }
@@ -83,25 +85,22 @@ export default class PrettyFormatter extends SummaryFormatter {
     this.log(this.indent(text, level * 2))
   }
 
-  logStepResult(step, stepResult) {
-    const status = stepResult.getStatus()
+  logStepResult(stepResult) {
+    const {status, step} = stepResult
     const colorFn = this.colorFns[status]
 
-    const symbol = PrettyFormatter.CHARACTERS[stepResult.getStatus()]
-    const identifier = colorFn(symbol + ' ' + step.getKeyword() + (step.getName() || ''))
+    const symbol = PrettyFormatter.CHARACTERS[stepResult.status]
+    const identifier = colorFn(symbol + ' ' + step.keyword + (step.name || ''))
     this.logIndented(identifier + '\n', 1)
 
-    step.getArguments().forEach((arg) => {
+    step.arguments.forEach((arg) => {
       let str
-      switch(arg.constructor.name) {
-        case 'DataTable':
-          str = this.formatDataTable(arg)
-          break
-        case 'DocString':
-          str = this.formatDocString(arg)
-          break
-        default:
-          throw new Error('Unknown argument type: ' + arg)
+      if (arg instanceof DataTable) {
+        str = this.formatDataTable(arg)
+      } else if (arg instanceof DocString) {
+        str = this.formatDocString(arg)
+      } else {
+        throw new Error('Unknown argument type: ' + arg)
       }
       this.logIndented(colorFn(str) + '\n', 3)
     })

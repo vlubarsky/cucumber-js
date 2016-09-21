@@ -10,11 +10,12 @@ describe('FeaturesRunner', function () {
     this.listener = createMock(['hear'])
     this.eventBroadcaster = new EventBroadcaster({listeners: [this.listener]})
     this.features = []
-    this.supportCodeLibrary = {
-      getDefaultTimeout() { return 5000 },
-      getListeners() { return [] },
-      instantiateNewWorld() { return {} }
-    }
+    this.supportCodeLibrary = createMock({
+      getDefaultTimeout: 5000,
+      listeners: [],
+      instantiateNewWorld: {}
+    })
+    this.scenarioFilter = createMock({matches: true})
     this.listeners = []
     this.options = {}
     sinon.stub(ScenarioRunner.prototype, 'run')
@@ -22,6 +23,7 @@ describe('FeaturesRunner', function () {
       eventBroadcaster: this.eventBroadcaster,
       features: this.features,
       options: this.options,
+      scenarioFilter: this.scenarioFilter,
       supportCodeLibrary: this.supportCodeLibrary
     })
   })
@@ -54,12 +56,12 @@ describe('FeaturesRunner', function () {
     describe('with a feature with a passing scenario', function() {
       beforeEach(async function() {
         this.feature = {
-          getScenarios() { return [{}] }
+          scenarios: [{}]
         }
         const scenarioResult = {
-          getDuration() { return 1 },
-          getStatus() { return Status.PASSED },
-          getStepCounts() { return {} }
+          duration: 1,
+          status: Status.PASSED,
+          stepCounts: {}
         }
         ScenarioRunner.prototype.run.returns(Promise.resolve(scenarioResult))
         this.features.push(this.feature)
@@ -86,12 +88,12 @@ describe('FeaturesRunner', function () {
     describe('with a feature with a failing scenario', function() {
       beforeEach(async function() {
         this.feature = {
-          getScenarios() { return [{}] }
+          scenarios: [{}]
         }
         const scenarioResult = {
-          getDuration() { return 1 },
-          getStatus() { return Status.FAILED },
-          getStepCounts() { return {} }
+          duration: 1,
+          status: Status.FAILED,
+          stepCounts: {}
         }
         ScenarioRunner.prototype.run.returns(Promise.resolve(scenarioResult))
         this.features.push(this.feature)

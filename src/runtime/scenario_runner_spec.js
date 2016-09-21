@@ -4,8 +4,6 @@ import HookDefinition from '../models/hook_definition'
 import Promise from 'bluebird'
 import ScenarioRunner from './scenario_runner'
 import Status from '../status'
-import Step from '../models/step'
-import StepResult from '../models/step_result'
 
 describe('ScenarioRunner', function () {
   beforeEach(function () {
@@ -36,7 +34,7 @@ describe('ScenarioRunner', function () {
       beforeEach(async function() {
         this.supportCodeLibrary.getAfterHookDefinitions.returns([])
         this.supportCodeLibrary.getBeforeHookDefinitions.returns([])
-        this.scenario.getSteps.returns([])
+        this.scenario.steps = []
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -49,23 +47,23 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a passing result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.PASSED)
+        expect(this.scenarioResult.status).to.eql(Status.PASSED)
       })
     })
 
     describe('with a passing step', function() {
       beforeEach(async function() {
-        this.step = new Step({})
-        this.stepResult = new StepResult({
+        this.step = {}
+        this.stepResult = {
           duration: 1,
           status: Status.PASSED,
           step: this.step
-        })
+        }
         const stepDefinition = createMock({
           invoke: Promise.resolve(this.stepResult)
         })
         this.supportCodeLibrary.getStepDefinitions.returns([stepDefinition])
-        this.scenario.getSteps.returns([this.step])
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -81,23 +79,23 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a passing result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.PASSED)
+        expect(this.scenarioResult.status).to.eql(Status.PASSED)
       })
     })
 
     describe('with a failing step', function() {
       beforeEach(async function() {
-        this.step = new Step({})
-        this.stepResult = new StepResult({
+        this.step = {}
+        this.stepResult = {
           duration: 1,
           status: Status.FAILED,
           step: this.step
-        })
+        }
         const stepDefinition = createMock({
           invoke: Promise.resolve(this.stepResult)
         })
         this.supportCodeLibrary.getStepDefinitions.returns([stepDefinition])
-        this.scenario.getSteps.returns([this.step])
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -113,15 +111,15 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a failed result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.FAILED)
+        expect(this.scenarioResult.status).to.eql(Status.FAILED)
       })
     })
 
     describe('with an ambiguous step', function() {
       beforeEach(async function() {
-        this.step = new Step({})
+        this.step = {}
         this.supportCodeLibrary.getStepDefinitions.returns([{}, {}])
-        this.scenario.getSteps.returns([this.step])
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -130,7 +128,7 @@ describe('ScenarioRunner', function () {
           ['BeforeScenario', this.scenario],
           ['BeforeStep', this.step],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.AMBIGUOUS)
+            expect(stepResult.status).to.eql(Status.AMBIGUOUS)
           }],
           ['AfterStep', this.step],
           ['ScenarioResult', this.scenarioResult],
@@ -139,14 +137,14 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a failed result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.AMBIGUOUS)
+        expect(this.scenarioResult.status).to.eql(Status.AMBIGUOUS)
       })
     })
 
     describe('with an undefined step', function() {
       beforeEach(async function() {
-        this.step = new Step({})
-        this.scenario.getSteps.returns([this.step])
+        this.step = {}
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -155,7 +153,7 @@ describe('ScenarioRunner', function () {
           ['BeforeScenario', this.scenario],
           ['BeforeStep', this.step],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.UNDEFINED)
+            expect(stepResult.status).to.eql(Status.UNDEFINED)
           }],
           ['AfterStep', this.step],
           ['ScenarioResult', this.scenarioResult],
@@ -164,16 +162,16 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a failed result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.UNDEFINED)
+        expect(this.scenarioResult.status).to.eql(Status.UNDEFINED)
       })
     })
 
     describe('with a step in dry run mode', function() {
       beforeEach(async function() {
         this.options.dryRun = true
-        this.step = new Step({})
+        this.step = {}
         this.supportCodeLibrary.getStepDefinitions.returns([{}])
-        this.scenario.getSteps.returns([this.step])
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -182,7 +180,7 @@ describe('ScenarioRunner', function () {
           ['BeforeScenario', this.scenario],
           ['BeforeStep', this.step],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+            expect(stepResult.status).to.eql(Status.SKIPPED)
           }],
           ['AfterStep', this.step],
           ['ScenarioResult', this.scenarioResult],
@@ -191,7 +189,7 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a skipped result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.SKIPPED)
+        expect(this.scenarioResult.status).to.eql(Status.SKIPPED)
       })
     })
 
@@ -202,12 +200,11 @@ describe('ScenarioRunner', function () {
           code() { throw new Error('error') },
           options: {}
         })
-        this.step = new Step({})
-        this.step.setScenario(this.scenario)
+        this.step = {}
         this.stepDefinition = {}
         this.supportCodeLibrary.getBeforeHookDefinitions.returns([this.hookDefinition])
         this.supportCodeLibrary.getStepDefinitions.returns([{}])
-        this.scenario.getSteps.returns([this.step])
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -215,17 +212,17 @@ describe('ScenarioRunner', function () {
         expectToHearEvents(this.listener.hear, [
           ['BeforeScenario', this.scenario],
           ['BeforeStep', function(step) {
-            expect(step.getKeyword()).to.eql('Before ')
+            expect(step.keyword).to.eql('Before ')
           }],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+            expect(stepResult.status).to.eql(Status.SKIPPED)
           }],
           ['AfterStep', function(step) {
-            expect(step.getKeyword()).to.eql('Before ')
+            expect(step.keyword).to.eql('Before ')
           }],
           ['BeforeStep', this.step],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+            expect(stepResult.status).to.eql(Status.SKIPPED)
           }],
           ['AfterStep', this.step],
           ['ScenarioResult', this.scenarioResult],
@@ -234,7 +231,7 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a skipped result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.SKIPPED)
+        expect(this.scenarioResult.status).to.eql(Status.SKIPPED)
       })
     })
 
@@ -245,12 +242,11 @@ describe('ScenarioRunner', function () {
           code() { throw new Error('error') },
           options: {}
         })
-        this.step = new Step({})
-        this.step.setScenario(this.scenario)
+        this.step = {}
         this.stepDefinition = {}
         this.supportCodeLibrary.getAfterHookDefinitions.returns([this.hookDefinition])
         this.supportCodeLibrary.getStepDefinitions.returns([{}])
-        this.scenario.getSteps.returns([this.step])
+        this.scenario.steps = [this.step]
         this.scenarioResult = await this.scenarioRunner.run()
       })
 
@@ -259,17 +255,17 @@ describe('ScenarioRunner', function () {
           ['BeforeScenario', this.scenario],
           ['BeforeStep', this.step],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+            expect(stepResult.status).to.eql(Status.SKIPPED)
           }],
           ['AfterStep', this.step],
           ['BeforeStep', function(step) {
-            expect(step.getKeyword()).to.eql('After ')
+            expect(step.keyword).to.eql('After ')
           }],
           ['StepResult', function(stepResult) {
-            expect(stepResult.getStatus()).to.eql(Status.SKIPPED)
+            expect(stepResult.status).to.eql(Status.SKIPPED)
           }],
           ['AfterStep', function(step) {
-            expect(step.getKeyword()).to.eql('After ')
+            expect(step.keyword).to.eql('After ')
           }],
           ['ScenarioResult', this.scenarioResult],
           ['AfterScenario', this.scenario]
@@ -277,7 +273,7 @@ describe('ScenarioRunner', function () {
       })
 
       it('returns a skipped result', function() {
-        expect(this.scenarioResult.getStatus()).to.eql(Status.SKIPPED)
+        expect(this.scenarioResult.status).to.eql(Status.SKIPPED)
       })
     })
   })

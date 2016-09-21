@@ -14,10 +14,7 @@ export default class Feature {
     const stepLineToKeywordMapping = _.chain(gherkinData.children)
       .map('steps')
       .flatten()
-      .map((step) => {
-        return _.map(step.locations, ({line}) => [line, step.keyword])
-      })
-      .flatten()
+      .map((step) => [step.location.line, step.keyword])
       .fromPairs()
       .value()
 

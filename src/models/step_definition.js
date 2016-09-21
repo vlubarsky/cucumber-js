@@ -1,9 +1,10 @@
+import AttachmentManager from '../attachment_manager'
+import DataTable from './step_arguments/data_table'
+import DocString from './step_arguments/doc_string'
 import Status from '../status'
 import StepResult from './step_result'
 import Time from '../time'
 import UserCodeRunner from '../user_code_runner'
-import AttachmentManager from '../attachment_manager'
-
 
 const {beginTiming, endTiming} = Time
 
@@ -36,29 +37,20 @@ export default class StepDefinition {
   }
 
   getInvocationParameters(step) {
-    const stepName = step.getName()
+    const stepName = step.name
     const patternRegexp = this.getPatternRegexp()
     let parameters = patternRegexp.exec(stepName)
     parameters.shift()
-    parameters = parameters.concat(step.getArguments().map(function(arg) {
-      switch (arg.constructor.name) {
-        case 'DataTable':
-          return arg
-        case 'DocString':
-          return arg.getContent()
-        default:
-          throw new Error('Unknown argument type:' + arg)
+    parameters = parameters.concat(step.arguments.map(function(arg) {
+      if (arg instanceof DataTable) {
+        return arg
+      } else if (arg instanceof DocString) {
+        return arg.content
+      } else {
+        throw new Error('Unknown argument type:' + arg)
       }
     }))
     return parameters
-  }
-
-  getLine() {
-    return this.line
-  }
-
-  getPattern() {
-    return this.pattern
   }
 
   getPatternRegexp () {
@@ -73,10 +65,6 @@ export default class StepDefinition {
     else {
       return this.pattern
     }
-  }
-
-  getUri() {
-    return this.uri
   }
 
   getValidCodeLengths (parameters) {

@@ -3,12 +3,12 @@ import ScenarioFilter from './scenario_filter'
 describe('ScenarioFilter', function() {
   describe('matches', function() {
     beforeEach(function() {
-      this.scenario = createMock({
-        getLines: [],
-        getName: '',
-        getTags: [],
-        getUri: ''
-      })
+      this.scenario = {
+        lines: [],
+        name: '',
+        tags: [],
+        uri: ''
+      }
     })
 
     describe('no filters', function() {
@@ -38,7 +38,7 @@ describe('ScenarioFilter', function() {
 
       describe('scenario in feature without line specified', function() {
         beforeEach(function() {
-          this.scenario.getUri.returns('/path/to/project/a.feature')
+          this.scenario.uri = '/path/to/project/a.feature'
         })
 
         it('returns true', function() {
@@ -48,12 +48,12 @@ describe('ScenarioFilter', function() {
 
       describe('scenario in feature with line specified', function() {
         beforeEach(function() {
-          this.scenario.getUri.returns('/path/to/project/b.feature')
+          this.scenario.uri = '/path/to/project/b.feature'
         })
 
         describe('scenario line matches', function() {
           beforeEach(function() {
-            this.scenario.getLines.returns([1])
+            this.scenario.lines = [1]
           })
 
           it('returns true', function() {
@@ -63,7 +63,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario line does not match', function() {
           beforeEach(function() {
-            this.scenario.getLines.returns([3])
+            this.scenario.lines = [3]
           })
 
           it('returns false', function() {
@@ -86,7 +86,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario name matches A', function() {
           beforeEach(function() {
-            this.scenario.getName.returns('nameA descriptionA')
+            this.scenario.name = 'nameA descriptionA'
           })
 
           it('returns true', function() {
@@ -96,7 +96,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario name does not match A', function() {
           beforeEach(function() {
-            this.scenario.getName.returns('nameB descriptionB')
+            this.scenario.name = 'nameB descriptionB'
           })
 
           it('returns false', function() {
@@ -117,7 +117,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario name matches A', function() {
           beforeEach(function() {
-            this.scenario.getName.returns('nameA descriptionA')
+            this.scenario.name = 'nameA descriptionA'
           })
 
           it('returns true', function() {
@@ -127,7 +127,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario name matches B', function() {
           beforeEach(function() {
-            this.scenario.getName.returns('nameB descriptionB')
+            this.scenario.name = 'nameB descriptionB'
           })
 
           it('returns true', function() {
@@ -137,7 +137,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario name does not match A or B', function() {
           beforeEach(function() {
-            this.scenario.getName.returns('nameC descriptionC')
+            this.scenario.name = 'nameC descriptionC'
           })
 
           it('returns false', function() {
@@ -160,9 +160,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag A', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagA'}}
-            ])
+            this.scenario.tags = [{name: '@tagA'}]
           })
 
           it('returns true', function() {
@@ -189,9 +187,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag A', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagA'}}
-            ])
+            this.scenario.tags = [{name: '@tagA'}]
           })
 
           it('returns false', function() {
@@ -218,10 +214,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag A and B', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagA'}},
-              {getName() { return '@tagB'}}
-            ])
+            this.scenario.tags = [{name: '@tagA'}, {name: '@tagB'}]
           })
 
           it('returns true', function() {
@@ -231,9 +224,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag A, but not B', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagA'}}
-            ])
+            this.scenario.tags = [{name: '@tagA'}]
           })
 
           it('returns false', function() {
@@ -243,9 +234,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag B, but not A', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagB'}}
-            ])
+            this.scenario.tags = [{name: '@tagB'}]
           })
 
           it('returns false', function() {
@@ -272,10 +261,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag A and B', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagA'}},
-              {getName() { return '@tagB'}}
-            ])
+            this.scenario.tags = [{name: '@tagA'}, {name: '@tagB'}]
           })
 
           it('returns true', function() {
@@ -285,9 +271,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag A, but not B', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagA'}}
-            ])
+            this.scenario.tags = [{name: '@tagA'}]
           })
 
           it('returns true', function() {
@@ -297,9 +281,7 @@ describe('ScenarioFilter', function() {
 
         describe('scenario has tag B, but not A', function() {
           beforeEach(function() {
-            this.scenario.getTags.returns([
-              {getName() { return '@tagB'}}
-            ])
+            this.scenario.tags = [{name: '@tagB'}]
           })
 
           it('returns true', function() {
@@ -324,12 +306,10 @@ describe('ScenarioFilter', function() {
             names: ['nameA'],
             tagExpressions: ['@tagA']
           })
-          this.scenario.getLines.returns([1])
-          this.scenario.getName.returns('nameA descriptionA')
-          this.scenario.getTags.returns([
-            {getName() {return '@tagA'}}
-          ])
-          this.scenario.getUri.returns('/path/to/project/b.feature')
+          this.scenario.lines = [1]
+          this.scenario.name = 'nameA descriptionA'
+          this.scenario.tags = [{name: '@tagA'}]
+          this.scenario.uri = '/path/to/project/b.feature'
         })
 
         it('returns true', function() {
@@ -345,8 +325,8 @@ describe('ScenarioFilter', function() {
             names: ['nameA'],
             tagExpressions: ['tagA']
           })
-          this.scenario.getLines.returns([1])
-          this.scenario.getUri.returns('/path/to/project/b.feature')
+          this.scenario.lines = [1]
+          this.scenario.uri = '/path/to/project/b.feature'
         })
 
         it('returns false', function() {
@@ -362,8 +342,8 @@ describe('ScenarioFilter', function() {
             names: ['nameA'],
             tagExpression: '@tagA'
           })
-          this.scenario.getLines.returns([3])
-          this.scenario.getUri.returns('/path/to/project/b.feature')
+          this.scenario.lines = [3]
+          this.scenario.uri = '/path/to/project/b.feature'
         })
 
         it('returns false', function() {

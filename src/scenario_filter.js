@@ -42,9 +42,9 @@ export default class ScenarioFilter {
   }
 
   matchesAnyLine(scenario) {
-    const lines = this.featureUriToLinesMapping[scenario.getUri()]
+    const lines = this.featureUriToLinesMapping[scenario.uri]
     if (lines) {
-      return _.size(_.intersection(lines, scenario.getLines())) > 0
+      return _.size(_.intersection(lines, scenario.lines)) > 0
     } else {
       return true
     }
@@ -54,7 +54,7 @@ export default class ScenarioFilter {
     if (this.names.length === 0) {
       return true
     }
-    const scenarioName = scenario.getName()
+    const scenarioName = scenario.name
     return _.some(this.names, function (name) {
       return scenarioName.match(name)
     })
@@ -64,7 +64,7 @@ export default class ScenarioFilter {
     if (!this.tagExpressionNode) {
       return true
     }
-    const scenarioTags = scenario.getTags().map((t) => t.getName())
+    const scenarioTags = scenario.tags.map((t) => t.name)
     return this.tagExpressionNode.evaluate(scenarioTags)
   }
 }

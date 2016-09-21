@@ -1,10 +1,11 @@
+import Hook from '../../models/hook'
 import Status from '../../status'
 import SummaryFormatter from './summary'
 
 export default class ProgressFormatter extends SummaryFormatter {
   handleStepResult(stepResult) {
-    const status = stepResult.getStatus()
-    if (!(stepResult.getStep().constructor.name === 'Hook' && status === Status.PASSED)) {
+    const status = stepResult.status
+    if (!(stepResult.step instanceof Hook && status === Status.PASSED)) {
       const character = this.colorFns[status](ProgressFormatter.CHARACTERS[status])
       this.log(character)
     }

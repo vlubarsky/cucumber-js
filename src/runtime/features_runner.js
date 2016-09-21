@@ -14,7 +14,7 @@ export default class FeaturesRunner {
   }
 
   async run() {
-    const event = new Event(Event.FEATURES_EVENT_NAME, this.features)
+    const event = new Event({data: this.features, name: Event.FEATURES_EVENT_NAME})
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
       await Promise.each(this.features, ::this.runFeature)
       await this.broadcastFeaturesResult()
@@ -23,7 +23,7 @@ export default class FeaturesRunner {
   }
 
   async broadcastFeaturesResult() {
-    const event = new Event(Event.FEATURES_RESULT_EVENT_NAME, this.featuresResult)
+    const event = new Event({data: this.featuresResult, name: Event.FEATURES_RESULT_EVENT_NAME})
     await this.eventBroadcaster.broadcastEvent(event)
   }
 
@@ -31,7 +31,7 @@ export default class FeaturesRunner {
     if (!this.featuresResult.isSuccessful() && this.options.failFast) {
       return
     }
-    const event = new Event(Event.FEATURE_EVENT_NAME, feature)
+    const event = new Event({data: feature, name: Event.FEATURE_EVENT_NAME})
     await this.eventBroadcaster.broadcastAroundEvent(event, async() => {
       await Promise.each(feature.scenarios, ::this.runScenario)
     })
