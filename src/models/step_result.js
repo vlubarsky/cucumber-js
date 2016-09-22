@@ -12,8 +12,6 @@ export default class StepResult {
       'stepDefinition',
       'status'
     ]))
-
-    Object.freeze(this)
   }
 }
 

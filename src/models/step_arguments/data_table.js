@@ -3,8 +3,6 @@ import _ from 'lodash'
 export default class DataTable {
   constructor(gherkinData) {
     this.rawTable = gherkinData.rows.map((row) => row.cells.map((cell) => cell.value))
-
-    Object.freeze(this)
   }
 
   hashes() {

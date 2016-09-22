@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import Feature from './models/feature'
 import Gherkin from 'gherkin'
 

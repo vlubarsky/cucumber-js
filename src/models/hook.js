@@ -2,8 +2,6 @@ export default class Hook {
   constructor({keyword, scenario}) {
     this.keyword = keyword
     this.scenario = scenario
-
-    Object.freeze(this)
   }
 }
 

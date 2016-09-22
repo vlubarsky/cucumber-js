@@ -17,7 +17,5 @@ export default class Step {
       .value()
 
     this.keywordType = getStepKeywordType({language, previousStep, step: this})
-
-    Object.freeze(this)
   }
 }

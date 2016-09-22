@@ -27,7 +27,5 @@ export default class Scenario {
       previousStep = step
       return step
     })
-
-    Object.freeze(this)
   }
 }
