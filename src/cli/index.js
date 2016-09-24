@@ -1,14 +1,13 @@
 import _ from 'lodash'
-import ArgvParser from './argv_parser'
+import {getExpandedArgv, getFeatures, getSupportCodeFunctions} from './helpers'
 import ConfigurationBuilder from './configuration_builder'
 import FormatterBuilder from '../listener/formatter/builder'
 import fs from 'mz/fs'
-import Parser from '../parser'
-import ProfileLoader from './profile_loader'
 import Promise from 'bluebird'
 import Runtime from '../runtime'
 import ScenarioFilter from '../scenario_filter'
 import SupportCodeLibrary from '../support_code_library'
+import SupportCodeLibraryOptionsBuilder from '../support_code_library_options_builder'
 
 export default class Cli {
   constructor ({argv, cwd, stdout}) {
@@ -18,20 +17,8 @@ export default class Cli {
   }
 
   async getConfiguration() {
-    let {options} = ArgvParser.parse(this.argv)
-    let fullArgv = this.argv
-    const profileArgv = await new ProfileLoader(this.cwd).getArgv(options.profile)
-    if (profileArgv.length > 0) {
-      fullArgv = _.concat(this.argv.slice(0, 2), profileArgv, this.argv.slice(2))
-    }
+    const fullArgv = await getExpandedArgv({argv: this.argv, cwd: this.cwd})
     return await ConfigurationBuilder.build({argv: fullArgv, cwd: this.cwd})
-  }
-
-  async getFeatures(featurePaths) {
-    return await Promise.map(featurePaths, async (featurePath) => {
-      const source = await fs.readFile(featurePath, 'utf8')
-      return Parser.parse({source, uri: featurePath})
-    })
   }
 
   async getFormatters({formatOptions, formats}) {
@@ -52,25 +39,20 @@ export default class Cli {
     return {cleanup, formatters}
   }
 
-  async getSupportCodeLibrary(supportCodePaths) {
-    const supportCodeLibrary = new SupportCodeLibrary({cwd: this.cwd})
-    supportCodePaths.forEach(function (codePath) {
-      const codeExport = require(codePath)
-      if (typeof(codeExport) === 'function') {
-        supportCodeLibrary.execute(codeExport)
-      }
-    })
-    return supportCodeLibrary
+  getSupportCodeLibrary(supportCodePaths) {
+    const fns = getSupportCodeFunctions(supportCodePaths)
+    const options = SupportCodeLibraryOptionsBuilder.build({cwd: this.cwd, fns})
+    return new SupportCodeLibrary(options)
   }
 
   async run() {
     const configuration = await this.getConfiguration()
-    const [features, {cleanup, formatters}, supportCodeLibrary] = await Promise.all([
-      this.getFeatures(configuration.featurePaths),
-      this.getFormatters(configuration),
-      this.getSupportCodeLibrary(configuration.supportCodePaths)
+    const [features, {cleanup, formatters}] = await Promise.all([
+      getFeatures(configuration.featurePaths),
+      this.getFormatters(configuration)
     ])
     const scenarioFilter = new ScenarioFilter(configuration.scenarioFilterOptions)
+    const supportCodeLibrary = this.getSupportCodeLibrary(configuration.supportCodePaths)
     const runtime = new Runtime({
       features,
       listeners: formatters,

@@ -1,58 +1,15 @@
 import _ from 'lodash'
-import HookDefinition from './models/hook_definition'
-import Listener from './listener'
-import StackTrace from 'stacktrace-js'
-import StepDefinition from './models/step_definition'
 
 export default class SupportCodeLibrary {
-  constructor({cwd}) {
-    this.cwd = cwd
-
-    this.afterHookDefinitions = []
-    this.beforeHookDefinitions = []
-    this.defaultTimeout = 5000
-    this.listeners = []
-    this.stepDefinitions = []
-    this.userCodeContext = {
-      After: this.defineHook(this.afterHookDefinitions),
-      Before: this.defineHook(this.beforeHookDefinitions),
-      defineStep: ::this.defineStep,
-      Given: ::this.defineStep,
-      registerHandler: ::this.registerHandler,
-      registerListener: ::this.registerListener,
-      setDefaultTimeout: ::this.setDefaultTimeout,
-      Then: ::this.defineStep,
-      When: ::this.defineStep,
-      World(parameters) {
-        this.parameters = parameters
-      }
-    }
-  }
-
-  defineHook(collection) {
-    return (options, code) => {
-      if (typeof(options) === 'function') {
-        code = options
-        options = {}
-      }
-      const {line, uri} = this.getDefinitionLineAndUri()
-      const hookDefinition = new HookDefinition({code, options, uri, line})
-      collection.push(hookDefinition)
-    }
-  }
-
-  defineStep(pattern, options, code) {
-    if (typeof(options) === 'function') {
-      code = options
-      options = {}
-    }
-    const {line, uri} = this.getDefinitionLineAndUri()
-    const stepDefinition = new StepDefinition({code, line, pattern, options, uri})
-    this.stepDefinitions.push(stepDefinition)
-  }
-
-  execute(code) {
-    code.call(this.userCodeContext)
+  constructor(options) {
+    _.assign(this, _.pick(options, [
+      'afterHookDefinitions',
+      'beforeHookDefinitions',
+      'defaultTimeout',
+      'listeners',
+      'stepDefinitions',
+      'World'
+    ]))
   }
 
   getDefaultTimeout() {
@@ -61,18 +18,6 @@ export default class SupportCodeLibrary {
 
   getListeners() {
     return this.listeners
-  }
-
-  getDefinitionLineAndUri() {
-    const stackframes = StackTrace.getSync()
-    const stackframe = stackframes.length > 2 ? stackframes[2] : stackframes[0]
-    const line = stackframe.getLineNumber()
-    const uri = stackframe.getFileName() || 'unknown'
-    return {line, uri}
-  }
-
-  instantiateNewWorld(parameters) {
-    return new this.userCodeContext.World(parameters)
   }
 
   getAfterHookDefinitions(scenario) {
@@ -84,33 +29,18 @@ export default class SupportCodeLibrary {
   }
 
   getHookDefinitions(hookDefinitions, scenario) {
-    return hookDefinitions.filter(function (hookDefinition) {
+    return hookDefinitions.filter((hookDefinition) => {
       return hookDefinition.appliesToScenario(scenario)
     })
   }
 
   getStepDefinitions(name) {
-    return this.stepDefinitions.filter(function (stepDefinition) {
+    return this.stepDefinitions.filter((stepDefinition) => {
       return stepDefinition.matchesStepName(name)
     })
   }
 
-  registerHandler(eventName, options, handler) {
-    if (typeof(options) === 'function') {
-      handler = options
-      options = {}
-    }
-    _.assign(options, this.getDefinitionLineAndUri(), {cwd: this.cwd})
-    const listener = new Listener(options)
-    listener.setHandlerForEventName(eventName, handler)
-    this.registerListener(listener)
-  }
-
-  registerListener(listener) {
-    this.listeners.push(listener)
-  }
-
-  setDefaultTimeout(milliseconds) {
-    this.defaultTimeout = milliseconds
+  instantiateNewWorld(parameters) {
+    return new this.World(parameters)
   }
 }
