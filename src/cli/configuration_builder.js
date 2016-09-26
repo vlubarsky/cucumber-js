@@ -69,6 +69,9 @@ export default class ConfigurationBuilder {
 
   getFormats() {
     const mapping = {}
+    if (this.options.format.length === 0) {
+      return [{outputTo: '', type: 'pretty'}]
+    }
     this.options.format.forEach(function (format) {
       const parts = format.split(':')
       const type = parts[0]
@@ -76,7 +79,7 @@ export default class ConfigurationBuilder {
       mapping[outputTo] = type
     })
     return _.map(mapping, function(type, outputTo) {
-      return {type, outputTo}
+      return {outputTo, type}
     })
   }
 

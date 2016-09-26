@@ -18,7 +18,7 @@ export default class ArgvParser {
         throw new Error(option + ' passed invalid JSON: ' + error.message + ': ' + str)
       }
       if (!_.isPlainObject(val)) {
-        throw new Error(option + ' must be passed a JSON string of an object: ' + str)
+        throw new Error(option + ' must be passed JSON of an object: ' + str)
       }
       return _.merge(memo, val)
     }
@@ -34,7 +34,7 @@ export default class ArgvParser {
       .option('--compiler <EXTENSION:MODULE>', 'require files with the given EXTENSION after requiring MODULE (repeatable)', ArgvParser.collect, [])
       .option('-d, --dry-run', 'invoke formatters without executing steps')
       .option('--fail-fast', 'abort the run on first failure')
-      .option('-f, --format <TYPE[:PATH]>', 'specify the output format, optionally supply PATH to redirect formatter output (repeatable)', ArgvParser.collect, ['pretty'])
+      .option('-f, --format <TYPE[:PATH]>', 'specify the output format, optionally supply PATH to redirect formatter output (repeatable)', ArgvParser.collect, [])
       .option('--format-options <JSON>', 'provide options for formatters (repeatable)', ArgvParser.mergeJson('--format-options'), {})
       .option('--name <REGEXP>', 'only execute the scenarios with name matching the expression (repeatable)', ArgvParser.collect, [])
       .option('-p, --profile <NAME>', 'specify the profile to use (repeatable)', ArgvParser.collect, [])
