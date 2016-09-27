@@ -1,6 +1,6 @@
 ### [master (unreleased)](https://github.com/cucumber/cucumber-js/compare/v1.3.0...master)
 
-### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v2.0.0) (2016-10-01)
+### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.3.0...v2.0.0) (2016-10-01)
 
 #### Breaking Changes
 
