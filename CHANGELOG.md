@@ -65,7 +65,9 @@
       * capture groups matching `(\d+)` and `(-\d+)` will be automatically converted to an integer using `parseInt`
       * capture groups matching `(-?\d*\.?\d+)` will be automatically converted to a float using `parseFloat`
   * Event Handlers
-    * `StepResult` duration is now in milliseconds instead of nanoseconds  
+    * Objects no longer have `get*` methods and instead have exposed properties
+      * For example: `scenario.getName()` is now just `scenario.name`
+    * `StepResult` duration is now in milliseconds instead of nanoseconds
 
 
 ### New Features
