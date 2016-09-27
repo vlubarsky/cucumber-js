@@ -1,13 +1,8 @@
 ### [master (unreleased)](https://github.com/cucumber/cucumber-js/compare/v1.3.0...master)
 
-### [2.0.0]
+### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v2.0.0) (2016-10-01)
 
-### [2.0.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v2.0.0) (2016-08-05)
-
-#### Breaking changes
-
-
-### Breaking Changes
+#### Breaking Changes
 
 * CLI
   * `--colors / --no-colors` has moved to `--format-options '{"colorsEnabled": "<BOOLEAN>"}'`
@@ -69,8 +64,7 @@
       * For example: `scenario.getName()` is now just `scenario.name`
     * `StepResult` duration is now in milliseconds instead of nanoseconds
 
-
-### New Features
+#### New Features
 
 * Support Files
   * Attachments:
