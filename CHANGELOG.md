@@ -13,7 +13,7 @@
   * `--colors / --no-colors` has moved to `--format-options '{"colorsEnabled": "<BOOLEAN>"}'`
   * `--require <DIR|FILE>`: the required files are no longer reordered to require anything in a `support` directory first
   * `--snippet-interface <INTERFACE>` has moved to `--format-options '{"snippetInterface": "<INTERFACE>"}'`
-  * `--snippet-syntax <SYNTAX>` has moved to `--format-options '{"snippetSyntax": "<INTERFACE>"}'`
+  * `--snippet-syntax <SYNTAX>` has moved to `--format-options '{"snippetSyntax": "<SYNTAX>"}'`
   * `--tags <EXPRESSION>` now uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/). It is no longer repeatable and new values will override previous
     * `--tags @dev` stays the same
     * `--tags ~@dev` becomes `--tags 'not @dev'`
@@ -26,7 +26,7 @@
 * Support Files
   * Attachments
     * The `attach` function used for adding attachments moved from the API scenario object to world. It is thus now available in step definitions without saving a reference to the scenario.
-        ```
+        ```js
         // 1.3.0
         this.After(function(scenario, callback) {
           scenario.attach(new Buffer([137, 80, 78, 71]), 'image/png')
@@ -40,7 +40,7 @@
     * When attaching buffers or strings, the callback argument is ignored.
   * Hooks
     * Hooks now receive a [ScenarioResult](/src/models/scenario_result.js) instead of the Scenario
-        ```
+        ```js
         // 1.3.0
         this.After(function(scenario) {});
 
@@ -48,11 +48,11 @@
         this.After(function(scenarioResult) {});
         ```
     * The `tags` option for hook should now be a string instead of an array and uses [cucumber-tag-expressions](https://docs.cucumber.io/tag-expressions/)
-        ```
+        ```js
         // 1.3.0
         this.Before({tags: ["@foo"]}, function (scenario) {})
         this.Before({tags: ["@foo,@bar"]}, function (scenario) {})
-        this.Before({tags: ["@foo", "@bar"]"}, function (scenario) {})
+        this.Before({tags: ["@foo", "@bar"]}, function (scenario) {})
 
         // 2.0.0
         this.Before({tags: "@foo"}, function (scenario) {})
