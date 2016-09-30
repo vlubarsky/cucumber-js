@@ -1,5 +1,20 @@
 ### [master (unreleased)](https://github.com/cucumber/cucumber-js/compare/v1.3.0...master)
 
+### [1.3.1](https://github.com/cucumber/cucumber-js/compare/v1.3.0...v1.3.1) (2016-09-30)
+
+#### Bug Fixes
+
+* rerun formatter: output any scenario that doesn't pass (Charlie Rudolph)
+* populate scenario definition (Charlie Rudolph)
+* handle empty stacktraces (#605) (Hugues Malphettes)
+* use cross-platform symbols (#635) (Kevin Goslar)
+
+#### Documentation
+
+* fix node.js example (#637) (Jonathan Gomez)
+* fix links in event_handlers.md (#638) (Oliver Rogers)
+* fix hooks example (#644) (John McLaughlin)
+
 ### [1.3.0](https://github.com/cucumber/cucumber-js/compare/v1.2.2...v1.3.0) (2016-09-08)
 
 #### New Features
